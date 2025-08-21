@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 const Index = () => {
   return (
     <footer className="bg-gray-100 text-gray-700">
@@ -7,8 +9,8 @@ const Index = () => {
         <div>
           <h4 className="text-sm font-semibold uppercase mb-4">Company</h4>
           <ul className="space-y-2 text-sm">
-            <li><a href="#" className="hover:text-black">About Us</a></li>
-            <li><a href="#" className="hover:text-black">Services</a></li>
+            <li><Link to="/about" className="hover:text-black">About Us</Link></li>
+            <li><Link to="/services" className="hover:text-black">Services</Link></li>
             <li><a href="#" className="hover:text-black">Blog</a></li>
           </ul>
         </div>
@@ -28,7 +30,7 @@ const Index = () => {
           <h4 className="text-sm font-semibold uppercase mb-4">Explore</h4>
           <ul className="space-y-2 text-sm">
             <li><a href="#" className="hover:text-black">Offers</a></li>
-            <li><a href="#" className="hover:text-black">Student Rides</a></li>
+            <li><Link to="/rides" className="hover:text-black">Student Rides</Link></li>
             <li><a href="#" className="hover:text-black">Become a Driver</a></li>
           </ul>
         </div>
