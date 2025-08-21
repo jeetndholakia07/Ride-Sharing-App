@@ -43,12 +43,12 @@ const LandingPage = () => {
                                 Share your ride and help others commute. Save money while
                                 contributing to the environment.
                             </p>
-                            <a
-                                href="#"
+                            <Link
+                                to="/rides"
                                 className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
                             >
                                 Become a Driver
-                            </a>
+                            </Link>
                         </div>
 
                         {/* Request Ride Option (for Passengers) */}
@@ -61,12 +61,12 @@ const LandingPage = () => {
                                 Need a ride? Request a lift from drivers near you and get to
                                 your destination safely and comfortably.
                             </p>
-                            <a
-                                href="#"
+                            <Link
+                                to="/rides"
                                 className="inline-block bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition duration-300"
                             >
                                 Request Ride
-                            </a>
+                            </Link>
                         </div>
 
                         {/* Ride Together Option */}
@@ -79,12 +79,12 @@ const LandingPage = () => {
                                 Find people going in the same direction and share your ride
                                 together, reducing the cost and carbon footprint.
                             </p>
-                            <a
-                                href="#"
+                            <Link
+                                to="/rides"
                                 className="inline-block bg-purple-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-purple-700 transition duration-300"
                             >
                                 Find a Ride
-                            </a>
+                            </Link>
                         </div>
                     </div>
                 </div>

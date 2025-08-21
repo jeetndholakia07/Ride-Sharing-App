@@ -18,10 +18,13 @@ const LoginPage = () => {
     });
 
     const { t } = useTranslation();
+    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#,$,%,&,*,@]).{6,14}$/;
 
     const validationSchema = Yup.object().shape({
         email: Yup.string().email("Invalid email address").required("Email is required"),
-        password: Yup.string().required("Password is required"),
+        password: Yup.string()
+            .matches(passwordRegex, "Password must be between 6-14 characters, include at least one uppercase letter, one lowercase letter, one digit, and one special character (#,$,%,&,*,@)")
+            .required("Password is required"),
     });
 
     const handleSubmit = async (
@@ -91,7 +94,7 @@ const LoginPage = () => {
                             </div>
                             <button
                                 type="submit"
-                                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:cursor-pointer hover:bg-blue-700 transition duration-300 disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:cursor-pointer hover:bg-blue-700 transition duration-300 disabled:bg-blue-300 disabled:cursor-not-allowed"
                                 disabled={!isValid || !dirty}
                             >
                                 Sign In

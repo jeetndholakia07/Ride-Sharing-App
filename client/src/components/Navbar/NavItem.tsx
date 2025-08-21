@@ -25,6 +25,11 @@ const NavItems = [
         path: "/rides",
         name: "Rides",
         icon: ""
+    },
+    {
+        path: "/reviews",
+        name: "Reviews",
+        icon: ""
     }
 ];
 

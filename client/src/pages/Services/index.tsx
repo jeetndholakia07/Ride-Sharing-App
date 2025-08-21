@@ -22,7 +22,7 @@ const services = [
     {
         title: "Rating System",
         description: "Rate your co-riders and drivers to build trust and accountability.",
-        iconClass: "bi-star",
+        iconClass: "bi bi-star-fill",
     },
     {
         title: "Real-time Chat",

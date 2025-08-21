@@ -11,7 +11,7 @@ const Index = () => {
           <ul className="space-y-2 text-sm">
             <li><Link to="/about" className="hover:text-black">About Us</Link></li>
             <li><Link to="/services" className="hover:text-black">Services</Link></li>
-            <li><a href="#" className="hover:text-black">Blog</a></li>
+            <li><Link to="/reviews" className="hover:text-black">Reviews</Link></li>
           </ul>
         </div>
 
