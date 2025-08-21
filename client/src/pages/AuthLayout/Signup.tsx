@@ -5,6 +5,7 @@ import FileUpload from "../../components/Form/FileUpload";
 import { Formik, type FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
+import { Link } from "react-router";
 
 type FormValues = {
     name: string;
@@ -50,8 +51,8 @@ const SignupPage = () => {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-cover bg-center">
-            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg backdrop-blur-sm bg-opacity-60">
+        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-green-500 to-purple-500 bg-cover bg-center bg-opacity-70">
+            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg backdrop-blur-lg bg-opacity-90">
                 {/* Logo */}
                 <div className="flex justify-center mb-0">
                     <span className="text-2xl font-bold text-blue-700">Peer</span>
@@ -85,6 +86,11 @@ const SignupPage = () => {
                                 <div className="grid grid-cols-1 gap-6 mb-2">
                                     <PasswordInput name={"password"} label={t("password")} placeholder={t("password")} value={values.password}
                                         required={true} onChange={handleChange} onBlur={handleBlur} error={touched?.password && errors.password} />
+                                </div>
+                                <div className="grid grid-cols-1 gap-6 mb-4">
+                                    <span className="text-gray-800 font-medium">Already have an account?
+                                        <Link to="/login" className="text-blue-700 font-medium ml-1">Click here</Link> to login.
+                                    </span>
                                 </div>
                                 <button
                                     type="submit"

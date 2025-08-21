@@ -4,9 +4,11 @@ const LandingPage = () => {
     return (
         <div className="min-h-screen bg-gray-200 text-black">
             {/* Hero Section */}
-            <div className="flex flex-col items-center justify-center h-screen text-center px-4 sm:px-6 lg:px-8">
+            <div className="flex flex-col items-center justify-center h-100 text-center px-4 sm:px-6 lg:px-8">
                 <h1 className="text-5xl font-bold leading-tight sm:text-6xl">
-                    Welcome to PeerRide
+                    Welcome to
+                    <span className="text-blue-700 ml-2">Peer</span>
+                    <span className="text-green-700">Ride</span>
                 </h1>
                 <p className="mt-4 text-lg sm:text-xl text-gray-800 max-w-2xl mx-auto">
                     The easiest way to get around, share your ride, or request a lift with a tap.

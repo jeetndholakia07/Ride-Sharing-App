@@ -6,14 +6,16 @@ import AboutPage from "../pages/About/index";
 import LoginPage from "../pages/AuthLayout/Login";
 import SignupPage from "../pages/AuthLayout/Signup";
 import HomePage from "../pages/Home/index";
+import Rides from "../pages/Rides/index";
 
 const AppRoutes = () => {
     return (
         <Routes>
             <Route path="/" element={<MainLayout />}>
-                <Route path="/" index element={<HomePage/>}/>
+                <Route path="/" index element={<HomePage />} />
                 <Route path="/services" element={<ServicesPage />} />
                 <Route path="/about" element={<AboutPage />} />
+                <Route path="/rides" element={<Rides />} />
                 <Route path="*" element={<NotFoundPage />} />
             </Route>
             <Route path="/login" element={<LoginPage />} />

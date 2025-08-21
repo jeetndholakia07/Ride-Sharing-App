@@ -3,6 +3,7 @@ import { type FC } from 'react';
 type Option = {
     label: string;
     value: string;
+    icon: string; // Bootstrap icon class
 };
 
 type RadioButtonGroupProps = {
@@ -28,21 +29,22 @@ const RadioButtonGroup: FC<RadioButtonGroupProps> = ({
     error,
     disabled = false,
 }) => (
-    <div className="mb-4 flex flex-col items-start justify-start w-full">
+    <div className="mb-4 flex flex-col w-full">
         {label && (
-            <div className="flex items-center mb-2">
-                <label className="block text-md font-medium text-gray-700">{label}</label>
+            <div className="flex md:flex-row flex-col items-center mb-2">
+                <label className="block text-md font-medium text-gray-700">
+                    {label}
+                </label>
                 {required && <i className="text-red-600 font-bold text-sm ml-1">*</i>}
             </div>
         )}
 
-        <div className="flex flex-col space-y-2">
+        <div className="flex md:flex-row flex-col items-center space-x-8">
             {options.map((option) => (
                 <label
                     key={option.value}
                     htmlFor={`${name}-${option.value}`}
-                    className={`flex items-center cursor-pointer select-none ${disabled ? 'cursor-not-allowed text-gray-400' : 'text-gray-800'
-                        }`}
+                    className={`flex items-center cursor-pointer select-none ${disabled ? 'text-gray-400 cursor-not-allowed' : 'text-gray-800 hover:text-blue-600'}`}
                 >
                     <input
                         id={`${name}-${option.value}`}
@@ -53,10 +55,11 @@ const RadioButtonGroup: FC<RadioButtonGroupProps> = ({
                         onChange={onChange}
                         onBlur={onBlur}
                         disabled={disabled}
-                        className="mr-2 h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300"
+                        className="h-5 w-5 mr-2 text-blue-600 border-gray-300 transition duration-300"
                         required={required}
                     />
-                    {option.label}
+                    <i className={`${option.icon} text-lg`} />
+                    <span className="text-md font-semibold">{option.label}</span>
                 </label>
             ))}
         </div>
