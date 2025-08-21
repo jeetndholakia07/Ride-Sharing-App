@@ -3,10 +3,10 @@ import RideSearch from './RideSearch';
 import RadioButtonGroup from '../../components/Form/RadioButton';
 
 const RidesContainer = () => {
-    const [userType, setUserType] = useState<'driver' | 'receiver'>('driver'); // Default to 'driver'
+    const [userType, setUserType] = useState<'driver' | 'receiver'>('driver'); 
 
     const handleUserTypeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setUserType(e.target.value as 'driver' | 'receiver'); // Update user type
+        setUserType(e.target.value as 'driver' | 'receiver'); 
     };
 
     return (

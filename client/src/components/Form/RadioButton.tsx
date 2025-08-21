@@ -3,7 +3,7 @@ import { type FC } from 'react';
 type Option = {
     label: string;
     value: string;
-    icon: string; // Bootstrap icon class
+    icon: string;
 };
 
 type RadioButtonGroupProps = {

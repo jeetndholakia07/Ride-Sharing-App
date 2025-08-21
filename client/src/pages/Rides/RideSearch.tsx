@@ -1,8 +1,8 @@
 import { type FC, useState } from 'react';
-import TextInput from '../../components/Form/TextInput'; // Importing TextInput component
+import TextInput from '../../components/Form/TextInput';
 
 type RideFormProps = {
-    userType: 'driver' | 'receiver'; // Prop to distinguish between Driver and Receiver
+    userType: 'driver' | 'receiver'; 
 };
 
 const RideSearch: FC<RideFormProps> = ({ userType }) => {
