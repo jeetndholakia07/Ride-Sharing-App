@@ -28,7 +28,7 @@ const RidesContainer = () => {
                     name="userType"
                     options={[
                         { label: 'Driver', value: 'driver', icon: 'bi bi-car-front-fill mr-2' },
-                        { label: 'Receiver', value: 'receiver', icon: 'bi bi-person mr-1' },
+                        { label: 'Rider', value: 'receiver', icon: 'bi bi-person mr-1' },
                     ]}
                     value={userType}
                     onChange={handleUserTypeChange}

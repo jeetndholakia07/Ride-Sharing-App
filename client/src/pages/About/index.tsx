@@ -38,7 +38,7 @@ const Index = () => {
                         <div className="bg-white rounded-xl shadow-md p-6 hover:shadow-xl transition">
                             <h3 className="text-xl font-bold mb-2 text-green-700">Real-Time Navigation</h3>
                             <p className="text-gray-700">
-                                Integrated Google Maps navigation helps you reach your destination safely with live ETA and route updates.
+                                Integrated Maps navigation helps you reach your destination safely with live ETA and route updates.
                             </p>
                         </div>
 

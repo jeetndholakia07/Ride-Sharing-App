@@ -64,7 +64,7 @@ const ReviewPage: FC<props> = ({ onAddReview }) => {
                     <button
                         type="submit"
                         className="w-full disabled:opacity-50 disabled:hover:cursor-not-allowed bg-yellow-500 hover:cursor-pointer text-white py-2 px-4 rounded-lg hover:bg-yellow-600 transition duration-300"
-                        disabled={review === "" || rating === 0}
+                        disabled={rating === 0}
                     >
                         Submit Review
                     </button>

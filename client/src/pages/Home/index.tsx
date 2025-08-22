@@ -44,7 +44,7 @@ const LandingPage = () => {
                                 contributing to the environment.
                             </p>
                             <Link
-                                to="/rides"
+                                to="/signup"
                                 className="inline-block bg-blue-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-blue-700 transition duration-300"
                             >
                                 Become a Driver
@@ -62,7 +62,7 @@ const LandingPage = () => {
                                 your destination safely and comfortably.
                             </p>
                             <Link
-                                to="/rides"
+                                to="/signup"
                                 className="inline-block bg-green-600 text-white font-semibold py-3 px-6 rounded-lg hover:bg-green-700 transition duration-300"
                             >
                                 Request Ride
@@ -74,7 +74,7 @@ const LandingPage = () => {
                             <div className="bg-purple-500 text-white p-4 rounded-full mb-6">
                                 <i className="bi bi-people text-3xl"></i>
                             </div>
-                            <h3 className="text-2xl font-semibold mb-4">Ride Together</h3>
+                            <h3 className="text-2xl font-semibold mb-4">Search for Available Rides</h3>
                             <p className="text-center text-gray-700 mb-6">
                                 Find people going in the same direction and share your ride
                                 together, reducing the cost and carbon footprint.

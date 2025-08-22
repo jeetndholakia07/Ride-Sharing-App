@@ -15,8 +15,8 @@ const services = [
         iconClass: "bi-diagram-3",
     },
     {
-        title: "Navigation (Google Maps)",
-        description: "Integrated Google Maps for real-time directions and ETA tracking.",
+        title: "Navigation",
+        description: "Integrated Maps for real-time directions and ETA tracking.",
         iconClass: "bi-geo-alt",
     },
     {
