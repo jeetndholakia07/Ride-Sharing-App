@@ -7,23 +7,21 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 type FormValues = {
-    email: string;
+    username: string;
     password: string;
 };
 
 const LoginPage = () => {
     const [initialValues, setInitialValues] = useState<FormValues>({
-        email: "",
+        username: "",
         password: "",
     });
 
     const { t } = useTranslation();
-    const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#,$,%,&,*,@]).{6,14}$/;
 
     const validationSchema = Yup.object().shape({
-        email: Yup.string().email("Invalid email address").required("Email is required"),
+        username: Yup.string().required("Your Name is Required"),
         password: Yup.string()
-            .matches(passwordRegex, "Password must be between 6-14 characters, include at least one uppercase letter, one lowercase letter, one digit, and one special character (#,$,%,&,*,@)")
             .required("Password is required"),
     });
 
@@ -63,14 +61,14 @@ const LoginPage = () => {
                         <form onSubmit={handleSubmit}>
                             <div className="grid grid-cols-1 gap-6">
                                 <TextInput
-                                    name={"email"}
-                                    label={t("email")}
-                                    placeholder={t("email")}
-                                    value={values.email}
+                                    name={"username"}
+                                    label={t("username")}
+                                    placeholder={t("username")}
+                                    value={values.username}
                                     required={true}
                                     onChange={handleChange}
                                     onBlur={handleBlur}
-                                    error={touched?.email && errors.email}
+                                    error={touched?.username && errors.username}
                                 />
                             </div>
 

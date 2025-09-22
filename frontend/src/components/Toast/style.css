@@ -1,0 +1,39 @@
+@keyframes fadeInRight {
+    0% {
+        opacity: 0;
+        transform: translateX(20px);
+    }
+    100% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+.animate__fadeInRight {
+    animation: fadeInRight 0.5s ease-out;
+}
+
+/* Toast Button Styles */
+.toast-close {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+
+/* Toaster Wrapper */
+.toast-container {
+    z-index: 50;
+}
+
+/* Custom Styles for Toast */
+.toast {
+    min-width: 320px;
+    padding: 16px;
+    font-weight: bold;
+    text-align: left;
+    color: white;
+    transition: all 1s ease;
+    opacity: 0;
+}

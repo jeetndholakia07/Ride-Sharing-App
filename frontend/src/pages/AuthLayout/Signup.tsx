@@ -8,8 +8,8 @@ import { useTranslation } from "react-i18next";
 import { Link } from "react-router";
 
 type FormValues = {
-    name: string;
-    email: string;
+    username: string;
+    mobile: string;
     password: string;
     collegeName: string;
     collegeID: File | null;
@@ -17,8 +17,8 @@ type FormValues = {
 
 const SignupPage = () => {
     const [initialValues, setInitialValues] = useState<FormValues>({
-        name: "",
-        email: "",
+        username: "",
+        mobile: "",
         password: "",
         collegeName: "",
         collegeID: null,
@@ -26,13 +26,16 @@ const SignupPage = () => {
 
     const { t } = useTranslation();
     const passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[#,$,%,&,*,@]).{6,14}$/;
+    const mobileRegex = /^\d{10}$/
 
     const validationSchema = Yup.object().shape({
-        email: Yup.string().required("Email is required"),
+        mobile: Yup.string()
+            .required(t("Mobile is required"))
+            .matches(mobileRegex, t("Mobile must be 10 digits")),
         password: Yup.string()
             .matches(passwordRegex, "Password must be between 6-14 characters, include at least one uppercase letter, one lowercase letter, one digit, and one special character (#,$,%,&,*,@)")
             .required("Password is required"),
-        name: Yup.string().required("Your Name is Required"),
+        username: Yup.string().required("Your Name is Required"),
         collegeName: Yup.string().required("College Name is Required"),
         collegeID: Yup.mixed()
             .required("Document is required")
@@ -42,7 +45,7 @@ const SignupPage = () => {
             })
             .test("fileType", "Unsupported file format", value => {
                 if (!value) return true;
-                const allowedTypes = ["application/pdf", "image/jpeg", "image/png"];
+                const allowedTypes = ["image/jpeg", "image/png"];
                 return allowedTypes.includes((value as File).type);
             }),
     });
@@ -66,12 +69,12 @@ const SignupPage = () => {
                         return (
                             <form onSubmit={handleSubmit}>
                                 <div className="grid grid-cols-1 gap-6">
-                                    <TextInput name={"name"} label={t("name")} placeholder={t("name")} value={values.name}
-                                        required={true} onChange={handleChange} onBlur={handleBlur} error={touched?.name && errors.name} />
+                                    <TextInput name={"username"} label={t("username")} placeholder={t("username")} value={values.username}
+                                        required={true} onChange={handleChange} onBlur={handleBlur} error={touched?.username && errors.username} />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6">
-                                    <TextInput name={"email"} label={t("email")} placeholder={t("email")} value={values.email}
-                                        required={true} onChange={handleChange} onBlur={handleBlur} error={touched?.email && errors.email} />
+                                    <TextInput name={"mobile"} label={t("mobile")} placeholder={t("mobile")} value={values.mobile}
+                                        required={true} onChange={handleChange} onBlur={handleBlur} error={touched?.mobile && errors.mobile} />
                                 </div>
                                 <div className="grid grid-cols-1 gap-6">
                                     <TextInput name={"collegeName"} label={t("collegeName")} placeholder={t("collegeName")} value={values.collegeName}
