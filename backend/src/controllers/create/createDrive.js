@@ -24,7 +24,7 @@ const createDrive = async (req, res) => {
             }
         });
 
-        res.status(201).json(newDrive);
+        res.status(201).json();
     }
     catch (err) {
         console.error("Error creating a drive:", err);

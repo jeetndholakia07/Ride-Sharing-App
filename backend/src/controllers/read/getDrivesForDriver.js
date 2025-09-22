@@ -1,51 +1,58 @@
 import Drive from "../../models/Drive.js";
 import Ride from "../../models/Ride.js";
+import getPassengerDetails from "../../crud/getPassengerDetails.js";
 
 const getDrivesForDriver = async (req, res) => {
     try {
-        const { driverId } = req.body;
+        const { driveId, status } = req.body;
 
-        if (!driverId) {
-            return res.status(404).json({ message: "Please enter driver Id" });
+        if (!driveId) {
+            return res.status(400).json({ message: "Please enter driver Id" });
         }
 
-        //Find all drives associated with the driver
-        const drives = await Drive.find({ driver: driverId });
+        // Get all drives created by the driver
+        const drives = await Drive.find({ driver: driveId });
 
-        if (drives.length === 0) {
-            return res.status(404).json({ message: "No drives found for this driver" });
-        }
+        // For each drive, get the ride requests and passenger details
+        const driveDetails = await Promise.all(
+            drives.map(async (drive) => {
+                //Ride query
+                let query = { drive: drive.driver };
+                // If status is provided, add case-insensitive regex filter
+                if (status && status.trim() !== "") {
+                    query.passengerStatus = { $regex: new RegExp(`^${status}$`, "i") };
+                }
+                // Get all rides that reference this drive
+                const rides = await Ride.find(query);
 
-        //For each drive, find the associated ride requests and populate the passenger details
-        const rideRequests = await Ride.find({ drive: { $in: drives.map(drive => drive.driver) } })
-            .populate("passenger", "username mobile collegeName");
+                // For each ride, fetch passenger and profile manually
+                const rideRequests = await Promise.all(
+                    rides.map(async (ride) => {
+                        const passenger = await getPassengerDetails(ride.passenger);
+                        if (!passenger) return null;
+                        return {
+                            rideId: ride.passenger,
+                            passenger,
+                            requestedAt: ride.requestedAt,
+                            passengerStatus: ride.passengerStatus
+                        };
+                    })
+                );
 
-        const response = drives.map(drive => {
-            const requestsForThisDrive = rideRequests.filter(ride => ride.drive.toString() === drive.driver.toString());
-
-            return {
-                driveDetails: {
-                    from: drive.from,
-                    to: drive.to,
-                    departureTime: drive.departureTime,
-                    vehicleDetails: drive.vehicleDetails,
-                    seatsAvailable: drive.vehicleDetails.seatsAvailable,
-                    isAccepted: drive.isAccepted,
-                    isComplete: drive.isComplete,
-                },
-                rideRequests: requestsForThisDrive.map(ride => ({
-                    passenger: {
-                        username: ride.passenger.username,
-                        mobile: ride.passenger.mobile,
-                        collegeName: ride.passenger.collegeName,
+                return {
+                    driveDetails: {
+                        driveId: drive.driver,
+                        from: drive.from,
+                        to: drive.to,
+                        departureTime: drive.departureTime,
+                        vehicleDetails: drive.vehicleDetails
                     },
-                    requestedAt: ride.requestedAt,
-                    status: ride.status,
-                })),
-            };
-        });
+                    rideRequests: rideRequests.filter(r => r !== null)
+                };
+            })
+        );
 
-        res.status(200).json(response);
+        res.status(200).json(driveDetails);
     } catch (err) {
         console.error("Error getting drives for driver:", err);
         res.status(500).json({ message: "Server error" });

@@ -23,14 +23,6 @@ const driveSchema = new mongoose.Schema({
         vehicleName: { type: String, required: true },
         vehicleNumber: { type: String, required: true },
         seatsAvailable: { type: Number, required: true }
-    },
-    isAccepted: {
-        type: Boolean,
-        default: false
-    },
-    isComplete: {
-        type: Boolean,
-        default: false
     }
 }, { timestamps: true });
 

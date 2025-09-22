@@ -23,13 +23,16 @@ const UserProfileSchema = new mongoose.Schema({
             message: (props) => `Invalid email format. Got value ${props.value}`,
         },
     },
+    isProfileUpdated: {
+        type: Boolean,
+        default: false
+    },
     profileImg: {
         publicId: { type: String, required: true },
         format: { type: String, required: true },
         width: { type: Number, required: true },
         height: { type: Number, required: true }
     },
-
 }, { timestamps: true });
 
 const Profile = mongoose.model("UserProfile", UserProfileSchema);

@@ -1,16 +1,23 @@
 import Ride from "../../models/Ride.js";
 import Drive from "../../models/Drive.js";
-import User from "../../models/User.js";
+import getDriverDetails from "../../crud/getDriverDetails.js";
 
 const getRidesForRider = async (req, res) => {
     try {
-        const { riderId } = req.body;
-        if (!riderId) {
+        const { rideId, status } = req.body;
+        if (!rideId) {
             return res.status(404).json({ message: "Please enter rider id." });
         }
 
+        //Ride query
+        let query = { passenger: rideId };
+        // If status is provided, add case-insensitive regex filter
+        if (status && status.trim() !== "") {
+            query.driverStatus = { $regex: new RegExp(`^${status}$`, "i") };
+        }
+
         // Get all the rides for the rider
-        const rides = await Ride.find({ passenger: riderId });
+        const rides = await Ride.find(query);
 
         // For each ride, fetch the associated drive and driver details
         const rideDetails = await Promise.all(
@@ -22,30 +29,29 @@ const getRidesForRider = async (req, res) => {
                 }
 
                 // Find the driver details
-                const driver = await User.findById(drive.driver);
+                const driver = await getDriverDetails(drive.driver);
                 if (!driver) {
                     return null;
                 }
 
-                // Return the formatted ride, drive, and driver details
                 return {
                     rideDetails: {
-                        status: ride.status,
+                        rideId: ride.passenger,
+                        driveId: ride.drive,
+                        passengerStatus: ride.passengerStatus,
                         requestedAt: ride.requestedAt,
                         completedAt: ride.completedAt,
+                        acceptedAt: ride.acceptedAt,
+                        rejectedAt: ride.rejectedAt
                     },
                     driveDetails: {
                         from: drive.from,
                         to: drive.to,
                         departureTime: drive.departureTime,
-                        vehicleDetails: drive.vehicleDetails,
-                        isAccepted: drive.isAccepted,
-                        isComplete: drive.isComplete,
+                        driverStatus: drive.driveStatus,
+                        vehicleDetails: drive.vehicleDetails
                     },
-                    driverDetails: {
-                        username: driver.username,
-                        mobile: driver.mobile,
-                    },
+                    driverDetails: driver
                 };
             })
         );

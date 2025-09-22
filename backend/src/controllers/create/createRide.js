@@ -1,6 +1,7 @@
 import Ride from "../../models/Ride.js";
 import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
+import createNotification from "../../crud/createNotification.js";
 
 const createRide = async (req, res) => {
     try {
@@ -21,19 +22,30 @@ const createRide = async (req, res) => {
             return res.status(400).json({ message: "No seats available" });
         }
 
-        //Update drive status
+        //Update drive seats
         drive.vehicleDetails.seatsAvailable--;
-        drive.isAccepted = true;
 
         //Create Ride Request
-        const newRide = await Ride.create({
+        await Ride.create({
             drive: driveId,
-            passenger: userId
+            passenger: userId,
+            passengerStatus: "accepted",
+            rideDetails: {
+                from: drive.vehicleDetails.from,
+                to: drive.vehicleDetails.to
+            }
         });
 
         await drive.save();
 
-        res.status(201).json(newRide);
+        //Notify driver
+        await createNotification("rideRequested", driveId, {
+            passengerName: user.username,
+            from: drive.from,
+            to: drive.to
+        });
+
+        res.status(201).json();
     }
     catch (err) {
         console.error("Error creating new ride:", err);

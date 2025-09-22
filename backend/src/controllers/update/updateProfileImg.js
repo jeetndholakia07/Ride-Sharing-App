@@ -41,6 +41,9 @@ const updateProfileImg = async (req, res) => {
             width: result.width,
             height: result.height
         }
+        userProfile.isProfileUpdated = true;
+        await userProfile.save();
+        res.status(201).send();
     }
     catch (err) {
         console.error("Error updating profile image:", err);

@@ -49,6 +49,7 @@ const createUser = async (req, res) => {
         await UserProfile.create({
             user: newUser.id,
             email: "",
+            fullName: "",
             profileImg: {
                 publicId: "https://res.cloudinary.com/peerride/image/upload/v1758367695/account_heoa8t.png",
                 format: "png",
