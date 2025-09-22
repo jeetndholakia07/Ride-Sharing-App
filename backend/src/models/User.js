@@ -12,6 +12,11 @@ const UserSchema = new mongoose.Schema({
             message: "Invalid mobile format. Got value {VALUE}"
         }
     },
+    role: {
+        type: String,
+        enum: ["rider", "driver"],
+        required: true
+    },
     collegeName: {
         type: String,
         required: [true, "College is required"],
@@ -24,6 +29,8 @@ const UserSchema = new mongoose.Schema({
     collegeIDProof: {
         publicId: { type: String, required: true },
         format: { type: String, required: true },
+        width: { type: Number, required: true },
+        height: { type: Number, required: true }
     }
 }, { timestamps: true });
 

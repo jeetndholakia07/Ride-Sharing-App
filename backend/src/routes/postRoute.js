@@ -4,9 +4,10 @@ import createRide from "../controllers/create/createRide.js";
 import getUserProfile from "../controllers/read/getUserProfile.js";
 import getUserCollegeID from "../controllers/read/getUserCollegeID.js";
 import getNotifications from "../controllers/read/getNotifications.js";
-import getRideRequestForDriver from "../controllers/read/getRideRequestForDriver.js";
 import createNotification from "../controllers/create/createNotification.js";
 import createRating from "../controllers/create/createRating.js";
+import getDrivesForDriver from "../controllers/read/getDrivesForDriver.js";
+import getRidesForRider from "../controllers/read/getRidesForRider.js";
 
 const postRouter = express.Router();
 postRouter.use(express.urlencoded({ extended: true }));
@@ -16,9 +17,10 @@ postRouter.post("/createDrive", createDrive);
 postRouter.post("/createRide", createRide);
 postRouter.post("/getUserProfile", getUserProfile);
 postRouter.post("/getNotifications", getNotifications);
-postRouter.post("/getRideRequestForDriver", getRideRequestForDriver);
 postRouter.post("/getUserCollegeID", getUserCollegeID);
 postRouter.post("/createNotification", createNotification);
 postRouter.post("/createRating", createRating);
+postRouter.post("/getDrivesForDriver", getDrivesForDriver);
+postRouter.post("/getRidesForRider", getRidesForRider);
 
 export default postRouter;

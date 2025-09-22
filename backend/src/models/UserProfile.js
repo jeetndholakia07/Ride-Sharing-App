@@ -6,25 +6,30 @@ const UserProfileSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
+    fullName: {
+        type: String
+    },
     email: {
         type: String,
-        required: [true, "Email is required"],
-        unique: true,
+        required: false,
         validate: {
-            validator: (value) => /^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value),
-            message: "Invalid email format. Got value {VALUE}"
-        }
-    },
-    role: {
-        type: String,
-        enum: ["rider", "driver", "both"],
-        default: "both"
+            validator: function (value) {
+                // Only run the regex validation if the email is not empty or null
+                if (value && value.trim() !== "") {
+                    return /^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
+                }
+                return true;
+            },
+            message: (props) => `Invalid email format. Got value ${props.value}`,
+        },
     },
     profileImg: {
         publicId: { type: String, required: true },
         format: { type: String, required: true },
+        width: { type: Number, required: true },
+        height: { type: Number, required: true }
     },
-   
+
 }, { timestamps: true });
 
 const Profile = mongoose.model("UserProfile", UserProfileSchema);

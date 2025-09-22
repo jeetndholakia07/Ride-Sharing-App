@@ -1,4 +1,4 @@
-import User from "../../models/User.js";
+import Notification from "../../models/Notification.js";
 
 const getNotifications = async (req, res) => {
     try {
@@ -6,7 +6,7 @@ const getNotifications = async (req, res) => {
         if (!userId) {
             return res.status(404).json({ message: "Please enter userId" });
         }
-        const userNotifications = await User.findById(userId).populate("Notification");
+        const userNotifications = await Notification.find({ user: userId }).populate("user");
         res.status(200).json(userNotifications);
     }
     catch (err) {

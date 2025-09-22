@@ -9,7 +9,7 @@ const getRidesOnLocation = async (req, res) => {
         const drives = await Drive.find({
             from: { $regex: from, $options: "i" },
             to: { $regex: to, $options: "i" }
-        });
+        }).populate("driver", "username mobile");
 
         res.status(200).json(drives);
     }

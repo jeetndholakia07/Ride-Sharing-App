@@ -6,7 +6,7 @@ const rideSchema = new mongoose.Schema({
         ref: "User",
         required: true
     },
-    driver: {
+    drive: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "Drive",
         required: true
