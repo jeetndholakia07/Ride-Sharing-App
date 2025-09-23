@@ -5,42 +5,46 @@ import createNotification from "../../crud/createNotification.js";
 
 const createRide = async (req, res) => {
     try {
-        const { driveId, userId } = req.body;
-        if (!driveId || !userId) {
-            return res.status(404).json({ message: "Please ride and user id" });
+        const { driveId, passengerId } = req.body;
+        if (!driveId || !passengerId) {
+            return res.status(404).json({ message: "Please drive and passengerId id" });
         }
 
         //Check for role
-        const user = await User.findById(userId);
-        if (user.role !== "rider") {
-            return res.status(401).json({ message: "Only rider role can request for rides" });
+        const passenger = await User.findById(passengerId);
+        if (passenger.role !== "passenger") {
+            return res.status(400).json({ message: "Only rider role can request for rides" });
+        }
+
+        //Check if user already has the ride
+        const ride = await Ride.findOne({ passenger: passengerId, drive: driveId });
+        if (ride) {
+            return res.status(400).json({ message: "The given user already has the ride." });
         }
 
         //Check for seats availability
-        const drive = await Drive.findOne({ driver: driveId });
-        if (drive.vehicleDetails.seatsAvailable === 0) {
+        const drive = await Drive.findById(driveId);
+        if (drive.seatsAvailable === 0) {
             return res.status(400).json({ message: "No seats available" });
         }
 
         //Update drive seats
-        drive.vehicleDetails.seatsAvailable--;
+        drive.seatsAvailable--;
+        await drive.save();
 
         //Create Ride Request
         await Ride.create({
             drive: driveId,
-            passenger: userId,
-            passengerStatus: "accepted",
-            rideDetails: {
-                from: drive.vehicleDetails.from,
-                to: drive.vehicleDetails.to
-            }
+            passenger: passengerId,
+            passengerStatus: "accepted"
         });
 
-        await drive.save();
+        //Get the driverId to notify
+        const driverId = await User.findById(drive.driver);
 
-        //Notify driver
-        await createNotification("rideRequested", driveId, {
-            passengerName: user.username,
+        //Notify driver about ride request
+        await createNotification("rideRequested", driverId, {
+            passengerName: passenger.username,
             from: drive.from,
             to: drive.to
         });

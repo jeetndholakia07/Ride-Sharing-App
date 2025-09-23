@@ -1,6 +1,5 @@
 import User from "../models/User.js";
 import UserProfile from "../models/UserProfile.js";
-import cloudinary from "cloudinary";
 import getProfileImg from "./getProfileImg.js";
 
 const getPassengerDetails = async (userId) => {

@@ -2,16 +2,35 @@ import Drive from "../../models/Drive.js";
 
 const getRidesOnLocation = async (req, res) => {
     try {
-        const { from, to } = req.query;
+        const { from, to, page = 1, limit = 5 } = req.query;
+        const skip = (page - 1) * limit;
         if (!from || !to) {
             return res.status(404).json({ message: "Please enter from and to location" });
         }
         const drives = await Drive.find({
             from: { $regex: from, $options: "i" },
             to: { $regex: to, $options: "i" }
-        }).populate("driver", "username mobile");
+        }).populate("driver", "username mobile")
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
-        res.status(200).json(drives);
+        const totalDrives = await Drive.countDocuments({
+            from: { $regex: from, $options: "i" },
+            to: { $regex: to, $options: "i" }
+        });
+
+        const totalPages = Math.ceil(totalDrives / limit);
+
+        const response = {
+            page,
+            limit,
+            totalDrives,
+            totalPages,
+            data: drives
+        };
+
+        res.status(200).json(response);
     }
     catch (err) {
         console.error("Error getting rides based on location:", err);

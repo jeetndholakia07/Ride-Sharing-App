@@ -3,27 +3,28 @@ import User from "../../models/User.js";
 
 const createDrive = async (req, res) => {
     try {
-        const { userId, from, to, departureTime, vehicleDetails } = req.body;
-        if (!userId || !from || !to || !departureTime || !vehicleDetails) {
+        const { userId, from, to, departureTime, vehicleDetails, seatsAvailable } = req.body;
+        if (!userId || !from || !to || !departureTime || !vehicleDetails || !seatsAvailable) {
             return res.status(404).json({ message: "Please enter all fields" });
         }
         const user = await User.findById(userId);
+
+        //Check if user has driver role
         if (user.role !== "driver") {
             return res.status(401).json({ message: "Only driver role can create drives" });
         }
-        const newDrive = await Drive.create({
+        await Drive.create({
             driver: userId,
             from: from,
             to: to,
             departureTime: departureTime,
+            seatsAvailable: seatsAvailable,
             vehicleDetails: {
                 vehicleType: vehicleDetails.vehicleType,
                 vehicleName: vehicleDetails.vehicleName,
                 vehicleNumber: vehicleDetails.vehicleNumber,
-                seatsAvailable: vehicleDetails.seatsAvailable
             }
         });
-
         res.status(201).json();
     }
     catch (err) {

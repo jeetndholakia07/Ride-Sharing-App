@@ -4,24 +4,36 @@ import getPassengerDetails from "../../crud/getPassengerDetails.js";
 
 const getDrivesForDriver = async (req, res) => {
     try {
-        const { driveId, status } = req.body;
+        const { page = 1, limit = 5, passengerStatus, driverStatus } = req.query;
+        const skip = (page - 1) * limit;
+        const driverId = req.user.id;
 
-        if (!driveId) {
-            return res.status(400).json({ message: "Please enter driver Id" });
+        if (!driverId) {
+            return res.status(400).json({ message: "Driver id not found" });
         }
 
+        // Total number of drives for pagination
+        const totalDrives = await Drive.countDocuments({ driver: driverId });
+
         // Get all drives created by the driver
-        const drives = await Drive.find({ driver: driveId });
+        const drives = await Drive.find({ driver: driverId })
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit);
 
         // For each drive, get the ride requests and passenger details
         const driveDetails = await Promise.all(
             drives.map(async (drive) => {
                 //Ride query
-                let query = { drive: drive.driver };
+                let query = { drive: drive._id };
                 // If status is provided, add case-insensitive regex filter
-                if (status && status.trim() !== "") {
-                    query.passengerStatus = { $regex: new RegExp(`^${status}$`, "i") };
+                if (passengerStatus && passengerStatus.trim() !== "") {
+                    query.passengerStatus = { $regex: new RegExp(`^${passengerStatus}$`, "i") };
                 }
+                if (driverStatus && driverStatus.trim() !== "") {
+                    query.driverStatus = { $regex: new RegExp(`^${passengerStatus}$`, "i") };
+                }
+
                 // Get all rides that reference this drive
                 const rides = await Ride.find(query);
 
@@ -31,28 +43,40 @@ const getDrivesForDriver = async (req, res) => {
                         const passenger = await getPassengerDetails(ride.passenger);
                         if (!passenger) return null;
                         return {
-                            rideId: ride.passenger,
+                            passengerId: ride.passenger,
                             passenger,
                             requestedAt: ride.requestedAt,
-                            passengerStatus: ride.passengerStatus
+                            passengerStatus: ride.passengerStatus,
+                            rejectedAt: ride.rejectedAt
                         };
                     })
                 );
 
                 return {
                     driveDetails: {
-                        driveId: drive.driver,
+                        driveId: drive._id,
                         from: drive.from,
                         to: drive.to,
                         departureTime: drive.departureTime,
-                        vehicleDetails: drive.vehicleDetails
+                        vehicleDetails: drive.vehicleDetails,
+                        seatsAvailable: drive.seatsAvailable
                     },
                     rideRequests: rideRequests.filter(r => r !== null)
                 };
             })
         );
 
-        res.status(200).json(driveDetails);
+        const totalPages = Math.ceil(totalDrives / limit);
+
+        const response = {
+            page,
+            limit,
+            totalDrives,
+            totalPages,
+            data: driveDetails
+        };
+
+        res.status(200).json(response);
     } catch (err) {
         console.error("Error getting drives for driver:", err);
         res.status(500).json({ message: "Server error" });

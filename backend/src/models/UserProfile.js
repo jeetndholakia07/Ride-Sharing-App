@@ -14,7 +14,6 @@ const UserProfileSchema = new mongoose.Schema({
         required: false,
         validate: {
             validator: function (value) {
-                // Only run the regex validation if the email is not empty or null
                 if (value && value.trim() !== "") {
                     return /^[a-zA-Z0-9._]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/.test(value);
                 }

@@ -14,6 +14,9 @@ const VerifyUser = async (req, res, next) => {
         if (!user) {
             return res.status(401).json({ message: "Invalid username or token provided" });
         }
+        req.user = {
+            id: user.id
+        };
         next();
     }
     catch (err) {

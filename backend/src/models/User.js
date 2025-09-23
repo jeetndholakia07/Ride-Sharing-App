@@ -14,7 +14,7 @@ const UserSchema = new mongoose.Schema({
     },
     role: {
         type: String,
-        enum: ["rider", "driver"],
+        enum: ["passenger", "driver"],
         required: true
     },
     collegeName: {
@@ -31,6 +31,10 @@ const UserSchema = new mongoose.Schema({
         format: { type: String, required: true },
         width: { type: Number, required: true },
         height: { type: Number, required: true }
+    },
+    isVerified: {
+        type: Boolean,
+        default: false
     }
 }, { timestamps: true });
 

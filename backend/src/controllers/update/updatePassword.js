@@ -1,7 +1,7 @@
 import User from "../../models/User.js";
 import bcrypt from "bcrypt";
 
-const forgetPassword = async (req, res) => {
+const updatePassword = async (req, res) => {
     try {
         const { userId, password } = req.body;
         if (!userId || !password) {
@@ -21,4 +21,4 @@ const forgetPassword = async (req, res) => {
         res.status(501).send();
     }
 }
-export default forgetPassword;
+export default updatePassword;

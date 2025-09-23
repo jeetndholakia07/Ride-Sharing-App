@@ -3,11 +3,16 @@ import cloudinary from "cloudinary";
 
 const getUserData = async (req, res) => {
     try {
-        const { userId } = req.body;
+        const userId = req.user.id;
         if (!userId) {
-            return res.status(404).json({ message: "Please enter user id." });
+            return res.status(404).json({ message: "User id not found" });
         }
         const findUser = await User.findById(userId);
+
+        if (!findUser) {
+            return res.status(404).json({ message: "Requested user not found" });
+        }
+
         const { publicId, format } = findUser.collegeIDProof;
         const signedUrl = cloudinary.v2.url(`${publicId}/${format}`, {
             type: "private",
@@ -22,9 +27,6 @@ const getUserData = async (req, res) => {
             collegeIDProof: signedUrl
         };
 
-        if (!findUser) {
-            return res.status(404).json({ message: "Requested user not found" });
-        }
         res.status(200).json(response);
     }
     catch (err) {

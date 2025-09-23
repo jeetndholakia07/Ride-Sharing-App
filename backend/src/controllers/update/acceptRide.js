@@ -1,27 +1,31 @@
 import Ride from "../../models/Ride.js";
 import User from "../../models/User.js";
+import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
 
 const acceptRide = async (req, res) => {
     try {
-        const { rideId, driveId } = req.body;
-        if (!rideId || !driveId) {
-            return res.status(404).json({ message: "Please enter driver id and ride id." });
+        const { passengerId, driveId } = req.body;
+        if (!passengerId || !driveId) {
+            return res.status(404).json({ message: "Please enter driver id and passengerId id." });
         }
-        const ride = await Ride.findOne({ driver: driveId, passenger: rideId });
-        const driver = await User.findById(driveId);
-        if (!ride) {
+        const ride = await Ride.findOne({ drive: driveId, passenger: passengerId });
+        const drive = await Drive.findById(driveId);
+        if (!ride || !drive) {
             return res.status(404).json({ message: "Drive or ride not found" });
         }
+
         //Save changes
-        ride.driverStatus = "confirmed";
-        await ride.save();
+        drive.driveStatus = "accepted";
+        drive.acceptedAt = new Date();
+        await drive.save();
 
         //Notify passenger of accepted ride
-        await createNotification("rideAccepted", rideId, {
+        const driver = await User.findById(drive.driver);
+        await createNotification("rideAccepted", passengerId, {
             driverName: driver.username,
-            from: ride.rideDetails.from,
-            to: ride.rideDetails.to
+            from: drive.from,
+            to: drive.to
         });
 
         res.status(200).send();

@@ -18,11 +18,27 @@ const driveSchema = new mongoose.Schema({
         type: Date,
         required: true
     },
+    seatsAvailable: {
+        type: Number, required: true
+    },
+    driveStatus: {
+        type: String,
+        enum: ["pending", "accepted", "cancelled", "completed"],
+        default: "pending"
+    },
+    acceptedAt: {
+        type: Date
+    },
+    cancelledAt: {
+        type: Date
+    },
+    completedAt: {
+        type: Date
+    },
     vehicleDetails: {
         vehicleType: { type: String, required: true },
         vehicleName: { type: String, required: true },
         vehicleNumber: { type: String, required: true },
-        seatsAvailable: { type: Number, required: true }
     }
 }, { timestamps: true });
 
