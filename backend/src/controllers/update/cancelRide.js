@@ -3,6 +3,7 @@ import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
 
+/* Cancel ride by driver */
 const cancelRide = async (req, res) => {
     try {
         const { passengerId, driveId } = req.body;

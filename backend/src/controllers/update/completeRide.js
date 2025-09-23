@@ -3,6 +3,7 @@ import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
 
+/* Complete ride by driver */
 const completeRide = async (req, res) => {
     try {
         const { passengerId, driveId } = req.body;

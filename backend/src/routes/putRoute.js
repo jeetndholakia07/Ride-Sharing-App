@@ -8,6 +8,7 @@ import rejectRide from "../controllers/update/rejectRide.js";
 import updatePassword from "../controllers/update/updatePassword.js";
 import updateDrive from "../controllers/update/updateDrive.js";
 import updateNotificationRead from "../controllers/update/updateNotificationRead.js";
+import authorizeRole from "../middlewares/authorizeRole.js";
 import multer from "multer";
 
 const putRouter = express.Router();
@@ -18,12 +19,12 @@ putRouter.use(express.json());
 
 putRouter.put("/updateProfileImg", upload.single("profileImg"), updateProfileImg);
 putRouter.put("/updateProfile", updateProfile);
-putRouter.put("/cancelRide", cancelRide);
-putRouter.put("/acceptRide", acceptRide);
-putRouter.put("/rejectRide", rejectRide);
-putRouter.put("/completeRide", completeRide);
 putRouter.put("/updatePassword", updatePassword);
 putRouter.put("/updateDrive", updateDrive);
 putRouter.put("/updateNotificationRead", updateNotificationRead);
+putRouter.put("/cancelRide", authorizeRole(["driver"]), cancelRide);
+putRouter.put("/acceptRide", authorizeRole(["driver"]), acceptRide);
+putRouter.put("/completeRide", authorizeRole(["driver"]), completeRide);
+putRouter.put("/rejectRide", authorizeRole(["passenger"]), rejectRide);
 
 export default putRouter;

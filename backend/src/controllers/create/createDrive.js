@@ -1,5 +1,4 @@
 import Drive from "../../models/Drive.js";
-import User from "../../models/User.js";
 
 const createDrive = async (req, res) => {
     try {
@@ -11,12 +10,7 @@ const createDrive = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ message: "User id not found" });
         }
-        const user = await User.findById(userId);
 
-        //Check if user has driver role
-        if (user.role !== "driver") {
-            return res.status(401).json({ message: "Only driver role can create drives" });
-        }
         await Drive.create({
             driver: userId,
             from: from,

@@ -6,11 +6,12 @@ const UserSchema = new mongoose.Schema({
         required: [true, "Username is required"]
     },
     mobile: {
-        type: Number,
+        type: String,
         validate: {
             validator: (value) => /^\d{10}$/.test(value),
             message: "Invalid mobile format. Got value {VALUE}"
-        }
+        },
+        unique: true
     },
     role: {
         type: String,

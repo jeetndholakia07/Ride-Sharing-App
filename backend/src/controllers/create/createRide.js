@@ -16,15 +16,6 @@ const createRide = async (req, res) => {
             return res.status(400).json({ message: "Passenger id not found" });
         }
 
-        //Check for role
-        const passenger = await User.findById(passengerId);
-        if (!passenger) {
-            return res.status(404).json({ message: "Passenger not found" });
-        }
-        if (passenger.role !== "passenger") {
-            return res.status(400).json({ message: "Only rider role can request for rides" });
-        }
-
         //Check if user already has the ride
         const ride = await Ride.findOne({ passenger: passengerId, drive: driveId });
         if (ride) {
