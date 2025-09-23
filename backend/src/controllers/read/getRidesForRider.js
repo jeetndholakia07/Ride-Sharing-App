@@ -16,10 +16,10 @@ const getRidesForRider = async (req, res) => {
         let query = { passenger: passengerId };
         // If status is provided, add case-insensitive regex filter
         if (passengerStatus && passengerStatus.trim() !== "") {
-            query.passengerStatus = { $regex: new RegExp(`^${passengerStatus}$`, "i") };
+            query.passengerStatus = { $eq: passengerStatus };
         }
         if (driverStatus && driverStatus.trim() !== "") {
-            query.driverStatus = { $regex: new RegExp(`^${passengerStatus}$`, "i") };
+            query.driverStatus = { $eq: driverStatus };
         }
 
         // Total number of rides for pagination
@@ -61,7 +61,7 @@ const getRidesForRider = async (req, res) => {
                         to: drive.to,
                         seatsAvailable: drive.seatsAvailable,
                         departureTime: drive.departureTime,
-                        driverStatus: drive.driveStatus,
+                        driveStatus: drive.driveStatus,
                         vehicleDetails: drive.vehicleDetails
                     },
                     driverDetails: driver
@@ -77,7 +77,7 @@ const getRidesForRider = async (req, res) => {
         const response = {
             page,
             limit,
-            totalRides,
+            totalItems: totalRides,
             totalPages,
             data: filteredRideDetails
         };

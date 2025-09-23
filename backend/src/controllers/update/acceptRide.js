@@ -7,7 +7,7 @@ const acceptRide = async (req, res) => {
     try {
         const { passengerId, driveId } = req.body;
         if (!passengerId || !driveId) {
-            return res.status(404).json({ message: "Please enter driver id and passengerId id." });
+            return res.status(404).json({ message: "Please enter driver id and passenger id." });
         }
         const ride = await Ride.findOne({ drive: driveId, passenger: passengerId });
         const drive = await Drive.findById(driveId);

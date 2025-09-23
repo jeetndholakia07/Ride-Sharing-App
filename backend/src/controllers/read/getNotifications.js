@@ -9,7 +9,7 @@ const getNotifications = async (req, res) => {
             return res.status(404).json({ message: "User id not found" });
         }
         const totalNotifications = await Notification.countDocuments({ user: userId, isRead: isRead });
-        const userNotifications = await Notification.find({ user: userId, isRead: isRead }).populate("user")
+        const userNotifications = await Notification.find({ user: userId, isRead: isRead })
             .skip(skip)
             .limit(limit);
 
@@ -18,7 +18,7 @@ const getNotifications = async (req, res) => {
         const response = {
             page,
             limit,
-            totalNotifications,
+            totalItems: totalNotifications,
             totalPages,
             data: userNotifications
         };

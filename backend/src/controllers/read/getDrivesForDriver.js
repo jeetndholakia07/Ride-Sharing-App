@@ -28,10 +28,10 @@ const getDrivesForDriver = async (req, res) => {
                 let query = { drive: drive._id };
                 // If status is provided, add case-insensitive regex filter
                 if (passengerStatus && passengerStatus.trim() !== "") {
-                    query.passengerStatus = { $regex: new RegExp(`^${passengerStatus}$`, "i") };
+                    query.passengerStatus = { $eq: passengerStatus };
                 }
                 if (driverStatus && driverStatus.trim() !== "") {
-                    query.driverStatus = { $regex: new RegExp(`^${passengerStatus}$`, "i") };
+                    query.driverStatus = { $eq: driverStatus };
                 }
 
                 // Get all rides that reference this drive
@@ -59,7 +59,8 @@ const getDrivesForDriver = async (req, res) => {
                         to: drive.to,
                         departureTime: drive.departureTime,
                         vehicleDetails: drive.vehicleDetails,
-                        seatsAvailable: drive.seatsAvailable
+                        seatsAvailable: drive.seatsAvailable,
+                        driveStatus: drive.driveStatus
                     },
                     rideRequests: rideRequests.filter(r => r !== null)
                 };
@@ -71,7 +72,7 @@ const getDrivesForDriver = async (req, res) => {
         const response = {
             page,
             limit,
-            totalDrives,
+            totalItems: totalDrives,
             totalPages,
             data: driveDetails
         };

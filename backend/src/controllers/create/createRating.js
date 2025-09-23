@@ -2,8 +2,12 @@ import Rating from "../../models/Rating.js";
 
 const createRating = async (req, res) => {
     try {
-        const { userId, rating, review } = req.body;
-        if (!userId || !rating || !review) {
+        const { rating, review } = req.body;
+        const userId = req.user.id;
+        if (!userId) {
+            return res.status(400).json({ message: "User id not found" });
+        }
+        if (!rating || !review) {
             return res.status(404).json({ message: "Please provide userId, rating and review" });
         }
         await Rating.create({

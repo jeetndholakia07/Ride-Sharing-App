@@ -2,16 +2,25 @@ import Ride from "../../models/Ride.js";
 import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
+import { getDate, generateRideName } from "../../utils/format.js";
 
 const createRide = async (req, res) => {
     try {
-        const { driveId, passengerId } = req.body;
-        if (!driveId || !passengerId) {
-            return res.status(404).json({ message: "Please drive and passengerId id" });
+        const { driveId } = req.body;
+        if (!driveId) {
+            return res.status(404).json({ message: "Please enter drive id" });
+        }
+
+        const passengerId = req.user.id;
+        if (!passengerId) {
+            return res.status(400).json({ message: "Passenger id not found" });
         }
 
         //Check for role
         const passenger = await User.findById(passengerId);
+        if (!passenger) {
+            return res.status(404).json({ message: "Passenger not found" });
+        }
         if (passenger.role !== "passenger") {
             return res.status(400).json({ message: "Only rider role can request for rides" });
         }
@@ -24,20 +33,27 @@ const createRide = async (req, res) => {
 
         //Check for seats availability
         const drive = await Drive.findById(driveId);
+        if (!drive) {
+            return res.status(404).json({ message: "Drive not found" });
+        }
         if (drive.seatsAvailable === 0) {
             return res.status(400).json({ message: "No seats available" });
         }
 
-        //Update drive seats
-        drive.seatsAvailable--;
-        await drive.save();
+        //Generate ride name
+        const rideName = generateRideName(drive.from, drive.to, getDate(drive.departureTime));
 
         //Create Ride Request
         await Ride.create({
             drive: driveId,
             passenger: passengerId,
-            passengerStatus: "accepted"
+            passengerStatus: "accepted",
+            rideName: rideName
         });
+
+        //Update drive seats
+        drive.seatsAvailable = drive.seatsAvailable - 1;
+        await drive.save();
 
         //Get the driverId to notify
         const driverId = await User.findById(drive.driver);

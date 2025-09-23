@@ -9,7 +9,8 @@ const getRidesOnLocation = async (req, res) => {
         }
         const drives = await Drive.find({
             from: { $regex: from, $options: "i" },
-            to: { $regex: to, $options: "i" }
+            to: { $regex: to, $options: "i" },
+            driveStatus: { $nin: ["completed", "cancelled"] }
         }).populate("driver", "username mobile")
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -17,7 +18,8 @@ const getRidesOnLocation = async (req, res) => {
 
         const totalDrives = await Drive.countDocuments({
             from: { $regex: from, $options: "i" },
-            to: { $regex: to, $options: "i" }
+            to: { $regex: to, $options: "i" },
+            driveStatus: { $nin: ["completed", "cancelled"] }
         });
 
         const totalPages = Math.ceil(totalDrives / limit);
@@ -25,7 +27,7 @@ const getRidesOnLocation = async (req, res) => {
         const response = {
             page,
             limit,
-            totalDrives,
+            totalItems: totalDrives,
             totalPages,
             data: drives
         };

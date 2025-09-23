@@ -6,6 +6,7 @@ import getDrivesForDriver from "../controllers/read/getDrivesForDriver.js";
 import getUserProfile from "../controllers/read/getUserProfile.js";
 import getUserData from "../controllers/read/getUserData.js";
 import getNotifications from "../controllers/read/getNotifications.js";
+import getUserRating from "../controllers/read/getUserRating.js";
 
 const getRouter = express.Router();
 getRouter.use(express.urlencoded({ extended: true }));
@@ -18,5 +19,6 @@ getRouter.get("/getDrivesForDriver", getDrivesForDriver);
 getRouter.get("/getUserProfile", getUserProfile);
 getRouter.get("/getUserData", getUserData);
 getRouter.get("/getNotifications", getNotifications);
+getRouter.get("/getUserRating", getUserRating);
 
 export default getRouter;

@@ -3,9 +3,13 @@ import User from "../../models/User.js";
 
 const createDrive = async (req, res) => {
     try {
-        const { userId, from, to, departureTime, vehicleDetails, seatsAvailable } = req.body;
-        if (!userId || !from || !to || !departureTime || !vehicleDetails || !seatsAvailable) {
+        const { from, to, departureTime, vehicleDetails, seatsAvailable } = req.body;
+        if (!from || !to || !departureTime || !vehicleDetails || !seatsAvailable) {
             return res.status(404).json({ message: "Please enter all fields" });
+        }
+        const userId = req.user.id;
+        if (!userId) {
+            return res.status(400).json({ message: "User id not found" });
         }
         const user = await User.findById(userId);
 
