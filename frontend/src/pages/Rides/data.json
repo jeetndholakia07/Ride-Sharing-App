@@ -1,0 +1,18 @@
+{
+  "data": {
+    "_id": "ride123",
+    "from": "Whitefield",
+    "to": "Indiranagar",
+    "departureTime": "2025-10-01T14:30:00Z",
+    "vehicleType": "Car",
+    "status": "accepted",
+    "seatsAvailable":2,
+    "price":100,
+    "driver": {
+      "name": "Amit Sharma",
+      "profileImage": "https://example.com/amit.jpg",
+      "mobile": "+91 9876543210",
+      "rating":5
+    }
+  }
+}

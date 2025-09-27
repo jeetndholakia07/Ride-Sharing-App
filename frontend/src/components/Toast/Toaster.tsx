@@ -16,24 +16,24 @@ const toastTitles: any = {
 };
 
 const toastIconClasses: any = {
-    success: 'bi-check-circle-fill',
-    error: 'bi-x-circle-fill',
-    info: 'bi-info-circle-fill',
-    alert: 'bi-exclamation-triangle-fill',
+    success: 'bi-check-circle-fill text-green-600',
+    error: 'bi-x-circle-fill text-red-600',
+    info: 'bi-info-circle-fill text-blue-600',
+    alert: 'bi-exclamation-triangle-fill text-yellow-600',
 };
 
 const toastStyles: any = {
-    success: 'bg-green-600 text-white border-green-800',
-    error: 'bg-red-600 text-white border-red-800',
-    info: 'bg-blue-600 text-white border-blue-800',
-    alert: 'bg-yellow-500 text-black border-yellow-600',
+    success: 'bg-white text-black border-green-800',
+    error: 'bg-white text-black border-red-800',
+    info: 'bg-white text-black border-blue-800',
+    alert: 'bg-white text-black border-yellow-600',
 };
 
 const Toaster: FC<ToastProps> = ({ show, onClose, type = 'info', message }) => {
     if (!show) return null;
 
     return (
-        <div className="fixed top-4 right-4 z-50 flex flex-col space-y-4">
+        <div className="fixed bottom-4 right-4 z-50 flex flex-col space-y-4">
             <div
                 className={`min-w-[320px] p-4 rounded-lg shadow-lg font-semibold text-sm leading-6 
                 ${toastStyles[type]} transform transition-all duration-300 ease-in-out
@@ -50,7 +50,7 @@ const Toaster: FC<ToastProps> = ({ show, onClose, type = 'info', message }) => {
                     </div>
                     <button
                         onClick={onClose}
-                        className="text-white hover:cursor-pointer bg-transparent border-0 text-xl focus:outline-none"
+                        className="text-black hover:cursor-pointer bg-transparent border-0 text-xl focus:outline-none"
                     >
                         &times;
                     </button>

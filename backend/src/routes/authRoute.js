@@ -9,8 +9,8 @@ authRouter.use(express.json());
 
 const upload = multer({ dest: "uploads/" });
 
-authRouter.post("/createUser", upload.single("collegeID"), createUser);
+authRouter.post("/registerUser", upload.single("collegeID"), createUser);
 
-authRouter.post("/login", login);
+authRouter.post("/loginUser", login);
 
 export default authRouter;

@@ -21,7 +21,8 @@ const createDrive = async (req, res) => {
                 vehicleType: vehicleDetails.vehicleType,
                 vehicleName: vehicleDetails.vehicleName,
                 vehicleNumber: vehicleDetails.vehicleNumber,
-            }
+            },
+            specialNote: ""
         });
         res.status(201).json();
     }

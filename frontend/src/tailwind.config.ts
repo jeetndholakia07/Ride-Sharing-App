@@ -1,4 +1,4 @@
-module.exports = {
+const config = {
     theme: {
         extend: {
             fontFamily: {
@@ -7,3 +7,4 @@ module.exports = {
         },
     },
 };
+export default config;

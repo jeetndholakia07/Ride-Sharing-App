@@ -1,11 +1,11 @@
 import { openDB } from "./db.js";
 
-export const addToken = async (token: any, username: string): Promise<void> => {
+export const addToken = async (token: any, userId: string, role: string): Promise<void> => {
     const db = await openDB();
     const transaction = db.transaction("tokens", "readwrite");
     const store = transaction.objectStore("tokens");
     return new Promise<void>((resolve, reject) => {
-        const addRequest = store.add({ id:1, token: token, username: username });
+        const addRequest = store.add({ id: 1, token: token, username: userId, role: role });
         addRequest.onsuccess = () => resolve();
         addRequest.onerror = () => reject("Error adding token");
     });
@@ -31,18 +31,18 @@ export const findToken = async () => {
     })
 };
 
-export const updateToken = async (token: any, username: string) => {
+export const updateToken = async (token: any, userId: string, role: string) => {
     const db = await openDB();
     const transaction = db.transaction("tokens", "readwrite");
     const store = transaction.objectStore("tokens");
     return new Promise<void>((resolve, reject) => {
-        const putRequest = store.put({ id: 1, username: username, token: token });
+        const putRequest = store.put({ id: 1, username: userId, token: token, role: role });
         putRequest.onsuccess = () => resolve();
         putRequest.onerror = () => reject("Error updating token");
     })
-}
+};
 
-export const findUsername = async () => {
+export const findUserId = async () => {
     const db = await openDB();
     const transaction = db.transaction("tokens", "readonly");
     const store = transaction.objectStore("tokens");
@@ -50,17 +50,37 @@ export const findUsername = async () => {
         const request = store.get(1);
         request.onsuccess = () => {
             const findUser = request.result;
-            if (!findToken) {
+            if (!findUser) {
                 return resolve(null);
             }
-            const username = findUser.username;
-            resolve(username);
+            const userId = findUser.userId;
+            resolve(userId);
         };
         request.onerror = () => {
             reject("Error fetching username");
         }
     })
-}
+};
+
+export const findRole = async () => {
+    const db = await openDB();
+    const transaction = db.transaction("tokens", "readonly");
+    const store = transaction.objectStore("tokens");
+    return new Promise((resolve, reject) => {
+        const request = store.get(1);
+        request.onsuccess = () => {
+            const findUser = request.result;
+            if (!findUser) {
+                return resolve(null);
+            }
+            const role = findUser.role;
+            resolve(role);
+        };
+        request.onerror = () => {
+            reject("Error fetching user role");
+        }
+    });
+};
 
 export const deleteToken = async (): Promise<void> => {
     const db = await openDB();
@@ -71,4 +91,4 @@ export const deleteToken = async (): Promise<void> => {
         deleteRequest.onsuccess = () => resolve();
         deleteRequest.onerror = () => reject("Error deleting token");
     });
-}
+};

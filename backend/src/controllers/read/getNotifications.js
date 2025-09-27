@@ -2,14 +2,14 @@ import Notification from "../../models/Notification.js";
 
 const getNotifications = async (req, res) => {
     try {
-        const { page = 1, limit = 5, isRead = false } = req.query;
+        const { page = 1, limit = 5 } = req.query;
         const skip = (page - 1) * limit;
         const userId = req.user.id;
         if (!userId) {
             return res.status(404).json({ message: "User id not found" });
         }
-        const totalNotifications = await Notification.countDocuments({ user: userId, isRead: isRead });
-        const userNotifications = await Notification.find({ user: userId, isRead: isRead })
+        const totalNotifications = await Notification.countDocuments({ user: userId });
+        const userNotifications = await Notification.find({ user: userId })
             .skip(skip)
             .limit(limit);
 

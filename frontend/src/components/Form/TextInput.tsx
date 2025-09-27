@@ -7,7 +7,7 @@ type TextInputProps = {
     value: string;
     required?: boolean;
     onChange: React.ChangeEventHandler<HTMLInputElement>;
-    onBlur: React.FocusEventHandler<HTMLInputElement>;
+    onBlur?: React.FocusEventHandler<HTMLInputElement>;
     error?: any;
     disabled?: boolean;
 }
@@ -33,7 +33,7 @@ const TextInput: FC<TextInputProps> = ({ label, value, onChange, placeholder, na
             required={required}
             disabled={disabled}
             onBlur={onBlur}
-            className="w-full rounded-lg px-4 py-2 border border-gray-300 bg-white text-md text-gray-800 focus:border-blue-600 focus:outline-none focus:ring-1 focus:ring-blue-500"
+            className="w-full rounded-lg px-4 py-2 border border-gray-300 bg-white text-md text-gray-800 focus:outline-none focus:ring-1 focus:ring-blue-400"
         />
         {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
     </div>

@@ -1,56 +1,33 @@
-import type { FC } from "react";
-import { NavLink } from "react-router-dom";
+import type { FC, ReactNode } from "react";
+import { NavLink, useLocation } from "react-router-dom";
 
 type NavItemProps = {
+    name: string;
+    path: string;
+    icon?: ReactNode;
     onClick?: () => void;
-}
+};
 
-const NavItems = [
-    {
-        path: "/",
-        name: "Home",
-        icon: ""
-    },
-    {
-        path: "/services",
-        name: "Services",
-        icon: ""
-    },
-    {
-        path: "/about",
-        name: "About",
-        icon: ""
-    },
-    {
-        path: "/rides",
-        name: "Rides",
-        icon: ""
-    },
-    {
-        path: "/reviews",
-        name: "Reviews",
-        icon: ""
-    }
-];
+const NavItem: FC<NavItemProps> = ({ name, path, icon, onClick }) => {
+    const location = useLocation();
+    const isActive = location.pathname === path;
 
-const NavItem: FC<NavItemProps> = ({ onClick }) => {
     return (
-        <>
-            {NavItems.map((item) => {
-                return (
-                    <NavLink
-                        to={item.path}
-                        key={item.name}
-                        className={({ isActive }) => `text-gray-700 hover:text-green-700 text-md font-medium
-                        ${isActive && "text-green-700 font-bold"}`}
-                        onClick={onClick && onClick}
-                    >
-                        {item.icon}
-                        {item.name}
-                    </NavLink>
-                )
-            })}
-        </>
+        <NavLink
+            to={path}
+            onClick={onClick}
+            className={`flex items-center px-3 py-2 rounded transition duration-150
+                ${isActive ? " " : "text-gray-700 hover:bg-gray-100"}`}
+        >
+            {icon && (
+                <span className={`mr-3 ${isActive ? "text-green-700" : "text-gray-600"}`}>
+                    {icon}
+                </span>
+            )}
+            <span className={`text-sm font-medium ${isActive ? "text-green-700" : "text-gray-700"}`}>
+                {name}
+            </span>
+        </NavLink>
     );
 };
 

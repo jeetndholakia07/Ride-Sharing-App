@@ -2,7 +2,7 @@ import Drive from "../../models/Drive.js";
 
 const getRidesOnLocation = async (req, res) => {
     try {
-        const { from, to, page = 1, limit = 5 } = req.query;
+        const { from, to, page = 1, limit = 5 } = req.body;
         const skip = (page - 1) * limit;
         if (!from || !to) {
             return res.status(404).json({ message: "Please enter from and to location" });

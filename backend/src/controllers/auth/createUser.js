@@ -51,7 +51,7 @@ const createUser = async (req, res) => {
             email: "",
             fullName: "",
             profileImg: {
-                publicId: "https://res.cloudinary.com/peerride/image/upload/v1758367695/account_heoa8t.png",
+                publicId: process.env.DEFAULT_PROFILE,
                 format: "png",
                 width: 300,
                 height: 300

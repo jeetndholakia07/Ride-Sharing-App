@@ -1,0 +1,14 @@
+{
+    "roleTypes": [
+        {
+            "label": "Passenger",
+            "value": "passenger",
+            "icon": "bi bi-person-fill"
+        },
+        {
+            "label": "Driver",
+            "value": "driver",
+            "icon": "bi bi-car-front-fill"
+        }
+    ]
+}

@@ -1,4 +1,5 @@
-import { type FC, useRef } from 'react';
+import { type FC, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 type FileUploadProps = {
     label: string;
@@ -8,7 +9,11 @@ type FileUploadProps = {
     required?: boolean;
     disabled?: boolean;
     value?: File | null;
+    setFieldTouched?: (field: string, touched: boolean, shouldValidate?: boolean) => void;
 };
+
+const MAX_FILE_SIZE_MB = 5;
+const ALLOWED_FILE_TYPES = ['image/jpeg', 'image/png'];
 
 const FileUpload: FC<FileUploadProps> = ({
     label,
@@ -18,15 +23,54 @@ const FileUpload: FC<FileUploadProps> = ({
     required = false,
     disabled = false,
     value,
+    setFieldTouched
 }) => {
     const inputRef = useRef<HTMLInputElement>(null);
+    const [localError, setLocalError] = useState<string | null>(null);
+    const { t } = useTranslation();
 
     const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        if (e.target.files && e.target.files.length > 0) {
-            onChange(e.target.files[0]);
-        } else {
-            onChange(null);
+        const file = e.target.files?.[0];
+
+        if (setFieldTouched) {
+            // mark as touched and validate
+            setFieldTouched(name, true, true);
         }
+
+        if (!file) {
+            onChange(null);
+            setLocalError(null);
+            return;
+        }
+
+        const isValidType = ALLOWED_FILE_TYPES.includes(file.type);
+        const isValidSize = file.size <= MAX_FILE_SIZE_MB * 1024 * 1024;
+
+        if (!isValidType) {
+            setLocalError(t("fileFormatConstraint"));
+            onChange(null);
+            return;
+        }
+
+        if (!isValidSize) {
+            setLocalError(t("fileSizeConstraint"));
+            onChange(null);
+            return;
+        }
+
+        setLocalError(null);
+        onChange(file);
+    };
+
+    const handleClear = () => {
+        if (inputRef.current) {
+            inputRef.current.value = '';
+        }
+        if (setFieldTouched) {
+            setFieldTouched(name, true, true);
+        }
+        onChange(null);
+        setLocalError(null);
     };
 
     return (
@@ -48,13 +92,30 @@ const FileUpload: FC<FileUploadProps> = ({
                    file:text-sm file:font-semibold
                    file:bg-blue-100 file:text-blue-700
                    hover:file:bg-blue-200
+                   hover:cursor-pointer
                    focus:outline-none"
-                accept="image/*"
+                accept=".jpg,.jpeg,.png"
+                aria-describedby={localError || error ? `${name}-error` : undefined}
             />
+
             {value && (
-                <p className="mt-1 text-gray-600 text-sm">Selected file: {value.name}</p>
+                <div className="mt-1 text-gray-600 text-sm flex items-center gap-2">
+                    <span>{t("selectedFile")} {value.name}</span>
+                    <button
+                        type="button"
+                        onClick={handleClear}
+                        className="text-red-500 hover:cursor-pointer underline hover:text-red-700 text-sm"
+                    >
+                        {t("remove")}
+                    </button>
+                </div>
             )}
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+
+            {(localError || error) && (
+                <p id={`${name}-error`} className="text-red-500 text-sm mt-1">
+                    {localError || error}
+                </p>
+            )}
         </div>
     );
 };

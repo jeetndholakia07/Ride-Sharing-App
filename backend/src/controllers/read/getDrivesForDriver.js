@@ -60,7 +60,8 @@ const getDrivesForDriver = async (req, res) => {
                         departureTime: drive.departureTime,
                         vehicleDetails: drive.vehicleDetails,
                         seatsAvailable: drive.seatsAvailable,
-                        driveStatus: drive.driveStatus
+                        driveStatus: drive.driveStatus,
+                        specialNote: drive.specialNote
                     },
                     rideRequests: rideRequests.filter(r => r !== null)
                 };

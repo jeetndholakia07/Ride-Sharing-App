@@ -15,7 +15,8 @@ const VerifyUser = async (req, res, next) => {
             return res.status(401).json({ message: "Invalid username or token provided" });
         }
         req.user = {
-            id: user.id
+            id: user.id,
+            role: user.role
         };
         next();
     }

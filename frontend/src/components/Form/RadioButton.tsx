@@ -29,42 +29,52 @@ const RadioButtonGroup: FC<RadioButtonGroupProps> = ({
     error,
     disabled = false,
 }) => (
-    <div className="mb-4 flex flex-col w-full">
-        {label && (
-            <div className="flex md:flex-row flex-col items-center mb-2">
-                <label className="block text-md font-medium text-gray-700">
+    <div className="mt-1 mb-3 w-full">
+        <div className="flex flex-col lg:flex-row lg:items-center lg:gap-4">
+            {label && (
+                <label className="text-md font-medium text-gray-700 mb-2 lg:mb-0 lg:whitespace-nowrap">
                     {label}
+                    {required && <span className="text-red-600 ml-1">*</span>}
                 </label>
-                {required && <i className="text-red-600 font-bold text-sm ml-1">*</i>}
+            )}
+            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+                {options.map((option) => {
+                    const isSelected = value === option.value;
+                    return (
+                        <label
+                            key={option.value}
+                            htmlFor={`${name}-${option.value}`}
+                            className={`relative flex items-center justify-center px-4 py-2 rounded-full border transition-all duration-300 cursor-pointer
+                            ${isSelected
+                                    ? 'bg-blue-600 text-white border-blue-600 shadow-md'
+                                    : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500'
+                                }
+                            ${disabled ? 'opacity-50 cursor-not-allowed' : ''}
+                        `}
+                        >
+                            <input
+                                id={`${name}-${option.value}`}
+                                type="radio"
+                                name={name}
+                                value={option.value}
+                                checked={isSelected}
+                                onChange={onChange}
+                                onBlur={onBlur}
+                                disabled={disabled}
+                                required={required}
+                                className="absolute opacity-0 w-0 h-0"
+                            />
+                            <div className="flex items-center space-x-2 text-base font-medium">
+                                <i className={`${option.icon} text-lg`} />
+                                <span>{option.label}</span>
+                            </div>
+                        </label>
+                    );
+                })}
             </div>
-        )}
-
-        <div className="flex md:flex-row flex-col items-center space-x-8">
-            {options.map((option) => (
-                <label
-                    key={option.value}
-                    htmlFor={`${name}-${option.value}`}
-                    className={`flex items-center cursor-pointer select-none ${disabled ? 'text-gray-400 cursor-not-allowed' : 'text-gray-800 hover:text-blue-600'}`}
-                >
-                    <input
-                        id={`${name}-${option.value}`}
-                        type="radio"
-                        name={name}
-                        value={option.value}
-                        checked={value === option.value}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        disabled={disabled}
-                        className="h-5 w-5 mr-2 text-blue-600 border-gray-300 transition duration-300"
-                        required={required}
-                    />
-                    <i className={`${option.icon} text-lg`} />
-                    <span className="text-md font-semibold">{option.label}</span>
-                </label>
-            ))}
         </div>
 
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        {error && <p className="text-red-500 text-sm mt-2 text-center">{error}</p>}
     </div>
 );
 

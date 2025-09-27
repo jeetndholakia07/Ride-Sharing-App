@@ -1,103 +1,81 @@
-import { useState } from 'react';
-import CreateReview from './CreateReview';
+import { lazy } from 'react';
+import { useTranslation } from 'react-i18next';
+import apiInterceptor from '../../hooks/apiInterceptor';
+import axiosInstance from "../../hooks/axiosInstance";
+import { api } from '../../hooks/api';
+import { useQuery } from '@tanstack/react-query';
+import Skeleton from '@mui/material/Skeleton';
+import NotFoundReview from './NotFoundReview';
+const ReviewDisplay = lazy(() => import("./ReviewDisplay"));
+import WithSuspense from '../../components/Loading/WithSuspense';
+const AddReview = lazy(() => import("./AddReview"));
 
-const Index = () => {
-    const [showReviewForm, setShowReviewForm] = useState(false);
-    const [reviews, setReviews] = useState([
-        {
-            id: 1,
-            rating: 5,
-            review: "Great ride! The driver was very friendly and the car was clean.",
-            username: "John Doe",
-            userIcon: "bi-person-circle",
-        },
-        {
-            id: 2,
-            rating: 4,
-            review: "Comfortable, but a little late. Overall a good experience.",
-            username: "Jane Smith",
-            userIcon: "bi-person-fill",
-        },
-        {
-            id: 3,
-            rating: 3,
-            review: "The ride was okay, but the car could've been cleaner.",
-            username: "Mark Taylor",
-            userIcon: "bi-person-vcard",
-        },
-        {
-            id: 4,
-            rating: 5,
-            review: "Excellent service! Will definitely use this ride-sharing app again.",
-            username: "Emma Stone",
-            userIcon: "bi-person-lines-fill",
-        },
-        {
-            id: 5,
-            rating: 4,
-            review: "Smooth ride and polite driver. Could improve the app's interface.",
-            username: "Chris Johnson",
-            userIcon: "bi-person-fill-gear",
-        },
-        {
-            id: 6,
-            rating: 2,
-            review: "The car was dirty, and the ride was uncomfortable.",
-            username: "Lily Adams",
-            userIcon: "bi-person-dash",
-        },
-    ]);
+const ReviewSection = () => {
+    const { t } = useTranslation();
 
-    // Function to add a new review
-    const handleAddReview = (newReview: any) => {
-        setReviews((prevReviews) => [
-            ...prevReviews,
-            { ...newReview, id: prevReviews.length + 1, username: 'Anonymous', userIcon: 'bi-person' },
-        ]);
-        setShowReviewForm(false); 
+    const handleSearchReview = async () => {
+        try {
+            const response = await apiInterceptor.get(api.userReview);
+            return response.data;
+        }
+        catch (err) {
+            console.error("User review not found:", err);
+            return null;
+        }
     };
 
+    const getReviews = async () => {
+        try {
+            const response = await axiosInstance.get(api.allReviews);
+            return response.data;
+        }
+        catch (err) {
+            console.error("Error fetching reviews:", err);
+            return null;
+        }
+    };
+
+    const { data: userReview, isLoading: isUserLoading } = useQuery({
+        queryKey: ["userReview"],
+        queryFn: handleSearchReview,
+        refetchOnWindowFocus: false,
+        retry: false
+    });
+
+    const { data: reviews, isLoading: isReviewsLoading } = useQuery({
+        queryKey: ["allReviews"],
+        queryFn: getReviews,
+        refetchOnWindowFocus: false,
+        retry: false
+    });
+
+    const renderSkeleton = <><Skeleton variant="text" width={"100%"} />
+        <Skeleton variant="rectangular" width={"100%"} height={"40"} /></>;
+
     return (
-        <div className="container mx-auto p-6 sm:p-8 md:p-10">
-            <h1 className="text-3xl font-semibold text-center mb-6">Current Reviews</h1>
-
-            <div className="text-center pt-4 pb-4 border-2 border-gray-300 rounded-lg bg-gray-50">
-                <i className="bi bi-chat-square-quote text-4xl text-yellow-400 mb-4" />
-                <p className="text-lg text-gray-600">No reviews yet. Be the first to share your experience!</p>
-            </div>
-
-            {/* <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {reviews.map((review) => (
-                        <div key={review.id} className="bg-white p-6 rounded-lg shadow-md flex flex-col">
-                            <div className="flex items-center space-x-3 mb-4">
-                                <i className={`bi ${review.userIcon} text-3xl text-gray-500`} />
-                                <span className="text-lg font-semibold text-gray-800">{review.username}</span>
-                            </div>
-                            <div className="flex items-center mb-2">
-                                {[...Array(5)].map((_, index) => (
-                                    <i
-                                        key={index}
-                                        className={`bi bi-star-fill text-xl ${index < review.rating ? 'text-yellow-400' : 'text-gray-400'}`}
-                                    />
-                                ))}
-                            </div>
-                            <p className="text-gray-700">{review.review}</p>
-                        </div>
-                    ))}
-                </div> */}
-
-            <div className="mt-6 text-center">
-                <button
-                    onClick={() => setShowReviewForm(!showReviewForm)}
-                    className="bg-yellow-500 text-white hover:cursor-pointer py-2 px-4 rounded-lg hover:bg-yellow-600 transition duration-300"
+        <div className="p-6 bg-gray-50 min-h-screen">
+            <div className="mb-8">
+                {/* User Review Section */}
+                <WithSuspense
+                    data={userReview}
+                    fallback={renderSkeleton}
+                    empty={<AddReview />}
+                    isLoading={isUserLoading}
                 >
-                    {showReviewForm ? 'Cancel' : 'Create Review'}
-                </button>
+                    <ReviewDisplay reviews={userReview} heading={t("userReview")} />
+                </WithSuspense>
             </div>
-
-            {showReviewForm && <CreateReview onAddReview={handleAddReview} />}
+            {/* All Reviews Section */}
+            <WithSuspense
+                data={reviews}
+                fallback={renderSkeleton}
+                empty={<NotFoundReview />}
+                isLoading={isReviewsLoading}
+            >
+                <ReviewDisplay reviews={reviews} heading={t("review")} />
+            </WithSuspense>
         </div>
     );
 };
 
-export default Index;
+export default ReviewSection;

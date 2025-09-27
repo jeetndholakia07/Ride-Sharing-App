@@ -39,6 +39,9 @@ const driveSchema = new mongoose.Schema({
         vehicleType: { type: String, required: true },
         vehicleName: { type: String, required: true },
         vehicleNumber: { type: String, required: true },
+    },
+    specialNote: {
+        type: String
     }
 }, { timestamps: true });
 

@@ -1,10 +1,15 @@
-import { useState } from "react";
 import TextInput from "../../components/Form/TextInput";
 import PasswordInput from "../../components/Form/PasswordInput";
 import { Formik, type FormikHelpers } from "formik";
 import * as Yup from "yup";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link } from "react-router";
+import { Link, useNavigate } from "react-router";
+import axiosInstance from "../../hooks/axiosInstance";
+import { api } from "../../hooks/api";
+import LoadingButton from "../../components/Form/LoadingButton";
+import { useToast } from "../../components/Toast/ToastContext";
+import { addToken } from "../../IndexedDB/tokens";
 
 type FormValues = {
     username: string;
@@ -12,96 +17,90 @@ type FormValues = {
 };
 
 const LoginPage = () => {
-    const [initialValues, setInitialValues] = useState<FormValues>({
+    const initialValues: FormValues = {
         username: "",
         password: "",
-    });
-
+    };
     const { t } = useTranslation();
+    const [isLoading, setIsLoading] = useState(false);
+    const [error, setError] = useState("");
+    const { showToast } = useToast();
+    const navigate = useNavigate();
 
     const validationSchema = Yup.object().shape({
-        username: Yup.string().required("Your Name is Required"),
+        username: Yup.string().required(t("formMessages.usernameRequired")),
         password: Yup.string()
-            .required("Password is required"),
+            .required(t("formMessages.passwordRequired")),
     });
 
-    const handleSubmit = async (
-        values: FormValues,
-        { setSubmitting }: FormikHelpers<FormValues>
-    ) => {
-        const payload = { ...values };
+    const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
         setSubmitting(false);
-        console.log(payload);
+        const payload = { ...values };
+        try {
+            setIsLoading(true);
+            const response = await axiosInstance.post(api.login, payload);
+            await addToken(response.data.token, response.data.userId, response.data.role);
+            setError("");
+            showToast("success", t("messages.loginSuccess"));
+            navigate("/");
+        }
+        catch (err) {
+            console.error("Error logging user:", err);
+            setError(t("error.login"));
+        }
+        finally {
+            setIsLoading(false);
+        }
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center bg-gradient-to-r from-blue-500 via-green-500 to-purple-500 bg-cover bg-center bg-opacity-70">
-            <div className="w-full max-w-md bg-white p-8 rounded-lg shadow-lg backdrop-blur-lg bg-opacity-90">
-                {/* Logo */}
-                <div className="flex justify-center mb-6">
-                    <span className="text-3xl font-bold text-blue-700">Peer</span>
-                    <span className="text-3xl font-bold text-green-700">Ride</span>
-                </div>
-
-                <Formik
-                    initialValues={initialValues}
-                    onSubmit={handleSubmit}
-                    validationSchema={validationSchema}
-                >
-                    {({
-                        values,
-                        handleChange,
-                        handleBlur,
-                        errors,
-                        touched,
-                        isValid,
-                        dirty,
-                        handleSubmit,
-                    }) => (
-                        <form onSubmit={handleSubmit}>
-                            <div className="grid grid-cols-1 gap-6">
-                                <TextInput
-                                    name={"username"}
-                                    label={t("username")}
-                                    placeholder={t("username")}
-                                    value={values.username}
-                                    required={true}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={touched?.username && errors.username}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-6 mb-2">
-                                <PasswordInput
-                                    name={"password"}
-                                    label={t("password")}
-                                    placeholder={t("password")}
-                                    value={values.password}
-                                    required={true}
-                                    onChange={handleChange}
-                                    onBlur={handleBlur}
-                                    error={touched?.password && errors.password}
-                                />
-                            </div>
-
-                            <div className="grid grid-cols-1 gap-6 mb-4">
-                                <span className="text-gray-800 font-medium">Not registered yet ?
-                                    <Link to="/signup" className="text-blue-700 font-medium ml-1">Click here</Link> to signup.
-                                </span>
-                            </div>
-                            <button
-                                type="submit"
-                                className="w-full bg-blue-600 text-white py-3 rounded-lg hover:cursor-pointer hover:bg-blue-700 transition duration-300 disabled:bg-blue-300 disabled:cursor-not-allowed"
-                                disabled={!isValid || !dirty}
-                            >
-                                Sign In
-                            </button>
-                        </form>
-                    )}
-                </Formik>
-            </div>
-        </div>
+        <Formik
+            initialValues={initialValues}
+            onSubmit={handleSubmit}
+            validationSchema={validationSchema}
+        >
+            {({ values, handleChange, handleBlur, errors, touched, isValid, dirty, handleSubmit }) => {
+                return (
+                    <form onSubmit={handleSubmit}>
+                        <div className="grid grid-cols-1 gap-6">
+                            <TextInput
+                                name={"username"}
+                                label={t("username")}
+                                placeholder={t("username")}
+                                value={values.username}
+                                required={true}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={touched?.username && errors.username}
+                            />
+                        </div>
+                        <div className="grid grid-cols-1 gap-6 mb-2">
+                            <PasswordInput
+                                name={"password"}
+                                label={t("password")}
+                                placeholder={t("password")}
+                                value={values.password}
+                                required={true}
+                                onChange={handleChange}
+                                onBlur={handleBlur}
+                                error={touched?.password && errors.password}
+                            />
+                        </div>
+                        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+                        <div className="grid grid-cols-1 gap-6 mb-4">
+                            <span className="text-gray-800 font-medium"> {t("notRegistered")}
+                                <Link to="/signup" className="text-blue-700 font-medium ml-1">{t("clickHere")} </Link>
+                                {t("toSignup")}
+                            </span>
+                        </div>
+                        <div className="grid grid-cols-1 gap-6 mb-4">
+                            <LoadingButton name={t("buttons.login")} handleApi={handleSubmit} isLoading={isLoading}
+                                disabled={!isValid || !dirty} />
+                        </div>
+                    </form>
+                )
+            }}
+        </Formik>
     );
 };
 

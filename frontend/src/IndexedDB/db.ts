@@ -6,7 +6,8 @@ export const openDB = (): Promise<IDBDatabase> => {
             //Create object stores for tokens if it doesn't exist
             if (!db.objectStoreNames.contains("tokens")) {
                 const store = db.createObjectStore("tokens", { keyPath: "id", autoIncrement: false });
-                store.createIndex("username", "username", { unique: false });
+                store.createIndex("userId", "userId", { unique: false });
+                store.createIndex("role", "role", { unique: false });
                 store.createIndex("token", "token", { unique: false });
             }
         };
