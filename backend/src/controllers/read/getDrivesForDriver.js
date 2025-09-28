@@ -1,6 +1,7 @@
 import Drive from "../../models/Drive.js";
 import Ride from "../../models/Ride.js";
-import getPassengerDetails from "../../crud/getPassengerDetails.js";
+import getProfileImg from "../../crud/getProfileImg.js";
+import UserProfile from "../../models/UserProfile.js";
 
 const getDrivesForDriver = async (req, res) => {
     try {
@@ -35,16 +36,17 @@ const getDrivesForDriver = async (req, res) => {
                 }
 
                 // Get all rides that reference this drive
-                const rides = await Ride.find(query);
+                const rides = await Ride.find(query).populate("passenger", "username mobile collegeName");
 
                 // For each ride, fetch passenger and profile manually
                 const rideRequests = await Promise.all(
                     rides.map(async (ride) => {
-                        const passenger = await getPassengerDetails(ride.passenger);
-                        if (!passenger) return null;
+                        const passengerProfile = await UserProfile.findOne({ user: ride.passenger });
+                        const profileImg = await getProfileImg(passengerProfile.profileImg.publicId, passengerProfile.profileImg.format,
+                            passengerProfile.isProfileUpdated);
                         return {
-                            passengerId: ride.passenger,
-                            passenger,
+                            passenger: ride.passenger,
+                            passengerProfileImg: profileImg,
                             requestedAt: ride.requestedAt,
                             passengerStatus: ride.passengerStatus,
                             rejectedAt: ride.rejectedAt

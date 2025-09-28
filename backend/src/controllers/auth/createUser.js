@@ -10,22 +10,28 @@ cloudinaryConfig();
 
 const createUser = async (req, res) => {
     let filePath;
+    let result;
     try {
         const { username, mobile, collegeName, password, role } = req.body;
-        filePath = req.file.path;
-        const formattedName = slugify(username);
-        //Upload the image to cloudinary
-        const result = await cloudinary.v2.uploader.upload(filePath, {
-            public_id: `collegeID/${formattedName}`,
-            folder: "collegeIDProof",
-            type: "private",
-            overwrite: true,
-            resource_type: "image",
-            transformation: [
-                { width: 300, height: 300, crop: "thumb" },
-                { quality: "auto" }
-            ]
-        }).catch((err) => console.error("Error uploading collegeID to cloudinary:", err));
+        if (role === "passenger") {
+            if (!req.file || !req.file.path) {
+                return res.status(400).json({ message: "College ID image is required for passengers." });
+            }
+            filePath = req.file.path;
+            const formattedName = slugify(username);
+            //Upload the image to cloudinary
+            result = await cloudinary.v2.uploader.upload(filePath, {
+                public_id: `collegeID/${formattedName}`,
+                folder: "collegeIDProof",
+                type: "private",
+                overwrite: true,
+                resource_type: "image",
+                transformation: [
+                    { width: 300, height: 300, crop: "thumb" },
+                    { quality: "auto" }
+                ]
+            }).catch((err) => console.error("Error uploading collegeID to cloudinary:", err));
+        }
 
         //Create hashed password
         const hashedPassword = await bcrypt.hash(password, 10);
@@ -35,14 +41,16 @@ const createUser = async (req, res) => {
             username: username,
             mobile: mobile,
             role: role,
-            collegeName: collegeName,
+            ...(role === "passenger" && { collegeName: collegeName }),
             password: hashedPassword,
-            collegeIDProof: {
-                publicId: result.public_id,
-                format: result.format,
-                width: result.width,
-                height: result.height
-            }
+            ...(role === "passenger" && result && {
+                collegeIDProof: {
+                    publicId: result.public_id,
+                    format: result.format,
+                    width: result.width,
+                    height: result.height
+                }
+            })
         });
 
         //Create User Profile with default profile image
@@ -65,8 +73,10 @@ const createUser = async (req, res) => {
         res.status(501).send();
     }
     finally {
-        await fs.promises.unlink(filePath)
-            .catch((err) => console.error("Error deleting upload:", err));
+        if (filePath) {
+            await fs.promises.unlink(filePath)
+                .catch((err) => console.error("Error deleting upload:", err));
+        }
     }
 }
 export default createUser;

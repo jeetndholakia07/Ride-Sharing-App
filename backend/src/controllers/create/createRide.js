@@ -48,6 +48,7 @@ const createRide = async (req, res) => {
 
         //Get the driverId to notify
         const driverId = await User.findById(drive.driver);
+        const passenger = await User.findById(passengerId);
 
         //Notify driver about ride request
         await createNotification("rideRequested", driverId, {

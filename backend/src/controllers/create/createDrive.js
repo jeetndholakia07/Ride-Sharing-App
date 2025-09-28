@@ -2,8 +2,8 @@ import Drive from "../../models/Drive.js";
 
 const createDrive = async (req, res) => {
     try {
-        const { from, to, departureTime, vehicleDetails, seatsAvailable } = req.body;
-        if (!from || !to || !departureTime || !vehicleDetails || !seatsAvailable) {
+        const { from, to, departureTime, vehicleDetails, seatsAvailable, comments } = req.body;
+        if (!from || !to || !departureTime || !vehicleDetails || !seatsAvailable || !comments) {
             return res.status(404).json({ message: "Please enter all fields" });
         }
         const userId = req.user.id;
@@ -22,7 +22,7 @@ const createDrive = async (req, res) => {
                 vehicleName: vehicleDetails.vehicleName,
                 vehicleNumber: vehicleDetails.vehicleNumber,
             },
-            specialNote: ""
+            specialNote: comments
         });
         res.status(201).json();
     }

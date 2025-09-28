@@ -1,6 +1,7 @@
 import Ride from "../../models/Ride.js";
 import Drive from "../../models/Drive.js";
-import getDriverDetails from "../../crud/getDriverDetails.js";
+import UserProfile from "../../models/UserProfile.js";
+import getProfileImg from "../../crud/getProfileImg.js";
 
 const getRidesForRider = async (req, res) => {
     try {
@@ -27,51 +28,29 @@ const getRidesForRider = async (req, res) => {
 
         // Get all the rides for the rider
         const rides = await Ride.find(query)
+            .populate({
+                path: "drive",
+                populate: {
+                    path: "driver",
+                    select: "username mobile"
+                }
+            })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        // For each ride, fetch the associated drive and driver details
         const rideDetails = await Promise.all(
             rides.map(async (ride) => {
-                // Find the associated drive 
                 const drive = await Drive.findById(ride.drive);
-                if (!drive) {
-                    return null;
-                }
-
-                // Find the driver details
-                const driver = await getDriverDetails(drive.driver);
-                if (!driver) {
-                    return null;
-                }
-
+                const driverProfile = await UserProfile.findOne({ user: drive.driver });
+                const profileImg = await getProfileImg(driverProfile.profileImg.publicId, driverProfile.profileImg.format,
+                    driverProfile.isProfileUpdated);
                 return {
-                    rideDetails: {
-                        passengerId: ride.passenger,
-                        driveId: ride.drive,
-                        passengerStatus: ride.passengerStatus,
-                        requestedAt: ride.requestedAt,
-                        completedAt: ride.completedAt,
-                        acceptedAt: ride.acceptedAt,
-                        cancelledAt: ride.cancelledAt
-                    },
-                    driveDetails: {
-                        from: drive.from,
-                        to: drive.to,
-                        seatsAvailable: drive.seatsAvailable,
-                        departureTime: drive.departureTime,
-                        driveStatus: drive.driveStatus,
-                        vehicleDetails: drive.vehicleDetails,
-                        specialNote: drive.specialNote
-                    },
-                    driverDetails: driver
-                };
+                    ride,
+                    driverProfileImg: profileImg
+                }
             })
         );
-
-        // Filter out any null results (in case no drive or driver was found)
-        const filteredRideDetails = rideDetails.filter((ride) => ride !== null);
 
         const totalPages = Math.ceil(totalRides / limit);
 
@@ -80,7 +59,7 @@ const getRidesForRider = async (req, res) => {
             limit,
             totalItems: totalRides,
             totalPages,
-            data: filteredRideDetails
+            data: rideDetails
         };
 
         res.status(200).json(response);

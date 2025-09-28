@@ -20,18 +20,24 @@ const UserSchema = new mongoose.Schema({
     },
     collegeName: {
         type: String,
-        required: [true, "College is required"],
-        maxLength: [50, "College Name must not exceed 50 characters"]
+        required: function () {
+            return this.role === 'passenger';
+        }
     },
     password: {
         type: String,
         required: [true, "Password is required"]
     },
     collegeIDProof: {
-        publicId: { type: String, required: true },
-        format: { type: String, required: true },
-        width: { type: Number, required: true },
-        height: { type: Number, required: true }
+        type: {
+            publicId: { type: String },
+            format: { type: String },
+            width: { type: Number },
+            height: { type: Number }
+        },
+        required: function () {
+            return this.role === 'passenger';
+        }
     },
     isVerified: {
         type: Boolean,
