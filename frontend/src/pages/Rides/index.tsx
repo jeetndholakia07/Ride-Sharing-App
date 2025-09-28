@@ -29,7 +29,7 @@ const Index = () => {
 
     const handleSearchRides = async (payload: FormValues) => {
         try {
-            const response = await axiosInstance.post(api.allRides, payload);
+            const response = await axiosInstance.post(api.public.allRides, payload);
             console.log(response.data);
         }
         catch (err) {

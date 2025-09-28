@@ -15,7 +15,7 @@ const ReviewSection = () => {
 
     const handleSearchReview = async () => {
         try {
-            const response = await apiInterceptor.get(api.userReview);
+            const response = await apiInterceptor.get(api.user.userReview);
             return response.data;
         }
         catch (err) {
@@ -26,7 +26,7 @@ const ReviewSection = () => {
 
     const getReviews = async () => {
         try {
-            const response = await axiosInstance.get(api.allReviews);
+            const response = await axiosInstance.get(api.public.allReviews);
             return response.data;
         }
         catch (err) {

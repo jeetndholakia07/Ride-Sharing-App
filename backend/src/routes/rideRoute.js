@@ -8,6 +8,7 @@ import acceptRide from "../controllers/update/acceptRide.js";
 import completeRide from "../controllers/update/completeRide.js";
 import rejectRide from "../controllers/update/rejectRide.js";
 import updateDrive from "../controllers/update/updateDrive.js";
+import addRatingForDriver from "../controllers/update/addRatingForDriver.js";
 import authorizeRole from "../middlewares/authorizeRole.js";
 
 const rideRoute = express.Router();
@@ -23,6 +24,6 @@ rideRoute.put("/acceptRide", authorizeRole(["driver"]), acceptRide);
 rideRoute.put("/completeRide", authorizeRole(["driver"]), completeRide);
 rideRoute.put("/rejectRide", authorizeRole(["passenger"]), rejectRide);
 rideRoute.put("/editDrive", updateDrive);
-
+rideRoute.put("/addRatingForDriver", authorizeRole(["passenger"]), addRatingForDriver);
 
 export default rideRoute;

@@ -1,28 +1,40 @@
 const baseURL = "peerRide/api";
+const publicURL = `${baseURL}/public`;
+const rideURL = `${baseURL}/ride`;
+const userURL = `${baseURL}/user`;
+const authURL = `${baseURL}/auth`;
 
 export const api = {
-    signup: `${baseURL}/auth/registerUser`,
-    login: `${baseURL}/auth/loginUser`,
-    createReview: `${baseURL}/user/rating`,
-    userReview: `${baseURL}/user/userRating`,
-    allReviews: `${baseURL}/public/ratings`,
-    allRides: `${baseURL}/public/rides`,
-    userData: `${baseURL}/user/userData`,
-    userProfile: `${baseURL}/user/userProfile`,
-    profileImg: `${baseURL}/user/profileImage`,
-    notifications: `${baseURL}/user/notifications`,
-    ridesForRider: `${baseURL}/ride/ridesForRider`,
-    ridesForDriver: `${baseURL}/ride/ridesForDriver`,
-    createDrive: `${baseURL}/ride/drive`,
-    createRide: `${baseURL}/ride/ride`,
-    verifyUser: `${baseURL}/user/verifyUser`,
-    updateProfileImg: `${baseURL}/user/profileImage`,
-    updateProfile: `${baseURL}/user/userProfile`,
-    readNotification: `${baseURL}/user/notificationRead`,
-    cancelRide: `${baseURL}/ride/cancelRide`,
-    acceptRide: `${baseURL}/ride/acceptRide`,
-    rejectRide: `${baseURL}/ride/rejectRide`,
-    completeRide: `${baseURL}/ride/completeRide`,
-    updateDrive: `${baseURL}/ride/editDrive`,
-    updatePassword: `${baseURL}/user/editPassword`
+    auth: {
+        signup: `${authURL}/registerUser`,
+        login: `${authURL}/loginUser`,
+    },
+    user: {
+        userData: `${userURL}/userData`,
+        userProfile: `${userURL}/userProfile`,
+        profileImg: `${userURL}/profileImage`,
+        notifications: `${userURL}/notifications`,
+        createReview: `${userURL}/rating`,
+        userReview: `${userURL}/userRating`,
+        verifyUser: `${userURL}/verifyUser`,
+        updateProfileImg: `${userURL}/profileImage`,
+        updateProfile: `${userURL}/userProfile`,
+        readNotification: `${userURL}/notificationRead`,
+        forgetPassword: `${userURL}/editPassword`
+    },
+    ride: {
+        ridesForRider: `${rideURL}/ridesForRider`,
+        ridesForDriver: `${rideURL}/ridesForDriver`,
+        createDrive: `${rideURL}/drive`,
+        createRide: `${rideURL}/ride`,
+        cancelRide: `${rideURL}/cancelRide`,
+        acceptRide: `${rideURL}/acceptRide`,
+        rejectRide: `${rideURL}/rejectRide`,
+        completeRide: `${rideURL}/completeRide`,
+        updateDrive: `${rideURL}/editDrive`,
+    },
+    public: {
+        allReviews: `${publicURL}/ratings`,
+        allRides: `${publicURL}/rides`,
+    }
 }

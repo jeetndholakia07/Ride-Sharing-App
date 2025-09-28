@@ -65,7 +65,7 @@ const SignupPage = () => {
         setSubmitting(false);
         try {
             setIsLoading(true);
-            await axiosInstance.post(api.login, payload);
+            await axiosInstance.post(api.auth.signup, payload);
             setError("");
             showToast("success", t("messages.registerSuccess"));
             navigate("/login");

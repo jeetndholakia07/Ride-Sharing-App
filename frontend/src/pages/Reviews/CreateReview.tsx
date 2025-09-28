@@ -38,7 +38,7 @@ const CreateReview = () => {
                 return;
             }
             setIsLoading(true);
-            await apiInterceptor.post(api.createReview, payload);
+            await apiInterceptor.post(api.user.createReview, payload);
             showToast("success", t("messages.createReviewSuccess"));
         }
         catch (err) {

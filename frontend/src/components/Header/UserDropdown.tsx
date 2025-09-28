@@ -30,7 +30,7 @@ const UserDropdown = () => {
     const handleProfile = async () => {
         if (isAuthenticated) {
             try {
-                const response = await apiInterceptor.get(api.profileImg);
+                const response = await apiInterceptor.get(api.user.profileImg);
                 return response.data;
             }
             catch (err) {
