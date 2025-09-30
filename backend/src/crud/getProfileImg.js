@@ -1,16 +1,16 @@
 import cloudinary from "cloudinary";
 
 const getProfileImg = async (publicId, format, isProfileUpdated) => {
-    let profileImg = publicId;
-    if (isProfileUpdated) {
-        const signedUrl = cloudinary.v2.url(`${publicId}/${format}`, {
-            type: "private",
-            sign_url: true,
-            secure: true
-        });
-        profileImg = signedUrl;
-    }
-    return profileImg;
-}
+    if (!isProfileUpdated) return publicId;
+
+    const signedUrl = cloudinary.v2.url(publicId, {
+        type: "private",
+        sign_url: true,
+        secure: true,
+        format
+    });
+
+    return signedUrl;
+};
 
 export default getProfileImg;

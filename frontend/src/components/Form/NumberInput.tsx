@@ -2,44 +2,71 @@ import { type FC } from 'react';
 
 type NumberInputProps = {
     label: string;
-    value: number;
+    value: number | '';
     name: string;
     placeholder: string;
     required?: boolean;
     onChange: React.ChangeEventHandler<HTMLInputElement>;
-    onBlur: React.FocusEventHandler<HTMLInputElement>;
+    onBlur?: React.FocusEventHandler<HTMLInputElement>;
     min?: number;
     error?: any;
-    disabled?:boolean;
-}
+    disabled?: boolean;
+    icon?: string;
+};
 
-const NumberInput: FC<NumberInputProps> = ({ label, value, name, onChange, placeholder, onBlur, min, required=false, error, disabled=false }) => (
-    <div className="mb-2 flex flex-col items-start justify-start">
-        {label && (
-            <div className="flex items-center">
-                <label className="mb-1 block text-md font-medium text-gray-700">
-                    {label}
-                </label>
-                {required && (
-                    <i className="text-red-600 font-bold text-sm">*</i>
-                )}
-            </div>
-        )}
-        <input
-            type="number"
-            name={name}
-            value={value}
-            onChange={onChange}
-            placeholder={placeholder}
-            required={required}
-            onBlur={onBlur}
-            min={min}
-            disabled={disabled}
-            className="w-full rounded-lg px-4 py-2 border border-gray-300 bg-white text-md text-gray-800 
-            disabled:bg-blue-50 focus:outline-none focus:ring-1 focus:ring-blue-400"
-        />
-        {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
-    </div>
-);
+const NumberInput: FC<NumberInputProps> = ({
+    label,
+    value,
+    name,
+    onChange,
+    placeholder = " ",
+    onBlur,
+    min,
+    required = false,
+    error,
+    disabled = false,
+    icon
+}) => {
+    return (
+        <div className="relative w-full mb-2">
+            <input
+                type="number"
+                id={name}
+                name={name}
+                value={value}
+                onChange={onChange}
+                onBlur={onBlur}
+                required={required}
+                min={min}
+                disabled={disabled}
+                placeholder={placeholder}
+                className={`
+          peer block w-full appearance-none rounded-md border
+          bg-white px-3 pt-5 pb-1.5 text-sm
+          text-gray-900 placeholder-transparent transition-all
+          focus:border-blue-500 focus:outline-none focus:ring-2 focus:ring-blue-400
+          ${error ? 'border-red-500' : 'border-gray-300'}
+          ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
+        `}
+            />
+            {icon && <i className={`${icon} text-md text-gray-400 mr-1`} aria-hidden="true" />}
+            <label
+                htmlFor={name}
+                className={`
+          absolute left-3 top-1.5 z-10 origin-[0]
+          text-gray-500 text-sm transition-all duration-200
+          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
+          peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-blue-500
+          ${error ? 'text-red-500 peer-focus:text-red-500' : ''}
+          ${disabled ? 'text-gray-400' : ''}
+        `}
+            >
+                {label}
+                {required && <span className="text-red-500 ml-0.5">*</span>}
+            </label>
+            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+        </div>
+    );
+};
 
 export default NumberInput;

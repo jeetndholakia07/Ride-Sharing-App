@@ -6,6 +6,7 @@ import AppRoutes from "./routes/AppRoutes";
 import { ToastProvider } from "./components/Toast/ToastContext";
 import { Provider } from "react-redux";
 import { store } from "./context/store/store";
+import { ConfirmModalProvider } from "./context/ConfirmModalContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 function App() {
@@ -13,11 +14,13 @@ function App() {
   return (
     <BrowserRouter>
       <ToastProvider>
-        <QueryClientProvider client={queryClient}>
-          <Provider store={store}>
-            <AppRoutes />
-          </Provider>
-        </QueryClientProvider>
+        <ConfirmModalProvider>
+          <QueryClientProvider client={queryClient}>
+            <Provider store={store}>
+              <AppRoutes />
+            </Provider>
+          </QueryClientProvider>
+        </ConfirmModalProvider>
       </ToastProvider>
     </BrowserRouter>
   )

@@ -18,6 +18,7 @@ const getRatings = async (req, res) => {
                 return {
                     rating: rating.rating,
                     review: rating.review,
+                    createdAt: rating.createdAt,
                     user: {
                         username: rating.user.username,
                         role: rating.user.role,

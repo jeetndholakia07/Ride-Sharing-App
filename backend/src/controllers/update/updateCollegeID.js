@@ -1,13 +1,14 @@
+import User from "../../models/User.js";
 import cloudinary from "cloudinary";
 import cloudinaryConfig from "../../config/cloudinary.js";
-import UserProfile from "../../models/UserProfile.js";
 import fs from "fs";
+import { slugify } from "../../utils/format.js";
 
 cloudinaryConfig();
 
-const updateProfileImg = async (req, res) => {
-    let filePath;
+const updateCollegeID = async (req, res) => {
     try {
+        let filePath;
         const userId = req.user.id;
         if (!userId) {
             return res.status(400).json({ message: "User id not found" });
@@ -16,14 +17,13 @@ const updateProfileImg = async (req, res) => {
         if (!filePath) {
             return res.status(400).json({ message: "No file path provided" });
         }
-
-        const userProfile = await UserProfile.findOne({ user: userId });
-        if (!userProfile) {
-            return res.status(404).json({ message: "User Profile doesn't exist" });
+        const user = await User.findById(userId);
+        if (!user) {
+            return res.status(401).json({ message: "User not found" });
         }
-
+        const formattedName = slugify(user.username);
         const result = await cloudinary.v2.uploader.upload(filePath, {
-            public_id: `user_profiles/${userId}`,
+            public_id: `collegeIDProof/${formattedName}`,
             type: "private",
             overwrite: true,
             resource_type: "image",
@@ -33,23 +33,25 @@ const updateProfileImg = async (req, res) => {
             ]
         }).catch((err) => console.error("Error uploading profile image to cloudinary:", err));
 
-        userProfile.profileImg = {
+        user.collegeIDProof = {
             publicId: result.public_id,
             format: result.format,
             width: result.width,
             height: result.height
-        }
-        userProfile.isProfileUpdated = true;
-        await userProfile.save();
+        };
+
+        await user.save();
         res.status(201).send();
     }
     catch (err) {
-        console.error("Error updating profile image:", err);
+        console.error("Error updating collegeID:", err);
         res.status(501).send();
     }
     finally {
-        await fs.promises.unlink(filePath)
-            .catch((err) => console.error("Error deleting upload:", err));
+        if (filePath) {
+            await fs.promises.unlink(filePath)
+                .catch((err) => console.error("Error deleting upload:", err));
+        }
     }
 }
-export default updateProfileImg;
+export default updateCollegeID;

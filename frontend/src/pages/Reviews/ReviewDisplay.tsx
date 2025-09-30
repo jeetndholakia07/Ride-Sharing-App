@@ -1,13 +1,7 @@
-type Review = {
-    username: string;
-    profileImg: string;
-    rating: number;
-    review: string;
-    createdAt?: string;
-};
+import { formatDate } from "../../utils/dateFormat";
 
 type ReviewDisplayProps = {
-    reviews: Review[];
+    reviews: any;
     heading: string;
 };
 
@@ -15,24 +9,24 @@ const ReviewDisplay: React.FC<ReviewDisplayProps> = ({ reviews, heading }) => {
     return (
         <div className="space-y-6 w-full max-w-2xl mx-auto mt-8">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">{heading}</h2>
-            {reviews.map((review) => (
+            {reviews.map((review: any) => (
                 <div
-                    key={review.username}
+                    key={review.user.username}
                     className="flex items-start gap-4 p-4 bg-white shadow-sm rounded-lg border border-gray-100"
                 >
                     {/* Profile Image */}
                     <img
-                        src={review.profileImg}
-                        alt={`${review.username}'s profile`}
+                        src={review.user.profileImg}
+                        alt={`${review.user.username}'s profile`}
                         className="w-12 h-12 rounded-full object-cover"
                     />
 
                     {/* Review Content */}
                     <div className="flex-1">
                         <div className="flex items-center justify-between">
-                            <h3 className="font-semibold text-gray-800">{review.username}</h3>
+                            <h3 className="font-semibold text-gray-800">{review.user.username}</h3>
                             {review.createdAt && (
-                                <span className="text-sm text-gray-400">{review.createdAt}</span>
+                                <span className="text-sm text-gray-400">{formatDate(review.createdAt)}</span>
                             )}
                         </div>
 

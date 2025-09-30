@@ -10,7 +10,7 @@ type menuItemProps = {
 const MenuItem: FC<menuItemProps> = ({ icon, label, onClick, isLogout }) => {
     return (
         <button
-            className={`flex items-center w-full px-4 py-2 text-sm transition-colors duration-150 ${isLogout
+            className={`flex items-center w-full px-4 py-2 hover:cursor-pointer text-sm transition-colors duration-150 ${isLogout
                 ? 'text-red-600 hover:bg-red-50'
                 : 'text-gray-700 hover:bg-gray-100'
                 }`}

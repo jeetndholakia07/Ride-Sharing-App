@@ -61,22 +61,27 @@ const UserDropdown = () => {
         <div className="relative inline-block text-left" ref={dropdownRef}>
             <button
                 onClick={toggleMenu}
-                className="flex items-center space-x-3 bg-white px-4 py-2 rounded-full shadow-sm hover:shadow-md transition duration-200"
+                className="flex items-center space-x-1 focus:outline-none hover:cursor-pointer"
+                aria-label="Toggle user menu"
             >
-                <img
-                    src={profileImg}
-                    alt={t("profileImg")}
-                    className="w-8 h-8 rounded-full"
-                />
+                <div className="relative w-[2.5rem] h-[2.5rem]">
+                    <span className="absolute inset-0 rounded-full border-2 font-bold border-blue-400 animate-pulse"></span>
+                    <img
+                        src={profileImg}
+                        alt={t("profileImg")}
+                        className="w-[2.5rem] h-[2.5rem] rounded-full cursor-pointer relative z-10"
+                    />
+                </div>
                 <i className={`bi bi-chevron-${open ? 'up' : 'down'} text-gray-500 text-sm`} />
             </button>
+
 
             {/* Dropdown Menu */}
             {open && (
                 <div className="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-lg shadow-lg z-50">
                     <div className="py-2">
                         <MenuItem icon="bi bi-person" label={t("profile")} onClick={() => navigate("/profile")} />
-                        <MenuItem icon="bi bi-car-front-fill" label={t("yourRides")} onClick={() => navigate("/profile/rideDetails")} />
+                        <MenuItem icon="bi bi-car-front-fill" label={t("yourRides")} onClick={() => navigate("/profile/rides")} />
                         <MenuItem icon="bi bi-bell" label={t("notifications")} onClick={() => navigate("/profile/notifications")} />
                         <MenuItem icon="bi bi-key" label={t("forgetPassword")} onClick={() => navigate("/profile/forgetPassword")} />
                     </div>

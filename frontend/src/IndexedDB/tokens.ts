@@ -5,7 +5,7 @@ export const addToken = async (token: any, userId: string, role: string): Promis
     const transaction = db.transaction("tokens", "readwrite");
     const store = transaction.objectStore("tokens");
     return new Promise<void>((resolve, reject) => {
-        const addRequest = store.add({ id: 1, token: token, username: userId, role: role });
+        const addRequest = store.add({ id: 1, token: token, userId: userId, role: role });
         addRequest.onsuccess = () => resolve();
         addRequest.onerror = () => reject("Error adding token");
     });
@@ -36,7 +36,7 @@ export const updateToken = async (token: any, userId: string, role: string) => {
     const transaction = db.transaction("tokens", "readwrite");
     const store = transaction.objectStore("tokens");
     return new Promise<void>((resolve, reject) => {
-        const putRequest = store.put({ id: 1, username: userId, token: token, role: role });
+        const putRequest = store.put({ id: 1, userId: userId, token: token, role: role });
         putRequest.onsuccess = () => resolve();
         putRequest.onerror = () => reject("Error updating token");
     })

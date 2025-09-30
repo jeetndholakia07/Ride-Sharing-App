@@ -27,7 +27,7 @@ const ReviewSection = () => {
     const getReviews = async () => {
         try {
             const response = await axiosInstance.get(api.public.allReviews);
-            return response.data;
+            return response.data.data;
         }
         catch (err) {
             console.error("Error fetching reviews:", err);
@@ -62,7 +62,7 @@ const ReviewSection = () => {
                     empty={<AddReview />}
                     isLoading={isUserLoading}
                 >
-                    <ReviewDisplay reviews={userReview} heading={t("userReview")} />
+                    <ReviewDisplay reviews={[userReview]} heading={t("userReview")} />
                 </WithSuspense>
             </div>
             {/* All Reviews Section */}

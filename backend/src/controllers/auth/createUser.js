@@ -21,8 +21,7 @@ const createUser = async (req, res) => {
             const formattedName = slugify(username);
             //Upload the image to cloudinary
             result = await cloudinary.v2.uploader.upload(filePath, {
-                public_id: `collegeID/${formattedName}`,
-                folder: "collegeIDProof",
+                public_id: `collegeIDProof/${formattedName}`,
                 type: "private",
                 overwrite: true,
                 resource_type: "image",

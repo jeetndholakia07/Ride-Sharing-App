@@ -5,21 +5,28 @@ import * as Yup from "yup";
 import { useState } from 'react';
 import axiosInstance from '../../hooks/axiosInstance';
 import { api } from '../../hooks/api';
-import RideCard from '../../components/Ride/RideCard';
-import {data} from "./data.json";
-import RideDetails from '../../components/Ride/RideDetails';
+import SearchButton from '../../components/Buttons/SearchButton';
+import RideList from '../../components/Ride/RideList';
 
 type FormValues = {
     from: string;
     to: string;
+    seats: number;
+    date: Date | null;
 }
 
 const Index = () => {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
+    const [seats, setSeats] = useState(1);
+    const [dateState, setDateState] = useState<Date | null>(null);
+    const [isSearch, setIsSearch] = useState(false);
+    const [data, setData] = useState([]);
     const initialValues: FormValues = {
         from: "",
-        to: ""
+        to: "",
+        seats: seats,
+        date: dateState
     };
 
     const validationSchema = Yup.object().shape({
@@ -29,17 +36,23 @@ const Index = () => {
 
     const handleSearchRides = async (payload: FormValues) => {
         try {
+            setIsLoading(true);
             const response = await axiosInstance.post(api.public.allRides, payload);
-            console.log(response.data);
+            setData(response.data.data);
+            setIsSearch(true);
         }
         catch (err) {
             console.error("Error fetching rides by location:", err);
+        }
+        finally {
+            setIsLoading(false);
         }
     }
 
     const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
         setSubmitting(false);
-        await handleSearchRides(values);
+        const payload = { ...values, seats: seats, date: dateState }
+        await handleSearchRides(payload);
     };
 
     return (
@@ -60,29 +73,29 @@ const Index = () => {
                         onSubmit={handleSubmit}
                         validationSchema={validationSchema}
                     >
-                        {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isValid, dirty }) => {
+                        {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isValid, dirty, setFieldValue }) => {
                             return (
                                 <form onSubmit={handleSubmit}>
                                     <RideSearch values={values} onChange={handleChange} onBlur={handleBlur}
-                                        errors={errors} touched={touched}
+                                        errors={errors} touched={touched} setSeats={setSeats} setDateState={setDateState}
+                                        setFieldValue={setFieldValue}
                                     />
                                     <div className="flex items-center justify-center mt-4">
-                                        <button
-                                            type="submit"
+                                        <SearchButton name={t("searchRide")} isLoading={isLoading}
                                             disabled={!isValid || !dirty}
-                                            className={`text-white text-lg font-semibold py-3 px-8 rounded-lg transition duration-300 transform focus:outline-none focus:ring-2
-                                             focus:ring-green-600 ${!isValid || !dirty ? 'bg-green-700 text-gray-100 cursor-not-allowed'
-                                                    : 'bg-green-600 hover:bg-green-600 hover:scale-105 cursor-pointer'}`}
-                                        >
-                                            <i className="bi bi-search text-md mr-2"></i>{t("searchRide")}
-                                        </button>
+                                        />
                                     </div>
                                 </form>
                             )
                         }}
                     </Formik>
-            <RideCard ride={data}/>
                 </div>
+                {isSearch && (
+                    <div className="mt-6 border-t border-gray-200 pt-10 animate-fade-in">
+                        <RideList rides={data} />
+                    </div>
+                )}
+
             </div>
         </div>
     );

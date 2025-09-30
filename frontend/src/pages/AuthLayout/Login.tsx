@@ -72,6 +72,7 @@ const LoginPage = () => {
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                                 error={touched?.username && errors.username}
+                                icon="bi bi-person-fill"
                             />
                         </div>
                         <div className="grid grid-cols-1 gap-6 mb-2">
@@ -84,9 +85,10 @@ const LoginPage = () => {
                                 onChange={handleChange}
                                 onBlur={handleBlur}
                                 error={touched?.password && errors.password}
+                                icon="bi bi-key-fill"
                             />
                         </div>
-                        {error && <p className="text-red-500 text-sm mb-3">{error}</p>}
+                        {error && <p className="text-red-500 text-sm mb-2">{error}</p>}
                         <div className="grid grid-cols-1 gap-6 mb-4">
                             <span className="text-gray-800 font-medium"> {t("notRegistered")}
                                 <Link to="/signup" className="text-blue-700 font-medium ml-1">{t("clickHere")} </Link>
@@ -94,7 +96,7 @@ const LoginPage = () => {
                             </span>
                         </div>
                         <div className="grid grid-cols-1 gap-6 mb-4">
-                            <LoadingButton name={t("buttons.login")} handleApi={handleSubmit} isLoading={isLoading}
+                            <LoadingButton name={t("login")} handleApi={handleSubmit} isLoading={isLoading}
                                 disabled={!isValid || !dirty} />
                         </div>
                     </form>

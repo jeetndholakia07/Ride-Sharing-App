@@ -7,8 +7,8 @@ const createRating = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ message: "User id not found" });
         }
-        if (!rating || !review) {
-            return res.status(404).json({ message: "Please provide userId, rating and review" });
+        if (!rating || review === null) {
+            return res.status(404).json({ message: "Please provide rating and review" });
         }
         await Rating.create({
             user: userId,

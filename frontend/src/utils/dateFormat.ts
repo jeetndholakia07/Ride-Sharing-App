@@ -9,5 +9,13 @@ const formatDateTime = (date: any) => {
     return momentDate.format('DD-MM-YYYY hh:mm:ss A');
 };
 
+const formatDate = (date: any) => {
+    if (!date) return '';
 
-export { formatDateTime };
+    const momentDate = moment(date);
+    if (!momentDate.isValid()) return '';
+
+    return momentDate.format('DD-MM-YYYY');
+}
+
+export { formatDateTime, formatDate };

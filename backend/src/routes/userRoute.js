@@ -1,6 +1,5 @@
 import express from "express";
 import getUserProfile from "../controllers/read/getUserProfile.js";
-import getUserData from "../controllers/read/getUserData.js";
 import getNotifications from "../controllers/read/getNotifications.js";
 import getUserRating from "../controllers/read/getUserRating.js";
 import getProfileImage from "../controllers/read/getProfileImg.js";
@@ -18,7 +17,6 @@ userRoute.use(express.json());
 userRoute.use(express.urlencoded({ extended: true }));
 const upload = multer({ dest: "uploads/" });
 
-userRoute.get("/userData", getUserData);
 userRoute.get("/userProfile", getUserProfile);
 userRoute.get("/profileImage", getProfileImage);
 userRoute.get("/notifications", getNotifications);
