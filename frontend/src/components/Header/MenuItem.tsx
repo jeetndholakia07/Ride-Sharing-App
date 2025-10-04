@@ -20,7 +20,7 @@ const MenuItem: FC<menuItemProps> = ({ icon, label, onClick, isLogout, isNotific
         >
             <i className={`${icon} text-lg mr-3`} />
             {label}
-            {(isNotification && notificationCount && notificationCount > 0) &&
+            {(isNotification && typeof notificationCount === "number" && notificationCount > 0) &&
                 <span className="relative top-0 ml-5 bg-yellow-600 
             text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
                     {notificationCount > 99 ? "99+" : notificationCount}

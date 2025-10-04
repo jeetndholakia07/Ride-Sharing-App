@@ -6,7 +6,7 @@ import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { useToast } from "../../components/Toast/ToastContext";
 import SelectInput from '../../components/Form/SelectInput';
-import { passenger } from "../../i18n/keys/passenger.json";
+import { passenger as passengerJson } from "../../i18n/keys/passenger.json";
 import { vehicleType } from "../../i18n/keys/vehicleType.json";
 import RadioButtonGroup from "../../components/Form/RadioButton";
 import TextArea from "../../components/Form/TextArea";
@@ -17,13 +17,16 @@ import { mergeDateTime } from "../../utils/dateFormat";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
+type VehicleType = "two-wheeler" | "four-wheeler";
+
+
 type FormValues = {
     from: string;
     to: string;
     seats: number;
     date: Date | null;
     time: Date | null;
-    vehicleType: string;
+    vehicleType: VehicleType;
     vehicleName: string;
     vehicleNumber: string;
     comments: string;
@@ -94,6 +97,10 @@ const PublishRide = () => {
                         validationSchema={validationSchema}
                     >
                         {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isValid, dirty, setFieldValue }) => {
+                            const passengerSeats = passengerJson.seats as Record<VehicleType,number[]>;
+                            
+                            const seatOptions = passengerSeats[values.vehicleType] || [];
+
                             const handleDateChange = (selectedDate: any) => {
                                 setFieldValue("date", selectedDate);
                             };
@@ -101,12 +108,21 @@ const PublishRide = () => {
                                 setFieldValue("time", selectedTime);
                             };
                             const handleSelectChange = (e: any) => {
-                                setFieldValue("seats", e.target.value);
+                                setFieldValue("seats", parseInt(e.target.value));
                             };
-                            const handleVehicleChange = (e: any) => {
-                                const newType = e.target.checked ? e.target.value : '';
+
+                            const handleVehicleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+                                const newType = e.target.value as VehicleType;
                                 setFieldValue("vehicleType", newType);
-                            }
+                              
+                                const validSeats = passengerSeats[newType];
+                              
+                                // Reset seats to 1 if current seat value is invalid for the selected vehicle
+                                if (!validSeats.includes(values.seats)) {
+                                  setFieldValue("seats", 1);
+                                }
+                              };
+                              
                             return (
                                 <form onSubmit={handleSubmit}>
                                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
@@ -184,7 +200,7 @@ const PublishRide = () => {
                                             name={t("seats")}
                                             label={t("seatsAvailable")}
                                             value={values.seats}
-                                            values={passenger.seats}
+                                            values={seatOptions}
                                             onChange={handleSelectChange}
                                             icon="bi bi-person-fill"
                                         />

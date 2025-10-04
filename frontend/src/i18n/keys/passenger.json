@@ -1,10 +1,15 @@
 {
     "passenger": {
-        "seats": [
-            1,
-            2,
-            3,
-            4
-        ]
+        "seats": {
+            "two-wheeler": [
+                1
+            ],
+            "four-wheeler": [
+                1,
+                2,
+                3,
+                4
+            ]
+        }
     }
 }
