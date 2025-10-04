@@ -17,6 +17,9 @@ const NotificationSchema = new mongoose.Schema({
     isRead: {
         type: Boolean,
         default: false
+    },
+    linkId: {
+        type: String
     }
 }, { timestamps: true });
 

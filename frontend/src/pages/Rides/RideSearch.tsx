@@ -11,22 +11,13 @@ type props = {
     onBlur: React.FocusEventHandler<HTMLInputElement>;
     errors: any;
     touched: any;
-    setSeats: any;
-    setDateState: any;
-    setFieldValue: any;
+    handleDateChange: (date: Date) => void;
+    handleSelectChange: (e: any) => void;
 }
 
-const RideSearch: FC<props> = ({ values, onChange, onBlur, errors, touched, setSeats, setDateState, setFieldValue }) => {
+const RideSearch: FC<props> = ({ values, onChange, onBlur, errors, touched, handleDateChange, handleSelectChange }) => {
     const { t } = useTranslation();
 
-    const handleSelectChange = (e: any) => {
-        setSeats(e.target.value);
-        setFieldValue("seats", e.target.value);
-    };
-    const handleDateTimeChange = (selectedDate: any) => {
-        setDateState(selectedDate);
-        setFieldValue("departure", selectedDate);
-    };
     return (
         <div className="space-y-3">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
@@ -60,7 +51,7 @@ const RideSearch: FC<props> = ({ values, onChange, onBlur, errors, touched, setS
                     required={true}
                     placeholder={t("date")}
                     value={values.departure}
-                    onChange={([selectedDate]: any) => handleDateTimeChange(selectedDate)}
+                    onChange={([selectedDate]: any) => handleDateChange(selectedDate)}
                     icon="bi bi-calendar-event"
                 />
                 <SelectInput

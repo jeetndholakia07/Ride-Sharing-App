@@ -10,7 +10,7 @@ const Index = () => {
             <div className="max-w-5xl mx-auto">
                 {/* Company Intro */}
                 <section className="mb-16 text-center">
-                    <h1 className="text-5xl font-extrabold mb-6">{t("welcome")}
+                    <h1 className="text-5xl font-extrabold mb-6">{t("welcomeTo")}
                         <span className="text-blue-700 ml-2">{t("peer")}</span>
                         <span className="text-green-700">{t("ride")}</span>
                     </h1>

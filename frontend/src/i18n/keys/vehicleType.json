@@ -1,0 +1,14 @@
+{
+    "vehicleType": [
+        {
+            "label": "Two-wheeler",
+            "value": "two-wheeler",
+            "icon": "bi bi-scooter"
+        },
+        {
+            "label": "Four-wheeler",
+            "value": "four-wheeler",
+            "icon": "bi bi-car-front-fill"
+        }
+    ]
+}

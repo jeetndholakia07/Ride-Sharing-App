@@ -25,6 +25,8 @@ const getStatusIcon = (status: string) => {
             return <i className="bi bi-hourglass-bottom text-yellow-700 mr-1" />;
         case "cancelled":
             return <i className="bi bi-x-lg text-red-700 mr-1" />;
+        case "rejected":
+            return <i className="bi bi-x-lg text-red-700 mr-1" />;
         default:
             return <i className="bi bi-hourglass-bottom text-yellow-700 mr-1" />;
     }
@@ -38,6 +40,10 @@ const getStatusColor = (status: string) => {
             return "bg-red-100 text-red-800";
         case "pending":
             return "bg-yellow-100 text-yellow-800";
+        case "rejected":
+            return "bg-red-100 text-red-800";
+        case "completed":
+            return "bg-green-100 text-green-800";
         default:
             return "bg-yellow-100 text-yellow-800";
     }

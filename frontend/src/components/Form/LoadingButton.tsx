@@ -5,7 +5,7 @@ type ButtonProps = {
     disabled?: boolean;
     handleApi: any;
     isLoading: boolean;
-    icon?: React.ReactNode;
+    icon?: string;
     bgColor?: string;
     loadingBgColor?: string;
 };
@@ -32,7 +32,7 @@ const LoadingButton: React.FC<ButtonProps> = ({
                 ${isLoading ? `${loadingBgColor} cursor-wait` : `${bgColor}`} 
                 disabled:bg-gray-300 disabled:cursor-not-allowed`}
         >
-            {icon && icon}
+            {icon && <i className={`${icon} mr-1`} />}
             <span className={`${isLoading ? 'opacity-0' : 'opacity-100'}`}>{name}</span>
             {isLoading && (
                 <span className="absolute inset-0 flex items-center justify-center text-xs text-white">

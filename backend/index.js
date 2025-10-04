@@ -7,6 +7,7 @@ import publicRoute from "./src/routes/publicRoute.js";
 import userRoute from "./src/routes/userRoute.js";
 import rideRoute from "./src/routes/rideRoute.js";
 import verifyUser from "./src/middlewares/verifyUser.js";
+import optionalAuth from "./src/middlewares/optionalAuth.js";
 
 const app = express();
 
@@ -16,7 +17,7 @@ const baseURL = "/peerRide/api";
 app.use(cors());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
-app.use(`${baseURL}/public`, publicRoute);
+app.use(`${baseURL}/public`, optionalAuth, publicRoute);
 app.use(`${baseURL}/auth`, authRoute);
 app.use(`${baseURL}/user`, verifyUser, userRoute);
 app.use(`${baseURL}/ride`, verifyUser, rideRoute);

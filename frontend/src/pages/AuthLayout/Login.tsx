@@ -10,6 +10,8 @@ import { api } from "../../hooks/api";
 import LoadingButton from "../../components/Form/LoadingButton";
 import { useToast } from "../../components/Toast/ToastContext";
 import { addToken } from "../../IndexedDB/tokens";
+import { useRole } from "../../context/RoleContext";
+import { passwordRegex } from "../../utils/regex";
 
 type FormValues = {
     username: string;
@@ -25,12 +27,14 @@ const LoginPage = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [error, setError] = useState("");
     const { showToast } = useToast();
+    const { setRole } = useRole();
     const navigate = useNavigate();
 
     const validationSchema = Yup.object().shape({
         username: Yup.string().required(t("formMessages.usernameRequired")),
         password: Yup.string()
-            .required(t("formMessages.passwordRequired")),
+            .required(t("formMessages.passwordRequired"))
+            .matches(passwordRegex, t("formMessages.passwordConstraint")),
     });
 
     const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
@@ -39,7 +43,8 @@ const LoginPage = () => {
         try {
             setIsLoading(true);
             const response = await axiosInstance.post(api.auth.login, payload);
-            await addToken(response.data.token, response.data.userId, response.data.role);
+            await addToken(response.data.token, response.data.userId, response.data.role, response.data.username);
+            setRole(response.data.role);
             setError("");
             showToast("success", t("messages.loginSuccess"));
             navigate("/");

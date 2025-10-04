@@ -1,13 +1,15 @@
+import type { ReactNode } from "react";
 import { formatDate } from "../../utils/dateFormat";
 
 type ReviewDisplayProps = {
-    reviews: any;
+    reviews: any[];
     heading: string;
+    children?: ReactNode;
 };
 
-const ReviewDisplay: React.FC<ReviewDisplayProps> = ({ reviews, heading }) => {
+const ReviewDisplay: React.FC<ReviewDisplayProps> = ({ reviews, heading, children }) => {
     return (
-        <div className="space-y-6 w-full max-w-2xl mx-auto mt-8">
+        <div className="space-y-6 w-full max-w-2xl mx-auto mt-4">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">{heading}</h2>
             {reviews.map((review: any) => (
                 <div
@@ -25,11 +27,11 @@ const ReviewDisplay: React.FC<ReviewDisplayProps> = ({ reviews, heading }) => {
                     <div className="flex-1">
                         <div className="flex items-center justify-between">
                             <h3 className="font-semibold text-gray-800">{review.user.username}</h3>
-                            {review.createdAt && (
-                                <span className="text-sm text-gray-400">{formatDate(review.createdAt)}</span>
+                            {review.updatedAt && (
+                                <span className="text-sm text-gray-400">{formatDate(review.updatedAt)}</span>
                             )}
                         </div>
-
+                        <p className="text-gray-500 font-semibold">{review.user.role}</p>
                         {/* Star Rating */}
                         <div className="flex mb-1">
                             {[1, 2, 3, 4, 5].map((star) => (
@@ -42,12 +44,13 @@ const ReviewDisplay: React.FC<ReviewDisplayProps> = ({ reviews, heading }) => {
                                 />
                             ))}
                         </div>
-
                         {/* Comment */}
                         <p className="text-gray-700">{review.review}</p>
                     </div>
+                    {children && children}
                 </div>
-            ))}
+            ))
+            }
         </div>
     );
 };

@@ -6,7 +6,8 @@ import { useState } from 'react';
 import axiosInstance from '../../hooks/axiosInstance';
 import { api } from '../../hooks/api';
 import SearchButton from '../../components/Buttons/SearchButton';
-import RideList from '../../components/Ride/RideList';
+import RideList from '../../components/RideLocation/RideList';
+import { rideMap } from '../../utils/rideMapLocation';
 
 type FormValues = {
     from: string;
@@ -18,15 +19,14 @@ type FormValues = {
 const Index = () => {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
-    const [seats, setSeats] = useState(1);
-    const [dateState, setDateState] = useState<Date | null>(null);
     const [isSearch, setIsSearch] = useState(false);
     const [data, setData] = useState([]);
+    const [seats, setSeats] = useState(1);
     const initialValues: FormValues = {
         from: "",
         to: "",
-        seats: seats,
-        date: dateState
+        seats: 1,
+        date: null
     };
 
     const validationSchema = Yup.object().shape({
@@ -51,7 +51,8 @@ const Index = () => {
 
     const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
         setSubmitting(false);
-        const payload = { ...values, seats: seats, date: dateState }
+        const { seats, ...formValues } = values;
+        const payload = { ...formValues, seats: Number(seats) };
         await handleSearchRides(payload);
     };
 
@@ -74,11 +75,20 @@ const Index = () => {
                         validationSchema={validationSchema}
                     >
                         {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isValid, dirty, setFieldValue }) => {
+
+                            const handleSelectChange = (e: any) => {
+                                setFieldValue("seats", e.target.value);
+                                setSeats(e.target.value);
+                            };
+                            const handleDateChange = (selectedDate: any) => {
+                                setFieldValue("date", selectedDate);
+                            };
+
                             return (
                                 <form onSubmit={handleSubmit}>
                                     <RideSearch values={values} onChange={handleChange} onBlur={handleBlur}
-                                        errors={errors} touched={touched} setSeats={setSeats} setDateState={setDateState}
-                                        setFieldValue={setFieldValue}
+                                        errors={errors} touched={touched}
+                                        handleDateChange={handleDateChange} handleSelectChange={handleSelectChange}
                                     />
                                     <div className="flex items-center justify-center mt-4">
                                         <SearchButton name={t("searchRide")} isLoading={isLoading}
@@ -92,10 +102,9 @@ const Index = () => {
                 </div>
                 {isSearch && (
                     <div className="mt-6 border-t border-gray-200 pt-10 animate-fade-in">
-                        <RideList rides={data} />
+                        <RideList rides={data} mapper={rideMap} seats={seats} />
                     </div>
                 )}
-
             </div>
         </div>
     );

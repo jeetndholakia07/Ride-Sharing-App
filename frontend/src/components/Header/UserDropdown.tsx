@@ -1,21 +1,28 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, type FC } from 'react';
 import MenuItem from './MenuItem';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { deleteToken } from '../../IndexedDB/tokens';
+import { deleteToken, findUsername } from '../../IndexedDB/tokens';
 import { api } from '../../hooks/api';
 import apiInterceptor from '../../hooks/apiInterceptor';
 import useAuth from '../../hooks/useAuth';
 import PageLoader from '../Loading/PageLoader';
 import { useQuery } from '@tanstack/react-query';
+import { useRole } from '../../context/RoleContext';
 
-const UserDropdown = () => {
+type props = {
+    notificationCount?: number;
+}
+
+const UserDropdown: FC<props> = ({ notificationCount }) => {
     const [open, setOpen] = useState(false);
+    const { setRole } = useRole();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const toggleMenu = () => setOpen(!open);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { isAuthenticated, loading } = useAuth();
+    const [username, setUsername] = useState("");
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -27,7 +34,15 @@ const UserDropdown = () => {
         return () => document.removeEventListener('mousedown', handleClickOutside);
     }, []);
 
-    const handleProfile = async () => {
+    useEffect(() => {
+        const getUsername = async () => {
+            const username = await findUsername();
+            setUsername(username);
+        }
+        getUsername();
+    }, []);
+
+    const handleProfileImg = async () => {
         if (isAuthenticated) {
             try {
                 const response = await apiInterceptor.get(api.user.profileImg);
@@ -41,7 +56,7 @@ const UserDropdown = () => {
 
     const { data: profileImg, isLoading } = useQuery({
         queryKey: ["profileImg"],
-        queryFn: handleProfile,
+        queryFn: handleProfileImg,
         refetchOnWindowFocus: false,
         retry: false,
         enabled: isAuthenticated
@@ -49,6 +64,7 @@ const UserDropdown = () => {
 
     const handleLogout = async () => {
         await deleteToken();
+        setRole(null);
         navigate("/login");
     };
 
@@ -79,11 +95,21 @@ const UserDropdown = () => {
             {/* Dropdown Menu */}
             {open && (
                 <div className="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-lg shadow-lg z-50">
+                    <div className="py-3 px-4">
+                        <div className="flex items-center space-x-2">
+                            <i className="bi bi-person-circle text-blue-500 text-lg" />
+                            <div className="text-sm text-gray-700 font-medium">
+                                {t("welcome")}, <span className="font-semibold text-gray-900">{username}</span>
+                            </div>
+                        </div>
+                    </div>
                     <div className="py-2">
                         <MenuItem icon="bi bi-person" label={t("profile")} onClick={() => navigate("/profile")} />
                         <MenuItem icon="bi bi-car-front-fill" label={t("yourRides")} onClick={() => navigate("/profile/rides")} />
-                        <MenuItem icon="bi bi-bell" label={t("notifications")} onClick={() => navigate("/profile/notifications")} />
-                        <MenuItem icon="bi bi-key" label={t("forgetPassword")} onClick={() => navigate("/profile/forgetPassword")} />
+                        <MenuItem icon="bi bi-bell" label={t("notifications")} onClick={() => navigate("/profile/notifications")}
+                            isNotification={true} notificationCount={notificationCount}
+                        />
+                        <MenuItem icon="bi bi-key" label={t("forgetPassword")} onClick={() => navigate("/profile/forget-password")} />
                     </div>
                     <div className="py-2">
                         <MenuItem icon="bi bi-box-arrow-right" label={t("logout")} isLogout={true} onClick={() => handleLogout()} />

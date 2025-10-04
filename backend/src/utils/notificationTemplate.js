@@ -1,27 +1,32 @@
 export const notificationTemplates = {
-    rideRequested: ({ passengerName, from, to }) => ({
+    rideRequested: ({ passengerName, from, to, linkId }) => ({
         heading: "New Ride Request",
         message: `${passengerName} has requested a ride from ${from} to ${to}. Please review and respond.`,
+        linkId
     }),
 
-    rideAccepted: ({ driverName, from, to }) => ({
+    rideAccepted: ({ driverName, from, to, linkId }) => ({
         heading: "Ride Request Accepted",
         message: `${driverName} has accepted your ride request from ${from} to ${to}. Get ready for your trip!`,
+        linkId
     }),
 
-    rideRejected: ({ passengerName, from, to }) => ({
+    rideRejected: ({ passengerName, from, to, linkId }) => ({
         heading: "Ride Request Rejected",
         message: `${passengerName} has rejected your ride request from ${from} to ${to}. We apologize for the inconvenience.`,
+        linkId
     }),
 
-    rideCompleted: ({ driverName, from, to }) => ({
+    rideCompleted: ({ driverName, from, to, linkId }) => ({
         heading: "Ride Completed",
         message: `Your ride journey with ${driverName} from ${from} to ${to} has been successfully completed. We hope you had a great experience!`,
+        linkId
     }),
 
-    driveCancelled: ({ driverName, from, to }) => ({
+    driveCancelled: ({ driverName, from, to, linkId }) => ({
         heading: "Drive Cancelled",
-        message: `${driverName} has cancelled the ride from to ${to}. We apologize for the inconvenience.`,
+        message: `${driverName} has cancelled the ride from ${from} to ${to}. We apologize for the inconvenience.`,
+        linkId
     }),
 
     generic: ({ title, body }) => ({

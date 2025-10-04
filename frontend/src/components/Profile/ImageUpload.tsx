@@ -88,14 +88,16 @@ const ProfileImageEditor: React.FC<ProfileImageEditorProps> = ({
                 <div className="flex gap-2 mt-2">
                     <button
                         onClick={handleSave}
-                        className="px-4 py-1 text-sm rounded bg-green-600 text-white hover:bg-green-700"
+                        className="px-4 py-1 hover:cursor-pointer text-sm rounded bg-green-600 text-white hover:bg-green-700"
                     >
+                        <i className="bi bi-check-lg mr-1" />
                         Save
                     </button>
                     <button
                         onClick={handleCancel}
-                        className="px-4 py-1 text-sm rounded bg-gray-300 text-gray-700 hover:bg-gray-400"
+                        className="px-4 py-1 text-sm hover:cursor-pointer rounded bg-red-600 text-white-700 hover:bg-red-700"
                     >
+                        <i className="bi bi-x-lg mr-1" />
                         Cancel
                     </button>
                 </div>

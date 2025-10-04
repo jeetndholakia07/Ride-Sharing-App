@@ -31,7 +31,6 @@ export const rideMap = (data: rideDetails): Record<string, string | number> => {
     const vehicle = drive.vehicleDetails;
 
     return {
-        rideId: drive._id,
         vehicleType: vehicle.vehicleType,
         vehicleName: vehicle.vehicleName,
         vehicleNumber: vehicle.vehicleNumber,

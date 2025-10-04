@@ -29,8 +29,8 @@ const SearchButton: React.FC<SearchButtonProps> = ({
         relative inline-flex items-center justify-center
         text-white text-base font-medium rounded-lg
         px-6 py-3 transition duration-300 ease-in-out
-        ${isLoading ? `${loadingBgColor} cursor-wait` : `${bgColor} hover:cursor-pointer`}
-        ${isButtonDisabled ? 'opacity-80 cursor-not-allowed' : ''}
+        ${isLoading ? `${loadingBgColor} cursor-wait` : `${bgColor}`}
+        ${isButtonDisabled ? 'opacity-80 hover:cursor-not-allowed' : 'hover:cursor-pointer'}
       `}
     >
       {!isLoading && icon}

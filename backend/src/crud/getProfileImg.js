@@ -1,4 +1,6 @@
 import cloudinary from "cloudinary";
+import cloudinaryConfig from "../config/cloudinary.js";
+cloudinaryConfig();
 
 const getProfileImg = async (publicId, format, isProfileUpdated) => {
     if (!isProfileUpdated) return publicId;

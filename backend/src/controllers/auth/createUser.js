@@ -1,12 +1,8 @@
-import cloudinaryConfig from "../../config/cloudinary.js";
-import cloudinary from "cloudinary";
-import { slugify } from "../../utils/format.js";
 import User from "../../models/User.js";
 import UserProfile from "../../models/UserProfile.js";
 import fs from "fs";
 import bcrypt from "bcrypt";
-
-cloudinaryConfig();
+import uploadImage from "../../crud/uploadImage.js";
 
 const createUser = async (req, res) => {
     let filePath;
@@ -18,18 +14,8 @@ const createUser = async (req, res) => {
                 return res.status(400).json({ message: "College ID image is required for passengers." });
             }
             filePath = req.file.path;
-            const formattedName = slugify(username);
             //Upload the image to cloudinary
-            result = await cloudinary.v2.uploader.upload(filePath, {
-                public_id: `collegeIDProof/${formattedName}`,
-                type: "private",
-                overwrite: true,
-                resource_type: "image",
-                transformation: [
-                    { width: 300, height: 300, crop: "thumb" },
-                    { quality: "auto" }
-                ]
-            }).catch((err) => console.error("Error uploading collegeID to cloudinary:", err));
+            result = await uploadImage(filePath, "collegeIDProof", username);
         }
 
         //Create hashed password
@@ -69,7 +55,7 @@ const createUser = async (req, res) => {
     }
     catch (err) {
         console.error("Error creating user:", err);
-        res.status(501).send();
+        res.status(500).send();
     }
     finally {
         if (filePath) {

@@ -8,7 +8,7 @@ const LandingPage = () => {
             {/* Hero Section */}
             <div className="flex flex-col items-center justify-center h-100 text-center px-4 sm:px-6 lg:px-8">
                 <h1 className="text-5xl font-bold leading-tight sm:text-6xl">
-                    {t("welcome")}
+                    {t("welcomeTo")}
                     <span className="text-blue-700 ml-2">{t("peer")}</span>
                     <span className="text-green-700">{t("ride")}</span>
                 </h1>

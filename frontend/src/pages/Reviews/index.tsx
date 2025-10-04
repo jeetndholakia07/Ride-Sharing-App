@@ -1,4 +1,4 @@
-import { lazy } from 'react';
+import { lazy, useEffect, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiInterceptor from '../../hooks/apiInterceptor';
 import axiosInstance from "../../hooks/axiosInstance";
@@ -9,38 +9,27 @@ import NotFoundReview from './NotFoundReview';
 const ReviewDisplay = lazy(() => import("./ReviewDisplay"));
 import WithSuspense from '../../components/Loading/WithSuspense';
 const AddReview = lazy(() => import("./AddReview"));
+import useAuth from '../../hooks/useAuth';
+import PageLoader from '../../components/Loading/PageLoader';
+import { findUserId } from '../../IndexedDB/tokens';
+import RenderUserReview from './RenderUserReview';
 
 const ReviewSection = () => {
     const { t } = useTranslation();
-
-    const handleSearchReview = async () => {
-        try {
-            const response = await apiInterceptor.get(api.user.userReview);
-            return response.data;
-        }
-        catch (err) {
-            console.error("User review not found:", err);
-            return null;
-        }
-    };
+    const { isAuthenticated, loading } = useAuth();
+    const [userId, setUserId] = useState<string | null>(null);
+    const [isEdit, setIsEdit] = useState(false);
 
     const getReviews = async () => {
         try {
-            const response = await axiosInstance.get(api.public.allReviews);
+            const client = isAuthenticated ? apiInterceptor : axiosInstance;
+            const response = await client.get(api.public.allReviews);
             return response.data.data;
-        }
-        catch (err) {
-            console.error("Error fetching reviews:", err);
+        } catch (err) {
+            console.error("Error fetching all reviews:", err);
             return null;
         }
     };
-
-    const { data: userReview, isLoading: isUserLoading } = useQuery({
-        queryKey: ["userReview"],
-        queryFn: handleSearchReview,
-        refetchOnWindowFocus: false,
-        retry: false
-    });
 
     const { data: reviews, isLoading: isReviewsLoading } = useQuery({
         queryKey: ["allReviews"],
@@ -49,33 +38,84 @@ const ReviewSection = () => {
         retry: false
     });
 
-    const renderSkeleton = <><Skeleton variant="text" width={"100%"} />
-        <Skeleton variant="rectangular" width={"100%"} height={"40"} /></>;
+    // Extract user review (if authenticated and it matches)
+    const userReview = useMemo(() => {
+        if (!isAuthenticated || !userId || !Array.isArray(reviews)) return null;
+
+        const firstReview = reviews[0];
+        const reviewUserId = firstReview?.user?.userId;
+
+        const isMatch = reviewUserId.toString() === userId.toString();
+
+        return isMatch ? firstReview : null;
+    }, [isAuthenticated, userId, reviews]);
+
+
+    // Filter out the user review if it exists
+    const filteredReviews = useMemo(() => {
+        return userReview
+            ? reviews.filter((review: any) => review.user.userId !== userId)
+            : reviews;
+    }, [reviews, userReview, userId]);
+
+    useEffect(() => {
+        const fetchUserId = async () => {
+            if (isAuthenticated) {
+                const id = await findUserId();
+                setUserId(id);
+            } else {
+                setUserId(null);
+            }
+        };
+        fetchUserId();
+    }, [isAuthenticated]);
+
+    const renderSkeleton = (
+        <>
+            <Skeleton variant="text" width={"100%"} />
+            <Skeleton variant="rectangular" width={"100%"} height={"40"} />
+        </>
+    );
+
+    const handleEditToggle = () => setIsEdit(true);
+    const handleCancel = () => setIsEdit(false);
+
+    if (loading || isReviewsLoading) {
+        return <PageLoader />;
+    }
+
+    if (!reviews || (isAuthenticated && userId === null)) {
+        return renderSkeleton;
+    }
 
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
-            <div className="mb-8">
-                {/* User Review Section */}
-                <WithSuspense
-                    data={userReview}
-                    fallback={renderSkeleton}
-                    empty={<AddReview />}
-                    isLoading={isUserLoading}
-                >
-                    <ReviewDisplay reviews={[userReview]} heading={t("userReview")} />
-                </WithSuspense>
-            </div>
-            {/* All Reviews Section */}
+            {/* Your Review Section */}
+            <RenderUserReview
+                userReview={userReview}
+                isEdit={isEdit}
+                onEditToggle={handleEditToggle}
+                onCancel={handleCancel}
+            />
+
+            {/* All Other Reviews Section */}
             <WithSuspense
-                data={reviews}
+                data={filteredReviews}
                 fallback={renderSkeleton}
-                empty={<NotFoundReview />}
-                isLoading={isReviewsLoading}
+                empty={
+                    <>
+                        <AddReview />
+                        <NotFoundReview />
+                    </>
+                }
+                isLoading={false}
             >
-                <ReviewDisplay reviews={reviews} heading={t("review")} />
+                {filteredReviews && filteredReviews.length > 0 && (
+                    <ReviewDisplay reviews={filteredReviews} heading={t("userReview")} />
+                )}
             </WithSuspense>
         </div>
-    );
-};
+    )
+}
 
 export default ReviewSection;

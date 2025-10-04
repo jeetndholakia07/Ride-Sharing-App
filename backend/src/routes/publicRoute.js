@@ -1,6 +1,6 @@
 import express from "express";
-import getRatings from "../controllers/read/getRatings.js";
-import getRidesonLocation from "../controllers/read/getRidesOnLocation.js";
+import getRatings from "../controllers/general/getRatings.js";
+import getRidesonLocation from "../controllers/general/getRidesOnLocation.js";
 
 const publicRouter = express.Router();
 

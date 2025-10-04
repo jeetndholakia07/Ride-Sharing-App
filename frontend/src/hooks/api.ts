@@ -10,7 +10,6 @@ export const api = {
         login: `${authURL}/loginUser`,
     },
     user: {
-        userData: `${userURL}/userData`,
         userProfile: `${userURL}/userProfile`,
         profileImg: `${userURL}/profileImage`,
         notifications: `${userURL}/notifications`,
@@ -19,8 +18,13 @@ export const api = {
         verifyUser: `${userURL}/verifyUser`,
         updateProfileImg: `${userURL}/profileImage`,
         updateProfile: `${userURL}/userProfile`,
-        readNotification: `${userURL}/notificationRead`,
-        forgetPassword: `${userURL}/editPassword`
+        markNotificationRead: `${userURL}/markNotificationRead`,
+        editCollegeID: `${userURL}/editCollegeID`,
+        forgetPassword: `${userURL}/editPassword`,
+        resetProfileImg: `${userURL}/resetProfileImg`,
+        markAllNotificationRead: `${userURL}/markAllNotificationRead`,
+        notificationCount: `${userURL}/notificationCount`,
+        editReview: `${userURL}/editReview`
     },
     ride: {
         ridesForRider: `${rideURL}/ridesForRider`,
@@ -32,6 +36,7 @@ export const api = {
         rejectRide: `${rideURL}/rejectRide`,
         completeRide: `${rideURL}/completeRide`,
         updateDrive: `${rideURL}/editDrive`,
+        checkRide: `${rideURL}/checkRide`
     },
     public: {
         allReviews: `${publicURL}/ratings`,

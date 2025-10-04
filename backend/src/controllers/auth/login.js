@@ -18,11 +18,11 @@ const login = async (req, res) => {
             return res.status(401).json({ message: "Invalid password entered" });
         }
         const token = jwt.sign({ username: user.username, id: user.id, role: user.role }, process.env.JWT_SECRET);
-        res.status(200).json({ token, userId: user.id, role: user.role });
+        res.status(200).json({ token, userId: user.id, role: user.role, username: user.username });
     }
     catch (err) {
         console.error("Error logging user:", err);
-        res.status(501).send();
+        res.status(500).send();
     }
 }
 export default login;

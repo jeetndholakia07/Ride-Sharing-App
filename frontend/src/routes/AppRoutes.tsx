@@ -6,12 +6,13 @@ import LoginPage from "../pages/AuthLayout/Login";
 import SignupPage from "../pages/AuthLayout/Signup";
 import HomePage from "../pages/Home/index";
 import Rides from "../pages/Rides/index";
-import RideDetails from "../components/Ride/RideDetails.js";
+import RideDetails from "../components/RideLocation/RideDetails.js";
 import ReviewPage from "../pages/Reviews/index";
 import AuthLayout from "../pages/AuthLayout/index.js";
 import PublicRoutes from "./PublicRoutes.js";
 import PrivateRoutes from "./PrivateRoutes.js";
 import ProfileRoutes from "../pages/Profile/ProfileRoutes.js";
+import PublishRide from "../pages/Rides/PublishRide.js";
 
 const AppRoutes = () => {
     return (
@@ -38,6 +39,7 @@ const AppRoutes = () => {
             <Route element={<PrivateRoutes />}>
                 <Route element={<MainLayout />}>
                     <Route path="/profile/*" element={<ProfileRoutes />} />
+                    <Route path="/publishRide" element={<PublishRide />} />
                 </Route>
             </Route>
         </Routes>

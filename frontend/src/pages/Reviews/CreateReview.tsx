@@ -9,6 +9,7 @@ import { useToast } from '../../components/Toast/ToastContext';
 import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import { useConfirmModal } from '../../context/ConfirmModalContext';
+import useInvalidateQuery from '../../hooks/useInvalidateQuery';
 
 type FormValues = {
     rating: number;
@@ -23,6 +24,7 @@ const CreateReview = () => {
     const { t } = useTranslation();
     const { isAuthenticated } = useAuth();
     const navigate = useNavigate();
+    const invalidateQuery = useInvalidateQuery();
 
     const initialValues: FormValues = {
         rating: 0,
@@ -38,7 +40,8 @@ const CreateReview = () => {
             setIsLoading(true);
             await apiInterceptor.post(api.user.createReview, payload);
             showToast("success", t("messages.createReviewSuccess"));
-            navigate("/reviews");
+            invalidateQuery(["userReview"]);
+            invalidateQuery(["allReviews"]);
         }
         catch (err) {
             console.error("Error creating a review:", err);

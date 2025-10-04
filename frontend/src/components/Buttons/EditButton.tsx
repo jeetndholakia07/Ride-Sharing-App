@@ -3,12 +3,20 @@ import React from 'react';
 type EditButtonProps = {
   isEditing: boolean;
   onToggle: () => void;
+  onCancel?: () => void;
 };
 
-const EditButton: React.FC<EditButtonProps> = ({ isEditing, onToggle }) => {
+const EditButton: React.FC<EditButtonProps> = ({ isEditing, onToggle, onCancel }) => {
+  const handleClick = () => {
+    onToggle();
+    if (isEditing && onCancel) {
+      onCancel();
+    }
+  };
   return (
     <button
-      onClick={onToggle}
+      type="button"
+      onClick={handleClick}
       className={`
         inline-flex items-center gap-2 rounded-md px-4 py-2 text-sm font-medium
         transition-colors duration-200 shadow-sm hover:cursor-pointer mb-2

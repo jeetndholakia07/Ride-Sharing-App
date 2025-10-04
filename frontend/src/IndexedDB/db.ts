@@ -9,6 +9,7 @@ export const openDB = (): Promise<IDBDatabase> => {
                 store.createIndex("userId", "userId", { unique: false });
                 store.createIndex("role", "role", { unique: false });
                 store.createIndex("token", "token", { unique: false });
+                store.createIndex("username", "username", { unique: false });
             }
         };
 

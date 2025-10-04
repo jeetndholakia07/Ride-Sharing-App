@@ -9,13 +9,35 @@ import MobileNav from "../../components/Navbar/MobileNav";
 import UserDropdown from "../../components/Header/UserDropdown";
 import useAuth from "../../hooks/useAuth";
 import PageLoader from "../../components/Loading/PageLoader";
+import { useQuery } from "@tanstack/react-query";
+import apiInterceptor from "../../hooks/apiInterceptor";
+import { api } from "../../hooks/api";
 
 const Index = () => {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = () => setIsOpen(false);
   const { isAuthenticated, loading } = useAuth();
 
-  if (loading) {
+  const getNotificationCount = async () => {
+    try {
+      const response = await apiInterceptor.get(api.user.notificationCount);
+      return response.data;
+    }
+    catch (err) {
+      console.error("Error getting notification count");
+      return 0;
+    }
+  };
+
+  const { data: notificationCount, isLoading } = useQuery({
+    queryKey: ["notificationCount"],
+    queryFn: getNotificationCount,
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: isAuthenticated
+  });
+
+  if (loading || isLoading) {
     return <PageLoader />
   }
 
@@ -25,16 +47,16 @@ const Index = () => {
         <Navbar>
           {/* Desktop Navigation */}
           <div className="hidden md:flex space-x-8">
-            <NavMenu />
+            <NavMenu notificationCount={notificationCount} />
           </div>
           <div className="hidden md:flex space-x-4 items-center">
-            {isAuthenticated ? <UserDropdown /> : <LoginButtons />}
+            {isAuthenticated ? <UserDropdown notificationCount={notificationCount} /> : <LoginButtons />}
           </div>
           {/* Mobile Navigation */}
           <MobileNav setIsOpen={setIsOpen} onClose={onClose} isOpen={isOpen}>
             <div className="mt-6 flex flex-col space-y-6 text-lg">
-              <NavMenu onItemClick={onClose} />
-              {isAuthenticated ? <UserDropdown /> : <LoginButtons onClick={onClose} />}
+              <NavMenu onItemClick={onClose} notificationCount={notificationCount} />
+              {isAuthenticated ? <UserDropdown notificationCount={notificationCount} /> : <LoginButtons onClick={onClose} />}
             </div>
           </MobileNav>
         </Navbar>
