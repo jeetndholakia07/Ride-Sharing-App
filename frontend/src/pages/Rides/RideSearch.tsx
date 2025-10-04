@@ -2,7 +2,7 @@ import { type FC } from 'react';
 import TextInput from '../../components/Form/TextInput';
 import SelectInput from '../../components/Form/SelectInput';
 import { useTranslation } from 'react-i18next';
-import { passenger } from "../../i18n/keys/passenger.json";
+import { seats } from "../../i18n/keys/seats.json";
 import DatePicker from '../../components/Form/DatePicker';
 
 type props = {
@@ -58,7 +58,7 @@ const RideSearch: FC<props> = ({ values, onChange, onBlur, errors, touched, hand
                     name={t("seats")}
                     label={t("seats")}
                     value={values.seats}
-                    values={passenger.seats}
+                    values={seats}
                     onChange={handleSelectChange}
                     icon="bi bi-person-fill"
                 />

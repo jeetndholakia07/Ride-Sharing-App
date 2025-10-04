@@ -22,7 +22,7 @@ const RideList: FC<Props> = ({ rides, mapper, seats }) => {
             </h2>
             <div className={`grid grid-cols-1 ${rides.length === 1 ? "sm:grid-cols-1" : "sm:grid-cols-2"} gap-6`}>
                 {rides.map((ride: any) => (
-                    <RideCard key={ride._id} data={mapper(ride)} seats={seats} />
+                    <RideCard key={ride.driveDetails.drive._id} data={mapper(ride)} seats={seats} />
                 ))}
             </div>
         </>
