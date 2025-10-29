@@ -25,7 +25,7 @@ const getRidesOnLocation = async (req, res) => {
                 $gte: startofDay,
                 $lte: endofDay
             }
-        }).populate("driver", "username mobile")
+        }).populate("driver", "username")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);

@@ -95,7 +95,7 @@ const ProfileImageEditor: React.FC<ProfileImageEditorProps> = ({
                     </button>
                     <button
                         onClick={handleCancel}
-                        className="px-4 py-1 text-sm hover:cursor-pointer rounded bg-red-600 text-white-700 hover:bg-red-700"
+                        className="px-4 py-1 text-sm hover:cursor-pointer rounded bg-red-600 text-white hover:bg-red-700"
                     >
                         <i className="bi bi-x-lg mr-1" />
                         Cancel

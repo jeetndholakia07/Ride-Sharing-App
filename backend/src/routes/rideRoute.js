@@ -10,6 +10,8 @@ import rejectRide from "../controllers/ride/rejectRide.js";
 import updateDrive from "../controllers/ride/updateDrive.js";
 import addRatingForDriver from "../controllers/ride/addRatingForDriver.js";
 import checkRide from "../controllers/ride/checkRide.js";
+import getRideById from "../controllers/ride/getRideById.js";
+import getDriveById from "../controllers/ride/getDriveById.js";
 import authorizeRole from "../middlewares/authorizeRole.js";
 
 const rideRoute = express.Router();
@@ -18,6 +20,8 @@ rideRoute.use(express.urlencoded({ extended: true }));
 
 rideRoute.get("/ridesForRider", authorizeRole(["passenger"]), getRidesForRider);
 rideRoute.get("/ridesForDriver", authorizeRole(["driver"]), getDrivesForDriver);
+rideRoute.get("/ride", authorizeRole(["passenger"]), getRideById);
+rideRoute.get("/drive", authorizeRole(["driver"]), getDriveById);
 rideRoute.post("/ride", authorizeRole(["passenger"]), createRide);
 rideRoute.post("/drive", authorizeRole(["driver"]), createDrive);
 rideRoute.put("/cancelRide", authorizeRole(["driver"]), cancelRide);

@@ -16,6 +16,8 @@ import { api } from "../../hooks/api";
 import { mergeDateTime } from "../../utils/dateFormat";
 import { useState } from "react";
 import { useNavigate } from "react-router";
+import NumberInput from "../../components/Form/NumberInput";
+import ReverseBtn from "../../components/Buttons/ReverseBtn";
 
 type VehicleType = "two-wheeler" | "four-wheeler";
 
@@ -30,6 +32,7 @@ type FormValues = {
     vehicleName: string;
     vehicleNumber: string;
     comments: string;
+    price: number;
 }
 
 const PublishRide = () => {
@@ -44,7 +47,9 @@ const PublishRide = () => {
         date: Yup.date().required(t("formMessages.dateRequired")),
         time: Yup.date().required(t("formMessages.timeRequired")),
         vehicleName: Yup.string().required(t("formMessages.vehicleNameRequired")),
-        vehicleNumber: Yup.string().required(t("formMessages.vehicleNumberRequired"))
+        vehicleNumber: Yup.string().required(t("formMessages.vehicleNumberRequired")),
+        price: Yup.number().required(t("formMessages.priceRequired"))
+            .min(0, t("formMessages.priceConstraint"))
     });
 
     const handleCreateRide = async (payload: any) => {
@@ -70,7 +75,8 @@ const PublishRide = () => {
         vehicleName: "",
         vehicleNumber: "",
         vehicleType: "four-wheeler",
-        comments: ""
+        comments: "",
+        price: 1
     };
 
     const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
@@ -97,8 +103,8 @@ const PublishRide = () => {
                         validationSchema={validationSchema}
                     >
                         {({ values, handleChange, handleBlur, handleSubmit, errors, touched, isValid, dirty, setFieldValue }) => {
-                            const passengerSeats = passengerJson.seats as Record<VehicleType,number[]>;
-                            
+                            const passengerSeats = passengerJson.seats as Record<VehicleType, number[]>;
+
                             const seatOptions = passengerSeats[values.vehicleType] || [];
 
                             const handleDateChange = (selectedDate: any) => {
@@ -110,115 +116,161 @@ const PublishRide = () => {
                             const handleSelectChange = (e: any) => {
                                 setFieldValue("seats", parseInt(e.target.value));
                             };
+                            const handleReverse = () => {
+                                setFieldValue("from", values.to);
+                                setFieldValue("to", values.from);
+                            };
 
                             const handleVehicleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
                                 const newType = e.target.value as VehicleType;
                                 setFieldValue("vehicleType", newType);
-                              
+
                                 const validSeats = passengerSeats[newType];
-                              
+
                                 // Reset seats to 1 if current seat value is invalid for the selected vehicle
                                 if (!validSeats.includes(values.seats)) {
-                                  setFieldValue("seats", 1);
+                                    setFieldValue("seats", 1);
                                 }
-                              };
-                              
+                            };
+
                             return (
-                                <form onSubmit={handleSubmit}>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
-                                        <TextInput
-                                            label={t("from")}
-                                            name="from"
-                                            placeholder={t("startingLocation")}
-                                            value={values.from}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            required={true}
-                                            error={touched?.from && errors.from}
-                                            icon="bi bi-geo-alt-fill"
-                                        />
-                                        <TextInput
-                                            label={t("to")}
-                                            name="to"
-                                            placeholder={t("destinationLocation")}
-                                            value={values.to}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            required={true}
-                                            error={touched?.to && errors.to}
-                                            icon="bi bi-geo-alt-fill"
-                                        />
+                                <form onSubmit={handleSubmit} className="space-y-6 bg-white p-8 rounded-2xl shadow-md border border-gray-100">
+                                    {/* From / Reverse / To */}
+                                    <div className="relative flex flex-col sm:flex-row sm:items-center sm:gap-4">
+                                        <div className="flex-1">
+                                            <TextInput
+                                                label={t("from")}
+                                                name="from"
+                                                placeholder={t("startingLocation")}
+                                                value={values.from}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                required
+                                                error={touched?.from && errors.from}
+                                                icon="bi bi-geo-alt-fill"
+                                                isRide={true}
+                                            />
+                                        </div>
+
+                                        <div className="absolute sm:static top-1/2 sm:top-auto left-1/2 sm:left-auto transform -translate-x-1/2 -translate-y-1/2 sm:translate-x-0 sm:translate-y-0 z-10">
+                                            <ReverseBtn handleClick={handleReverse} />
+                                        </div>
+
+                                        <div className="flex-1 mt-8 sm:mt-0">
+                                            <TextInput
+                                                label={t("to")}
+                                                name="to"
+                                                placeholder={t("destinationLocation")}
+                                                value={values.to}
+                                                onChange={handleChange}
+                                                onBlur={handleBlur}
+                                                required
+                                                error={touched?.to && errors.to}
+                                                icon="bi bi-geo-alt-fill"
+                                                isRide={true}
+                                            />
+                                        </div>
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+
+                                    {/* Date & Time */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <DatePicker
                                             label={t("date")}
-                                            name={"date"}
-                                            required={true}
+                                            name="date"
+                                            required
                                             placeholder={t("date")}
                                             value={values.date}
                                             onChange={([selectedDate]: any) => handleDateChange(selectedDate)}
                                             icon="bi bi-calendar-event"
+                                            minDate={new Date()}
                                         />
                                         <TimePicker
                                             label={t("time")}
-                                            name={"time"}
-                                            required={true}
+                                            name="time"
+                                            required
                                             placeholder={t("time")}
                                             value={values.time}
                                             onChange={([selectedTime]: any) => handleTimeChange(selectedTime)}
-                                            icon="bi bi-calendar-event"
+                                            icon="bi bi-clock"
                                         />
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+
+                                    {/* Vehicle Name & Number */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <TextInput
-                                            name="vehicleName"
                                             label={t("vehicleName")}
+                                            name="vehicleName"
                                             placeholder={t("vehicleName")}
                                             value={values.vehicleName}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            required={true}
+                                            required
+                                            error={errors?.vehicleName && touched?.vehicleName}
                                         />
                                         <TextInput
-                                            name="vehicleNumber"
                                             label={t("vehicleNumber")}
+                                            name="vehicleNumber"
                                             placeholder={t("vehicleNumber")}
                                             value={values.vehicleNumber}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            required={true}
+                                            required
+                                            error={errors?.vehicleNumber && touched?.vehicleNumber}
                                         />
                                     </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-1 gap-6 mb-2">
-                                        <RadioButtonGroup label={t("vehicleType")} name="vehicleType"
-                                            value={values.vehicleType} options={vehicleType} onChange={handleVehicleChange}
-                                            onBlur={handleBlur} required={true}
-                                        />
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 mb-2">
+
+                                    {/* Seats & Price */}
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                                         <SelectInput
-                                            name={t("seats")}
                                             label={t("seatsAvailable")}
+                                            name="seats"
                                             value={values.seats}
                                             values={seatOptions}
                                             onChange={handleSelectChange}
                                             icon="bi bi-person-fill"
                                         />
-                                    </div>
-                                    <div className="grid grid-cols-1 sm:grid-cols-1 gap-6 mb-2">
-                                        <TextArea name="comments"
-                                            label={t("comments")}
-                                            placeholder={t("comments")}
-                                            value={values.comments}
+                                        <NumberInput
+                                            label={t("price")}
+                                            name="price"
+                                            value={values.price}
+                                            placeholder={t("pricePerPerson")}
                                             onChange={handleChange}
                                             onBlur={handleBlur}
-                                            rows={2}
+                                            min={0}
+                                            error={touched?.price && errors.price}
                                         />
                                     </div>
-                                    <div className="flex justify-end items-center">
-                                        <LoadingButton name={t("publishRide")}
+
+                                    {/* Vehicle Type */}
+                                    <RadioButtonGroup
+                                        label={t("vehicleType")}
+                                        name="vehicleType"
+                                        value={values.vehicleType}
+                                        options={vehicleType}
+                                        onChange={handleVehicleChange}
+                                        onBlur={handleBlur}
+                                        required
+                                    />
+
+                                    {/* Comments */}
+                                    <TextArea
+                                        label={t("comments")}
+                                        name="comments"
+                                        placeholder={t("comments")}
+                                        value={values.comments}
+                                        onChange={handleChange}
+                                        onBlur={handleBlur}
+                                        rows={3}
+                                    />
+
+                                    {/* Submit Button */}
+                                    <div className="flex justify-end">
+                                        <LoadingButton
+                                            name={t("publishRide")}
                                             handleApi={handleSubmit}
-                                            disabled={!isValid || !dirty} isLoading={isLoading} />
+                                            disabled={!isValid || !dirty}
+                                            isLoading={isLoading}
+                                        />
                                     </div>
                                 </form>
                             )

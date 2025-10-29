@@ -19,6 +19,7 @@ type rideDetails = {
             seatsAvailable: number;
             driveStatus: string;
             specialNote: string;
+            pricePerPerson: string;
             createdAt: string;
         };
         driverProfileImg: string;
@@ -46,6 +47,7 @@ export const rideMap = (data: rideDetails): Record<string, string | number> => {
         mobile: driver.mobile,
         createdAt: drive.createdAt,
         driverProfileImg: data.driveDetails.driverProfileImg,
-        driverRating: driver.rating ?? ""
+        driverRating: driver.rating ?? "",
+        pricePerPerson: drive.pricePerPerson
     };
 };

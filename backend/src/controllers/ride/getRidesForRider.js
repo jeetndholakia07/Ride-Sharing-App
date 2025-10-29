@@ -5,7 +5,7 @@ import getProfileImg from "../../crud/getProfileImg.js";
 
 const getRidesForRider = async (req, res) => {
     try {
-        const { page = 1, limit = 5, passengerStatus, driverStatus } = req.query;
+        const { page = 1, limit = 5, driverStatus, driveStatus, month, year } = req.query;
         const skip = (page - 1) * limit;
         const passengerId = req.user.id;
 
@@ -13,27 +13,59 @@ const getRidesForRider = async (req, res) => {
             return res.status(400).json({ message: "Passenger id not found" });
         }
 
-        //Ride query
-        let query = { passenger: passengerId };
-        // If status is provided, add case-insensitive regex filter
-        if (passengerStatus && passengerStatus.trim() !== "") {
-            query.passengerStatus = { $eq: passengerStatus };
-        }
+        // Base ride query (rider-related filters)
+        let rideQuery = { passenger: passengerId };
         if (driverStatus && driverStatus.trim() !== "") {
-            query.driverStatus = { $eq: driverStatus };
+            rideQuery.driverStatus = driverStatus;
         }
 
-        // Total number of rides for pagination
-        const totalRides = await Ride.countDocuments(query);
+        // Drive-level filters (driveStatus, month, year)
+        let driveFilters = {};
 
-        // Get all the rides for the rider
-        const rides = await Ride.find(query)
+        if (driveStatus && driveStatus.trim() !== "") {
+            driveFilters.driveStatus = driveStatus;
+        }
+
+        if (month && year) {
+            const monthNum = parseInt(month, 10);
+            const yearNum = parseInt(year, 10);
+
+            if (!isNaN(monthNum) && !isNaN(yearNum)) {
+                const monthStart = new Date(yearNum, monthNum - 1, 1, 0, 0, 0);
+                const monthEnd = new Date(yearNum, monthNum, 0, 23, 59, 59);
+                driveFilters.departureTime = { $gte: monthStart, $lte: monthEnd };
+            }
+        }
+
+        // If we have any drive-level filters, find matching drives
+        if (Object.keys(driveFilters).length > 0) {
+            const drives = await Drive.find(driveFilters).select("_id");
+            const driveIds = drives.map((d) => d._id);
+
+            // If no drives match, return empty result early
+            if (driveIds.length === 0) {
+                return res.status(200).json({
+                    page,
+                    limit,
+                    totalItems: 0,
+                    totalPages: 0,
+                    data: [],
+                });
+            }
+
+            // Link filtered drives to rides
+            rideQuery.drive = { $in: driveIds };
+        }
+
+        const totalRides = await Ride.countDocuments(rideQuery);
+
+        const rides = await Ride.find(rideQuery)
             .populate({
                 path: "drive",
                 populate: {
                     path: "driver",
-                    select: "username mobile"
-                }
+                    select: "username mobile",
+                },
             })
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -41,31 +73,39 @@ const getRidesForRider = async (req, res) => {
 
         const rideDetails = await Promise.all(
             rides.map(async (ride) => {
-                const drive = await Drive.findById(ride.drive);
+                const drive = ride.drive;
+                if (!drive) return null;
+
                 const driverProfile = await UserProfile.findOne({ user: drive.driver });
-                const profileImg = await getProfileImg(driverProfile.profileImg.publicId, driverProfile.profileImg.format,
-                    driverProfile.isProfileUpdated);
+                let profileImg = null;
+
+                if (driverProfile?.profileImg) {
+                    profileImg = await getProfileImg(
+                        driverProfile.profileImg.publicId,
+                        driverProfile.profileImg.format,
+                        driverProfile.isProfileUpdated
+                    );
+                }
+
                 return {
                     ride,
-                    driverProfileImg: profileImg
-                }
+                    driverProfileImg: profileImg,
+                };
             })
         );
 
         const totalPages = Math.ceil(totalRides / limit);
 
-        const response = {
+        return res.status(200).json({
             page,
             limit,
             totalItems: totalRides,
             totalPages,
-            data: rideDetails
-        };
-
-        res.status(200).json(response);
+            data: rideDetails.filter(Boolean),
+        });
     } catch (err) {
         console.error("Error getting rides for rider:", err);
-        res.status(500).json({ message: "Server error" });
+        return res.status(500).json({ message: "Server error" });
     }
 };
 

@@ -78,6 +78,7 @@ const LoginPage = () => {
                                 onBlur={handleBlur}
                                 error={touched?.username && errors.username}
                                 icon="bi bi-person-fill"
+                                autocomplete="username"
                             />
                         </div>
                         <div className="grid grid-cols-1 gap-6 mb-2">

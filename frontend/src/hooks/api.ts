@@ -36,7 +36,9 @@ export const api = {
         rejectRide: `${rideURL}/rejectRide`,
         completeRide: `${rideURL}/completeRide`,
         updateDrive: `${rideURL}/editDrive`,
-        checkRide: `${rideURL}/checkRide`
+        checkRide: `${rideURL}/checkRide`,
+        rideById: `${rideURL}/ride`,
+        driveById: `${rideURL}/drive`
     },
     public: {
         allReviews: `${publicURL}/ratings`,

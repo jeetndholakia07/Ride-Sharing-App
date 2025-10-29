@@ -1,31 +1,36 @@
-import apiInterceptor from "../../hooks/apiInterceptor";
 import { api } from "../../hooks/api";
-import { lazy } from "react";
-const DriveList = lazy(() => import("../../components/RideForDriver/DriveList"));
+import { lazy, useEffect } from "react";
+const RideList = lazy(() => import("../../components/Ride/RideList"));
 import WithSuspense from "../../components/Loading/WithSuspense";
-import { useQuery } from "@tanstack/react-query";
 import Skeleton from '@mui/material/Skeleton';
-import ProfileNotFound from "../../components/Profile/ProfileNotFound";
+import ProfileNotFound from "../Error/NotFound";
 import { ridesForDriverMap } from "../../utils/ridesForDriver";
+import useFetch from "../../hooks/useFetch";
+import Pagination from "../../components/Pagination";
+import { useFilter } from "../../context/FilterContext";
 
 const RidesForDriver = () => {
-
-    const getRidesForDriver = async () => {
-        try {
-            const response = await apiInterceptor.get(api.ride.ridesForDriver);
-            return response.data.data;
-        }
-        catch (err) {
-            console.error("Error getting rides for driver:", err);
-        }
-    }
-
-    const { data, isLoading } = useQuery({
-        queryKey: ["ridesForDriver"],
-        queryFn: getRidesForDriver,
-        retry: false,
-        refetchOnWindowFocus: false
+    const { setOnApply } = useFilter();
+    const {
+        data,
+        isLoading,
+        currentPage,
+        totalPages,
+        fetchDataHandler,
+        page,
+        limit
+    } = useFetch({
+        url: api.ride.ridesForDriver,
+        pageNo: 1,
+        pageLimit: 5,
+        queryName: "ridesForDriver"
     });
+
+    useEffect(() => {
+        setOnApply((appliedFilters?: Record<string, string>) => {
+            fetchDataHandler(1, limit, appliedFilters || {});
+        });
+    }, [fetchDataHandler, limit, setOnApply]);
 
     const renderSkeleton = <><Skeleton variant="text" width={"100%"} />
         <Skeleton variant="rectangular" width={"100%"} height={"40"} /></>;
@@ -37,7 +42,14 @@ const RidesForDriver = () => {
             empty={<ProfileNotFound />}
             fallback={renderSkeleton}
         >
-            <DriveList drives={data} mapper={ridesForDriverMap} />
+            <RideList rides={data} mapper={ridesForDriverMap} />
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                page={page}
+                limit={limit}
+                handlePageChange={fetchDataHandler}
+            />
         </WithSuspense>
     )
 }

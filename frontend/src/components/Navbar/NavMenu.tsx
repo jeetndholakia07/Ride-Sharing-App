@@ -2,21 +2,14 @@ import { type FC, useMemo } from "react";
 import NavItem from "./NavItem";
 import { useTranslation } from "react-i18next";
 import { useRole } from "../../context/RoleContext";
-import useAuth from "../../hooks/useAuth";
-import NotificationButton from "../Buttons/NotificationButton";
-import { useNavigate } from "react-router";
-import PageLoader from "../Loading/PageLoader";
 
 type NavMenuProps = {
     onItemClick?: () => void;
-    notificationCount: number;
 };
 
-const NavMenu: FC<NavMenuProps> = ({ onItemClick, notificationCount }) => {
+const NavMenu: FC<NavMenuProps> = ({ onItemClick }) => {
     const { t } = useTranslation();
     const { role } = useRole();
-    const { isAuthenticated, loading } = useAuth();
-    const navigate = useNavigate();
 
     const navItems = useMemo(() => [
         { path: "/", name: t("home"), icon: "bi bi-house-door-fill" },
@@ -25,9 +18,6 @@ const NavMenu: FC<NavMenuProps> = ({ onItemClick, notificationCount }) => {
         { path: "/reviews", name: t("reviews"), icon: "bi bi-star-fill" },
     ], []);
 
-    const handleNavigate = () => {
-        navigate("/profile/notifications");
-    };
 
     const protectedItems = useMemo(() => {
         if (role === "driver") {
@@ -37,10 +27,6 @@ const NavMenu: FC<NavMenuProps> = ({ onItemClick, notificationCount }) => {
         }
         else { return []; }
     }, [role]);
-
-    if (loading) {
-        return <PageLoader />
-    }
 
     return (
         <>
@@ -62,7 +48,6 @@ const NavMenu: FC<NavMenuProps> = ({ onItemClick, notificationCount }) => {
                     onClick={onItemClick}
                 />
             )}
-            {isAuthenticated && <NotificationButton unreadCount={notificationCount} handleClick={handleNavigate} />}
         </>
     );
 };

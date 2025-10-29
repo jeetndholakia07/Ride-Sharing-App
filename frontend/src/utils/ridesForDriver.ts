@@ -10,6 +10,8 @@ type RideRequest = {
     passengerProfileImg: string;
     requestedAt: string;
     passengerStatus: string;
+    driverStatus: string;
+    seats: number;
 };
 
 type VehicleDetails = {
@@ -27,6 +29,7 @@ type DriveDetails = {
     seatsAvailable: number;
     driveStatus: string;
     specialNote: string;
+    pricePerPerson: number;
 };
 
 type RidesForDriverResponse = {
@@ -37,15 +40,17 @@ type RidesForDriverResponse = {
 export const ridesForDriverMap = (data: RidesForDriverResponse): Record<string, any> => {
     const drive = data.driveDetails;
     const vehicle = drive.vehicleDetails;
-    
+
     const passengers = data.rideRequests.map((request) => ({
         passengerId: request.passenger._id,
         passengerName: request.passenger.username,
         passengerMobile: request.passenger.mobile,
         passengerCollegeName: request.passenger.collegeName,
         passengerStatus: request.passengerStatus,
+        driverStatus: request.driverStatus,
         passengerProfileImg: request.passengerProfileImg,
         requestedAt: request.requestedAt,
+        seats: request.seats
     }));
 
     return {
@@ -59,6 +64,7 @@ export const ridesForDriverMap = (data: RidesForDriverResponse): Record<string, 
         seatsAvailable: drive.seatsAvailable,
         driveStatus: drive.driveStatus,
         specialNote: drive.specialNote,
-        passengers,  // An array of simplified passenger objects
+        pricePerPerson: drive.pricePerPerson,
+        passengers,
     };
 };

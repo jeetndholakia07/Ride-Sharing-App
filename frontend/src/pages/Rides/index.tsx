@@ -2,12 +2,13 @@ import RideSearch from './RideSearch';
 import { useTranslation } from 'react-i18next';
 import { Formik, type FormikHelpers } from 'formik';
 import * as Yup from "yup";
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import axiosInstance from '../../hooks/axiosInstance';
 import { api } from '../../hooks/api';
 import SearchButton from '../../components/Buttons/SearchButton';
-import RideList from '../../components/RideLocation/RideList';
+import RideList from '../../components/Ride/RideList';
 import { rideMap } from '../../utils/rideMapLocation';
+import { getUtilContext } from '../../context/UtilsContext';
 
 type FormValues = {
     from: string;
@@ -21,18 +22,22 @@ const Index = () => {
     const [isLoading, setIsLoading] = useState(false);
     const [isSearch, setIsSearch] = useState(false);
     const [data, setData] = useState([]);
-    const [seats, setSeats] = useState(1);
     const initialValues: FormValues = {
         from: "",
         to: "",
         seats: 1,
         date: null
     };
+    const { setSeats, setTypeUsage } = getUtilContext();
 
     const validationSchema = Yup.object().shape({
         from: Yup.string().required(t("formMessages.fromRequired")),
         to: Yup.string().required(t("formMessages.toRequired"))
     });
+
+    useEffect(() => {
+        setTypeUsage("ride request");
+    }, []);
 
     const handleSearchRides = async (payload: FormValues) => {
         try {
@@ -47,7 +52,7 @@ const Index = () => {
         finally {
             setIsLoading(false);
         }
-    }
+    };
 
     const handleSubmit = async (values: FormValues, { setSubmitting }: FormikHelpers<FormValues>) => {
         setSubmitting(false);
@@ -87,7 +92,7 @@ const Index = () => {
                             return (
                                 <form onSubmit={handleSubmit}>
                                     <RideSearch values={values} onChange={handleChange} onBlur={handleBlur}
-                                        errors={errors} touched={touched}
+                                        errors={errors} touched={touched} setFieldValue={setFieldValue}
                                         handleDateChange={handleDateChange} handleSelectChange={handleSelectChange}
                                     />
                                     <div className="flex items-center justify-center mt-4">
@@ -102,7 +107,7 @@ const Index = () => {
                 </div>
                 {isSearch && (
                     <div className="mt-6 border-t border-gray-200 pt-10 animate-fade-in">
-                        <RideList rides={data} mapper={rideMap} seats={seats} />
+                        <RideList rides={data} mapper={rideMap} />
                     </div>
                 )}
             </div>

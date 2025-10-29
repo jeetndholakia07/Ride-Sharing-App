@@ -51,6 +51,7 @@ const PasswordInput: FC<PasswordProps> = ({
                     ${error ? 'border-red-500' : 'border-gray-300'}
                     ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
                 `}
+                autoComplete="current-password"
             />
             <label
                 htmlFor={name}

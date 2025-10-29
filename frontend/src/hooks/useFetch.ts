@@ -1,87 +1,106 @@
-import { useState } from "react";
+import { useState, useCallback } from "react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import apiInterceptor from "./apiInterceptor.js";
 
 interface PaginatedResponse<T> {
-    data: T[];
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
+  data: T[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
 }
 
 interface UseFetchParams {
-    url: string;
-    page: number;
-    limit: number;
+  url: string;
+  queryName: string;
+  pageNo?: number;
+  pageLimit?: number;
+  filters?: Record<string, string | undefined>;
 }
 
 interface UseFetchResult<T> {
-    data: T[],
-    currentPage: number;
-    totalPages: number;
-    totalItems: number;
-    isLoading: boolean;
-    fetchDataHandler: (page?: number, limit?: number) => Promise<void>;
+  data: T[];
+  currentPage: number;
+  totalPages: number;
+  totalItems: number;
+  isLoading: boolean;
+  fetchDataHandler: (
+    page?: number,
+    limit?: number,
+    filters?: Record<string, string | undefined>
+  ) => void;
+  page: number;
+  limit: number;
+  filters: Record<string, string | undefined>;
 }
 
 const useFetch = <T>({
-    url,
-    page = 1,
-    limit = 10
+  url,
+  queryName,
+  pageNo = 1,
+  pageLimit = 5,
+  filters = {},
 }: UseFetchParams): UseFetchResult<T> => {
-    const [data, setData] = useState<T[]>([]);
-    const [currentPage, setCurrentPage] = useState<number>(page);
-    const [totalPages, setTotalPages] = useState<number>(0);
-    const [totalItems, setTotalItems] = useState<number>(0);
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+  const queryClient = useQueryClient();
 
-    const fetchData = async (pageNo: number = page, pageLimit: number = limit, search?: string,
-        filters?: { [key: string]: string | undefined }): Promise<void> => {
-        setIsLoading(true);
-        setError(null);
+  const [page, setPage] = useState(pageNo);
+  const [limit, setLimit] = useState(pageLimit);
+  const [appliedFilters, setAppliedFilters] = useState(filters);
 
-        try {
-            // Construct query params dynamically
-            const params: { [key: string]: any } = {
-                page: pageNo,
-                limit: pageLimit,
-                search,
-                ...filters
-            };
-
-            // Remove any parameters that are empty strings or undefined
-            Object.keys(params).forEach((key) => {
-                if (!params[key]) {
-                    delete params[key];
-                }
-            });
-
-            //Get the response
-            const response = await apiInterceptor.get<PaginatedResponse<T>>(url, { params });
-
-            const { data, currentPage, totalPages, totalItems } = response.data;
-            setData(data);
-            setCurrentPage(currentPage);
-            setTotalPages(totalPages);
-            setTotalItems(totalItems);
-        }
-        catch (err) {
-            setError("Error fetching data:");
-            error && console.error(error);
-            console.error(err);
-        } finally {
-            setIsLoading(false);
-        }
+  const fetchData = async (
+    fetchPage: number,
+    fetchLimit: number,
+    fetchFilters: Record<string, string | undefined>
+  ): Promise<PaginatedResponse<T>> => {
+    const params: Record<string, any> = {
+      page: fetchPage,
+      limit: fetchLimit,
+      ...fetchFilters,
     };
+    Object.keys(params).forEach((key) => {
+      if (params[key] == null || params[key] === "") delete params[key];
+    });
+    const response = await apiInterceptor.get<PaginatedResponse<T>>(url, { params });
+    return response.data;
+  };
 
-    return {
-        data,
-        currentPage,
-        totalPages,
-        totalItems,
-        isLoading,
-        fetchDataHandler: fetchData
-    }
-}
+  const queryKey = [queryName, page, limit, appliedFilters];
+
+  const { data: queryData, isLoading } = useQuery<PaginatedResponse<T>>({
+    queryKey,
+    queryFn: () => fetchData(page, limit, appliedFilters),
+    staleTime: 0,
+    refetchOnWindowFocus: false,
+  });
+
+  const fetchDataHandler = useCallback(
+    (newPage?: number, newLimit?: number, newFilters?: Record<string, string | undefined>) => {
+      const nextPage = newPage ?? page;
+      const nextLimit = newLimit ?? limit;
+      const nextFilters = newFilters ?? appliedFilters;
+
+      setPage(nextPage);
+      setLimit(nextLimit);
+      setAppliedFilters(nextFilters);
+
+      queryClient.fetchQuery({
+        queryKey: [queryName, nextPage, nextLimit, nextFilters],
+        queryFn: () => fetchData(nextPage, nextLimit, nextFilters),
+      });
+    },
+    [queryName, page, limit, appliedFilters]
+  );
+
+  return {
+    data: queryData?.data ?? [],
+    currentPage: queryData?.currentPage ?? page,
+    totalPages: queryData?.totalPages ?? 0,
+    totalItems: queryData?.totalItems ?? 0,
+    isLoading,
+    fetchDataHandler,
+    page,
+    limit,
+    filters: appliedFilters,
+  };
+};
 
 export default useFetch;

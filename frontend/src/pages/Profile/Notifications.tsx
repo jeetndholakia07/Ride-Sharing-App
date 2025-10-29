@@ -2,14 +2,15 @@ import { useState } from 'react';
 import NotificationDisplay from '../../components/Profile/NotificationDisplay';
 import apiInterceptor from '../../hooks/apiInterceptor';
 import { api } from '../../hooks/api';
-import { useQuery } from '@tanstack/react-query';
-import ProfileNotFound from '../../components/Profile/ProfileNotFound';
+import ProfileNotFound from '../Error/NotFound';
 import WithSuspense from '../../components/Loading/WithSuspense';
 import Skeleton from '@mui/material/Skeleton';
 import NotificationHeader from '../../components/Profile/NotificationHeader';
 import { useToast } from '../../components/Toast/ToastContext';
 import { useTranslation } from 'react-i18next';
 import useInvalidateQuery from "../../hooks/useInvalidateQuery";
+import Pagination from '../../components/Pagination';
+import useFetch from '../../hooks/useFetch';
 
 const Notifications = () => {
   const [filter, setFilter] = useState(undefined);
@@ -17,25 +18,20 @@ const Notifications = () => {
   const { t } = useTranslation();
   const invalidateQuery = useInvalidateQuery();
 
-  const fetchNotifications = async (isRead: any) => {
-    const params: any = {};
-    if (isRead !== undefined) {
-      params.isRead = isRead;
-    }
-    try {
-      const response = await apiInterceptor.get(api.user.notifications, { params });
-      return response.data.data;
-    }
-    catch (err) {
-      console.error("Error fetching notifications:", err);
-    }
-  };
-
-  const { data: notifications, isLoading } = useQuery({
-    queryKey: ["notifications", filter],
-    queryFn: () => fetchNotifications(filter),
-    retry: false,
-    refetchOnWindowFocus: false
+  const {
+    data: notifications,
+    currentPage,
+    totalPages,
+    isLoading,
+    fetchDataHandler,
+    page,
+    limit,
+  } = useFetch({
+    url: api.user.notifications,
+    queryName: "notifications",
+    pageNo: 1,
+    pageLimit: 5,
+    filters: { isRead: filter }
   });
 
   const markNotificationAsRead = async (id: string) => {
@@ -44,8 +40,7 @@ const Notifications = () => {
       showToast("success", t("messages.markAsReadSuccess"));
       invalidateQuery(["notifications"]);
       invalidateQuery(["notificationCount"]);
-    }
-    catch (err) {
+    } catch (err) {
       console.error("Error marking a notification as read:", err);
     }
   }
@@ -56,48 +51,58 @@ const Notifications = () => {
       showToast("success", t("messages.markAllAsReadSuccess"));
       invalidateQuery(["notifications"]);
       invalidateQuery(["notificationCount"]);
-    }
-    catch (err) {
-      console.error("Error marking a notification as read:", err);
+    } catch (err) {
+      console.error("Error marking all notifications as read:", err);
     }
   }
 
-  const renderSkeleton = <><Skeleton variant="text" width={"100%"} />
-    <Skeleton variant="rectangular" width={"100%"} height={"40"} /></>;
+  const renderSkeleton = (
+    <>
+      <Skeleton variant="text" width={"100%"} />
+      <Skeleton variant="rectangular" width={"100%"} height={40} />
+    </>
+  );
+
+  const handleFilterChange = (newFilter: any) => {
+    setFilter(newFilter);
+    fetchDataHandler(1, limit, { isRead: newFilter });
+  }
 
   return (
     <div className="w-full max-w-3xl mx-auto p-4">
+      <NotificationHeader
+        currentFilter={filter}
+        onFilterChange={handleFilterChange}
+        onMarkAllAsRead={markAllNotificationAsRead}
+      />
+
       <WithSuspense
         data={notifications}
         isLoading={isLoading}
         fallback={renderSkeleton}
         empty={
-          <>
-            <NotificationHeader
-              currentFilter={filter}
-              onFilterChange={setFilter}
-              onMarkAllAsRead={markAllNotificationAsRead}
-            />
-            <ProfileNotFound
-              title={t("noNotifications")}
-              message={t("noNotificationsMsg")}
-              icon={<i className="bi bi-bell-fill" />}
-            />
-          </>
+          <ProfileNotFound
+            title={t("noNotifications")}
+            message={t("noNotificationsMsg")}
+            icon={<i className="bi bi-bell-fill" />}
+          />
         }
       >
-        <>
-          <NotificationHeader
-            currentFilter={filter}
-            onFilterChange={setFilter}
-            onMarkAllAsRead={markAllNotificationAsRead}
-          />
-          <NotificationDisplay
-            notifications={notifications}
-            onMarkAsRead={markNotificationAsRead}
-          />
-        </>
+        <NotificationDisplay
+          notifications={notifications}
+          onMarkAsRead={markNotificationAsRead}
+        />
       </WithSuspense>
+
+      {totalPages > 1 && (
+        <Pagination
+          currentPage={currentPage}
+          totalPages={totalPages}
+          page={page}
+          limit={limit}
+          handlePageChange={fetchDataHandler}
+        />
+      )}
     </div>
   )
 };

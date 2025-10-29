@@ -2,7 +2,6 @@ import Ride from "../../models/Ride.js";
 import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
-import { getDate, generateRideName } from "../../utils/format.js";
 
 const createRide = async (req, res) => {
     try {
@@ -26,15 +25,12 @@ const createRide = async (req, res) => {
             return res.status(400).json({ message: "No seats available" });
         }
 
-        //Generate ride name
-        const rideName = generateRideName(drive.from, drive.to, getDate(drive.departureTime));
-
         //Create Ride Request
         await Ride.create({
             drive: driveId,
             passenger: passengerId,
             passengerStatus: "accepted",
-            rideName: rideName
+            seats: seats
         });
 
         //Update drive seats

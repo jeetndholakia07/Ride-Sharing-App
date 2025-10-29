@@ -5,7 +5,7 @@ import UserProfile from "../../models/UserProfile.js";
 
 const getDrivesForDriver = async (req, res) => {
     try {
-        const { page = 1, limit = 5, passengerStatus, driverStatus } = req.query;
+        const { page = 1, limit = 5, driveStatus, month, year } = req.query;
         const skip = (page - 1) * limit;
         const driverId = req.user.id;
 
@@ -13,11 +13,29 @@ const getDrivesForDriver = async (req, res) => {
             return res.status(400).json({ message: "Driver id not found" });
         }
 
+        //Filtering
+        let query = { driver: driverId };
+        if (driveStatus && driveStatus.trim() !== "") {
+            query.driveStatus = driveStatus;
+        };
+
+        if (month && year) {
+            const monthNum = parseInt(month, 10);
+            const yearNum = parseInt(year, 10);
+
+            if (!isNaN(monthNum) && !isNaN(yearNum)) {
+                const monthStart = new Date(yearNum, monthNum - 1, 1, 0, 0, 0);
+                const monthEnd = new Date(yearNum, monthNum, 0, 23, 59, 59);
+
+                query.departureTime = { $gte: monthStart, $lte: monthEnd };
+            }
+        };
+
         // Total number of drives for pagination
-        const totalDrives = await Drive.countDocuments({ driver: driverId });
+        const totalDrives = await Drive.countDocuments(query);
 
         // Get all drives created by the driver
-        const drives = await Drive.find({ driver: driverId })
+        const drives = await Drive.find(query)
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
@@ -25,18 +43,8 @@ const getDrivesForDriver = async (req, res) => {
         // For each drive, get the ride requests and passenger details
         const driveDetails = await Promise.all(
             drives.map(async (drive) => {
-                //Ride query
-                let query = { drive: drive._id };
-                // If status is provided, add case-insensitive regex filter
-                if (passengerStatus && passengerStatus.trim() !== "") {
-                    query.passengerStatus = { $eq: passengerStatus };
-                }
-                if (driverStatus && driverStatus.trim() !== "") {
-                    query.driverStatus = { $eq: driverStatus };
-                }
-
                 // Get all rides that reference this drive
-                const rides = await Ride.find(query).populate("passenger", "username mobile collegeName");
+                const rides = await Ride.find({ drive: drive._id }).populate("passenger", "username mobile collegeName");
 
                 // For each ride, fetch passenger and profile manually
                 const rideRequests = await Promise.all(
@@ -49,7 +57,9 @@ const getDrivesForDriver = async (req, res) => {
                             passengerProfileImg: profileImg,
                             requestedAt: ride.requestedAt,
                             passengerStatus: ride.passengerStatus,
-                            rejectedAt: ride.rejectedAt
+                            rejectedAt: ride.rejectedAt,
+                            driverStatus: ride.driverStatus,
+                            seats: ride.seats
                         };
                     })
                 );
@@ -63,7 +73,8 @@ const getDrivesForDriver = async (req, res) => {
                         vehicleDetails: drive.vehicleDetails,
                         seatsAvailable: drive.seatsAvailable,
                         driveStatus: drive.driveStatus,
-                        specialNote: drive.specialNote
+                        specialNote: drive.specialNote,
+                        pricePerPerson: drive.pricePerPerson
                     },
                     rideRequests: rideRequests.filter(r => r !== null)
                 };

@@ -11,6 +11,8 @@ type TextInputProps = {
     error?: any;
     disabled?: boolean;
     icon?: string;
+    isRide?: boolean;
+    autocomplete?: string;
 };
 
 const TextInput: FC<TextInputProps> = ({
@@ -23,7 +25,9 @@ const TextInput: FC<TextInputProps> = ({
     error,
     disabled = false,
     placeholder = " ",
-    icon
+    icon,
+    isRide = false,
+    autocomplete
 }) => {
     return (
         <div className="relative w-full max-w-sm mb-2">
@@ -44,6 +48,7 @@ const TextInput: FC<TextInputProps> = ({
           ${error ? 'border-red-500' : 'border-gray-300'}
           ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : 'bg-white text-gray-900'}
         `}
+                autoComplete={autocomplete && autocomplete}
             />
             <label
                 htmlFor={name}
@@ -60,7 +65,8 @@ const TextInput: FC<TextInputProps> = ({
                 {label}
                 {required && <span className="text-red-500 ml-0.5">*</span>}
             </label>
-            {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+
+            {error && <div className={`${isRide ? "h-0" : ""}`}><p className="text-red-500 text-sm">{error}</p></div>}
         </div>
     );
 };

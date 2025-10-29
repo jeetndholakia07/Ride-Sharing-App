@@ -128,7 +128,7 @@ const SignupPage = () => {
                         <div className="grid grid-cols-1 gap-6">
                             <TextInput name={"username"} label={t("username")} placeholder={t("username")} value={values.username}
                                 required={true} onChange={handleChange} onBlur={handleBlur} error={touched?.username && errors.username}
-                                icon="bi bi-person-fill" />
+                                icon="bi bi-person-fill" autocomplete="username" />
                         </div>
                         <div className="grid grid-cols-1 gap-6">
                             <TextInput name={"mobile"} label={t("mobile")} placeholder={t("mobile")} value={values.mobile}

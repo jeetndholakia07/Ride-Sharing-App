@@ -17,9 +17,9 @@ const acceptRide = async (req, res) => {
         }
 
         //Save changes
-        drive.driveStatus = "accepted";
-        drive.acceptedAt = new Date();
-        await drive.save();
+        ride.driverStatus = "accepted";
+        ride.acceptedAt = new Date();
+        await ride.save();
 
         //Notify passenger of accepted ride
         const driver = await User.findById(drive.driver);

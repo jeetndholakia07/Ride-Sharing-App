@@ -11,13 +11,25 @@ const rideSchema = new mongoose.Schema({
         ref: "Drive",
         required: true
     },
-    rideName: {
-        type: String,
-        required: true
-    },
     passengerStatus: {
         type: String,
-        enum: ["accepted", "rejected"],
+        enum: ["accepted"],
+        default: "accepted"
+    },
+    driverStatus: {
+        type: String,
+        enum: ["pending", "accepted", "rejected"],
+        default: "pending"
+    },
+    seats: {
+        type: Number,
+        required: true
+    },
+    amountRequested: {
+        type: Number
+    },
+    acceptedAt: {
+        type: Date
     },
     requestedAt: {
         type: Date,

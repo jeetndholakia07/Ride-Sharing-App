@@ -1,31 +1,65 @@
 import { useLocation, useNavigate } from "react-router";
 import { useTranslation } from "react-i18next";
 import { formatDateTime } from "../../utils/dateFormat";
-import { getStatusColor, getStatusIcon, getVehicleIcon } from "../../utils/rideFormat";
 import { useToast } from "../Toast/ToastContext";
 import AcceptButton from "../Buttons/AcceptButton";
 import CancelButton from "../Buttons/CancelButton";
-import ProfileNotFound from "../Profile/ProfileNotFound";
+import NotFound from "../../pages/Error/NotFound";
 import apiInterceptor from "../../hooks/apiInterceptor";
 import { api } from "../../hooks/api";
 import { useConfirmModal } from "../../context/ConfirmModalContext";
+import SpecialNote from "../Ride UI/SpecialNote";
+import VehicleImage from "../Ride UI/VehicleImage";
+import Seats from "../Ride UI/Seats";
+import type { FC } from "react";
+import { useQuery } from "@tanstack/react-query";
+import PageLoader from "../Loading/PageLoader";
+import { ridesForDriverMap } from "../../utils/ridesForDriver";
+import PriceDisplay from "../Ride UI/PriceDisplay";
+import StatusDisplay from "../Ride UI/StatusDisplay";
 
-const DriveDetails = () => {
+type driveProps = {
+    linkId: any;
+}
+
+const DriveDetails: FC<driveProps> = ({ linkId }) => {
     const location = useLocation();
-    const data = location.state?.data;
+    const initialData = location.state?.data;
+    const linkIdFromState = initialData?.driveId; // fallback linkId
+    const linkIdToUse = linkId || linkIdFromState;
 
-    if (!data) {
-        return <ProfileNotFound />;
-    }
-
-    const vehicleIcon = getVehicleIcon(data.vehicleType);
-    const statusColor = getStatusColor(data.driveStatus);
-    const statusIcon = getStatusIcon(data.driveStatus);
+    const fetchDrive = async () => {
+        try {
+            const response = await apiInterceptor.get(`${api.ride.driveById}`, { params: { driveId: linkId } });
+            return response.data;
+        }
+        catch (err) {
+            console.error("Error fetching drive by id:", err);
+            return null;
+        }
+    };
 
     const navigate = useNavigate();
     const { t } = useTranslation();
     const { showToast } = useToast();
     const { openModal } = useConfirmModal();
+
+    const hasInitialData = Boolean(initialData);
+    const shouldFetch = !hasInitialData && Boolean(linkId);
+
+    const { data: ride, isLoading, isError } = useQuery({
+        queryKey: ["ride", linkIdToUse],
+        queryFn: fetchDrive,
+        refetchOnWindowFocus: false,
+        initialData: hasInitialData ? initialData : undefined,
+        enabled: shouldFetch,
+        retry: false,
+        select: shouldFetch ? (data: any) => data && ridesForDriverMap(data) : undefined,
+    });
+
+    if (isLoading) return <PageLoader />;
+
+    if (!ride || isError) return <NotFound />;
 
     const handleAcceptRide = async (payload: any) => {
         try {
@@ -44,7 +78,7 @@ const DriveDetails = () => {
 
     const handleCancelRide = async () => {
         try {
-            await apiInterceptor.put(api.ride.cancelRide, { driveId: data.driveId });
+            await apiInterceptor.put(api.ride.cancelRide, { driveId: ride.driveId });
             showToast("success", t("messages.cancelRideSuccess"));
             navigate("/profile/rides");
         }
@@ -59,12 +93,27 @@ const DriveDetails = () => {
 
     const handleCompleteRide = async () => {
         try {
-            await apiInterceptor.put(api.ride.completeRide, { driveId: data.driveId });
+            await apiInterceptor.put(api.ride.completeRide, { driveId: ride.driveId });
             showToast("success", t("messages.conpleteRideSuccess"));
             navigate("/profile/rides");
         }
         catch (err) {
             console.error("Error completing ride:", err);
+        }
+    };
+
+    const confirmReject = (passengerId: string) => {
+        openModal(t("confirmReject"), t("messages.confirmRejectRide"), t("confirm"), () => handleRejectRide(passengerId));
+    };
+
+    const handleRejectRide = async (passengerId: string) => {
+        try {
+            await apiInterceptor.put(api.ride.rejectRide, { driveId: ride.driveId, passengerId: passengerId });
+            showToast("success", t("messages.rejectRideSuccess"));
+            navigate("/profile/rides");
+        }
+        catch (err) {
+            console.error("Error rejecting ride:", err);
         }
     };
 
@@ -77,56 +126,39 @@ const DriveDetails = () => {
                 {t("goback")}
             </button>
 
-            {/* Header: From To + Time */}
             <div className="text-center mb-6">
                 <h1 className="text-2xl md:text-3xl font-bold text-indigo-700">
-                    {data.from} {t("arrow")} {data.to}
+                    {ride.from} {t("arrow")} {ride.to}
                 </h1>
                 <p className="mt-2 text-gray-700 font-bold text-sm md:text-base">
-                    <i className="bi bi-clock-fill mr-1" /> {t("departure")} {formatDateTime(data.departureTime)}
+                    <i className="bi bi-clock-fill mr-1" /> {t("departure")} {formatDateTime(ride.departureTime)}
                 </p>
             </div>
 
             {/* Vehicle Info + Status */}
             <div className="flex flex-col md:flex-row items-center md:justify-between">
                 <div className="flex items-center space-x-4">
-                    <img
-                        src={vehicleIcon}
-                        alt={data.vehicleType}
-                        className="h-[5rem] w-auto object-contain"
-                    />
+                    <VehicleImage vehicleType={ride.vehicleType} />
                     <div>
                         <span className="text-xl font-semibold text-gray-800">
-                            {data.vehicleName} {data.vehicleNumber}
+                            {ride.vehicleName} {ride.vehicleNumber}
                         </span>
-                        <p className="mt-1 text-gray-500">{t(data.vehicleType)}</p>
+                        <p className="mt-1 text-gray-500">{t(ride.vehicleType)}</p>
                     </div>
                 </div>
-
-                <span
-                    className={`mt-2 md:mt-0 mb-2 inline-flex items-center px-4 py-2 rounded-full text-sm font-medium ${statusColor} bg-opacity-10`}
-                >
-                    {statusIcon}
-                    <span className="ml-2">{data.driveStatus}</span>
-                </span>
+                <StatusDisplay status={ride.driveStatus} />
             </div>
 
-
-            <p className="text-center md:text-left mb-3">
-                <span className="font-medium text-gray-800">{t("seatsAvailable")}:</span>{" "}
-                {data.seatsAvailable}
-            </p>
-
             <div className="flex items-center justify-between">
-                {/* Special Note */}
-                <div className="text-gray-700 space-y-2 mt-2 mb-4">
-                    {data.specialNote && (
-                        <p>
-                            <span className="font-medium text-gray-800">{t("note")}</span>{" "}
-                            {data.specialNote}
-                        </p>
+                <div className="text-gray-700 space-y-2 mt-2">
+                    {ride.specialNote && (
+                        <SpecialNote specialNote={ride.specialNote} />
                     )}
                 </div>
+                <Seats seats={ride.seatsAvailable} />
+            </div>
+            <div className="mb-2">
+                <PriceDisplay price={ride.pricePerPerson} />
             </div>
 
             <hr className="border-gray-300" />
@@ -134,9 +166,9 @@ const DriveDetails = () => {
             <div className="mt-4">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">{t("passengerRequests")}</h2>
 
-                {data.passengers.length > 0 ? (
+                {ride.passengers.length > 0 ? (
                     <div className="space-y-4">
-                        {data.passengers.map((passenger: any) => (
+                        {ride.passengers.map((passenger: any) => (
                             <div
                                 key={passenger.passengerId}
                                 className="flex items-center justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition"
@@ -151,23 +183,21 @@ const DriveDetails = () => {
                                         <p className="text-lg font-semibold text-gray-700">Name: {passenger.passengerName}</p>
                                         <p className="text-sm text-gray-500">College Name: {passenger.passengerCollegeName}</p>
                                         <p className="text-sm text-gray-500">Mobile: {passenger.passengerMobile}</p>
+                                        <p className="text-sm text-gray-500">Seats: {passenger?.seats}</p>
                                     </div>
                                 </div>
 
-                                <div className="flex items-center space-x-4">
-                                    <span
-                                        className={`px-3 py-1 rounded-full text-xs font-medium ${getStatusColor(passenger.passengerStatus)}}`}
-                                    >
-                                        {getStatusIcon(passenger.passengerStatus)}
-                                        {passenger.passengerStatus}
-                                    </span>
-                                    <p className="text-sm text-gray-500">{formatDateTime(passenger.requestedAt)}</p>
-                                </div>
-                                {(data.driveStatus !== "cancelled" && data.driveStatus !== "pending" && passenger.passengerStatus !== "rejected") && (
+                                {(ride.driveStatus !== "cancelled" && passenger.driverStatus === "pending" && ride.driverStatus !== "accepted") && (
                                     <AcceptButton label={t("accept")}
-                                        handleClick={() => handleAcceptRide({ passengerId: passenger.passengerId, driveId: data.driveId })}
+                                        handleClick={() => handleAcceptRide({ passengerId: passenger.passengerId, driveId: ride.driveId })}
                                     />
                                 )}
+                                {(ride.driveStatus !== "cancelled" && passenger.driverStatus === "pending" && ride.driverStatus !== "rejected") && (
+                                    <CancelButton label={t("reject")}
+                                        handleClick={() => confirmReject(passenger.passengerId)}
+                                    />
+                                )}
+                                {passenger.driverStatus === "accepted" && <StatusDisplay status={passenger.driverStatus} />}
                             </div>
                         ))}
                     </div>
@@ -176,11 +206,11 @@ const DriveDetails = () => {
                 )}
             </div>
             <div className="flex items-center justify-end mt-4 gap-4">
-                {data.driveStatus !== "cancelled" &&
-                    <CancelButton label={t("cancel")} handleClick={confirmCancelRide} />
+                {(ride.driveStatus !== "cancelled" && ride.driveStatus !== "completed") &&
+                    <CancelButton label={t("cancelRide")} handleClick={confirmCancelRide} />
                 }
-                {data.driveStatus !== "cancelled" && <AcceptButton handleClick={confirmComplete}
-                    label={t("complete")} />}
+                {(ride.driveStatus !== "cancelled" && ride.driveStatus !== "completed") &&
+                    <AcceptButton handleClick={confirmComplete} label={t("complete")} />}
             </div>
         </div>
     );

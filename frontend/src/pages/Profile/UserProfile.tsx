@@ -10,7 +10,7 @@ import * as Yup from "yup";
 import { useToast } from "../../components/Toast/ToastContext";
 import { useTranslation } from "react-i18next";
 import LoadingOverlay from "../../components/Loading/LoadingOverlay";
-import ProfileNotFound from "../../components/Profile/ProfileNotFound";
+import ProfileNotFound from "../Error/NotFound";
 import PageLoader from "../../components/Loading/PageLoader";
 import EditButton from "../../components/Buttons/EditButton";
 import { mobileRegex } from "../../utils/regex";
@@ -276,7 +276,7 @@ const UserProfile = () => {
                                 {role === "passenger" && (
                                     userProfile.collegeIDProof ? (
                                         <ImageUpload
-                                            image={userProfile.collegeIDProof}
+                                            image={`${userProfile.collegeIDProof}?t=${Date.now()}`}
                                             onImageChange={handleUpdateCollegeID}
                                             heading="College ID"
                                             alignment="left"

@@ -8,7 +8,6 @@ import Skeleton from '@mui/material/Skeleton';
 import NotFoundReview from './NotFoundReview';
 const ReviewDisplay = lazy(() => import("./ReviewDisplay"));
 import WithSuspense from '../../components/Loading/WithSuspense';
-const AddReview = lazy(() => import("./AddReview"));
 import useAuth from '../../hooks/useAuth';
 import PageLoader from '../../components/Loading/PageLoader';
 import { findUserId } from '../../IndexedDB/tokens';
@@ -45,7 +44,7 @@ const ReviewSection = () => {
         const firstReview = reviews[0];
         const reviewUserId = firstReview?.user?.userId;
 
-        const isMatch = reviewUserId.toString() === userId.toString();
+        const isMatch = reviewUserId?.toString() === userId?.toString();
 
         return isMatch ? firstReview : null;
     }, [isAuthenticated, userId, reviews]);
@@ -102,12 +101,7 @@ const ReviewSection = () => {
             <WithSuspense
                 data={filteredReviews}
                 fallback={renderSkeleton}
-                empty={
-                    <>
-                        <AddReview />
-                        <NotFoundReview />
-                    </>
-                }
+                empty={<NotFoundReview />}
                 isLoading={false}
             >
                 {filteredReviews && filteredReviews.length > 0 && (

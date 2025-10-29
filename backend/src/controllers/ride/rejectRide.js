@@ -3,35 +3,34 @@ import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
 
-/* Reject ride request by passenger */
+/* Reject ride request by driver */
 const rejectRide = async (req, res) => {
     try {
-        const { driveId } = req.body;
-        if (!driveId) {
-            return res.status(404).json({ message: "Please enter driver id" });
+        const { passengerId, driveId } = req.body;
+        if (!passengerId || !driveId) {
+            return res.status(404).json({ message: "Please enter passenger id and drive id" });
         }
-        const passengerId = req.user.id;
+        const driverId = req.user.id;
         if (!passengerId) {
             return res.status(400).json({ message: "Passenger id not found" });
         }
-        const ride = await Ride.findOne({ drive: driveId, passenger: passengerId });
+        const ride = await Ride.findOne({ drive: driverId, passenger: passengerId });
         const drive = await Drive.findById(driveId);
 
         if (!ride || !drive) {
             return res.status(404).json({ message: "Drive or ride not found" });
         }
+
         //Save changes
-        ride.passengerStatus = "rejected";
+        ride.driverStatus = "rejected";
         ride.rejectedAt = new Date();
         await ride.save();
-        drive.driveStatus = "pending";
-        await drive.save();
 
-        //Notify driver of rejected ride
-        const driver = await User.findById(drive.driver);
-        const passenger = await User.findById(passengerId);
-        await createNotification("rideRejected", driver._id, {
-            passengerName: passenger.username,
+        const driver = await User.findById(driverId);
+
+        //Notify passenger of rejected ride
+        await createNotification("rideRejected", passengerId, {
+            driverName: driver.username,
             from: drive.from,
             to: drive.to
         });

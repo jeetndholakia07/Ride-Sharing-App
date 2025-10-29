@@ -11,9 +11,9 @@ export const notificationTemplates = {
         linkId
     }),
 
-    rideRejected: ({ passengerName, from, to, linkId }) => ({
+    rideRejected: ({ driverName, from, to, linkId }) => ({
         heading: "Ride Request Rejected",
-        message: `${passengerName} has rejected your ride request from ${from} to ${to}. We apologize for the inconvenience.`,
+        message: `${driverName} has rejected your ride request from ${from} to ${to}. We apologize for the inconvenience.`,
         linkId
     }),
 

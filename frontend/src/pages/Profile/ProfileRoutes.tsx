@@ -4,7 +4,7 @@ import Notifications from './Notifications';
 import ForgotPassword from './ForgetPassword';
 import UserRides from './UserRides';
 import Layout from './Layout';
-import ProfileNotFound from '../../components/Profile/ProfileNotFound';
+import ProfileNotFound from '../Error/NotFound';
 import RideDisplay from '../Rides/RideDisplay';
 
 const ProfileRoutes = () => {

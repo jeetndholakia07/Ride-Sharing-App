@@ -1,6 +1,6 @@
 import { useTranslation } from "react-i18next";
 import { useSelector } from "react-redux";
-import type { RootState } from "../../context/store/store";
+import type { RootState } from "../../redux/store/store";
 
 const Index = () => {
     const { t } = useTranslation();

@@ -1,31 +1,36 @@
-import apiInterceptor from "../../hooks/apiInterceptor";
 import { api } from "../../hooks/api";
-import { lazy } from "react";
-const RideList = lazy(() => import("../../components/RideForPassenger/RideList"));
+import { lazy, useEffect } from "react";
+const RideList = lazy(() => import("../../components/Ride/RideList"));
 import WithSuspense from "../../components/Loading/WithSuspense";
-import { useQuery } from "@tanstack/react-query";
 import Skeleton from '@mui/material/Skeleton';
-import ProfileNotFound from "../../components/Profile/ProfileNotFound";
+import ProfileNotFound from "../Error/NotFound";
 import { ridesForPassengerMap } from "../../utils/ridesForPassenger";
+import Pagination from "../../components/Pagination";
+import useFetch from "../../hooks/useFetch";
+import { useFilter } from "../../context/FilterContext";
 
 const RidesForPassenger = () => {
-    const getRidesForPassenger = async () => {
-        try {
-            const response = await apiInterceptor.get(api.ride.ridesForRider);
-            return response.data.data;
-        }
-        catch (err) {
-            console.error("Error getting rides for passenger:", err);
-        }
-    }
-
-    const { data, isLoading } = useQuery({
-        queryKey: ["ridesForPassenger"],
-        queryFn: getRidesForPassenger,
-        retry: false,
-        refetchOnWindowFocus: false
+    const { setOnApply } = useFilter();
+    const {
+        data,
+        isLoading,
+        currentPage,
+        totalPages,
+        fetchDataHandler,
+        page,
+        limit
+    } = useFetch({
+        url: api.ride.ridesForRider,
+        pageNo: 1,
+        pageLimit: 5,
+        queryName: "ridesForPassenger"
     });
 
+    useEffect(() => {
+        setOnApply((appliedFilters?: Record<string, string>) => {
+            fetchDataHandler(1, limit, appliedFilters || {});
+        });
+    }, [fetchDataHandler, limit, setOnApply]);
 
     const renderSkeleton = <><Skeleton variant="text" width={"100%"} />
         <Skeleton variant="rectangular" width={"100%"} height={"40"} /></>;
@@ -38,6 +43,13 @@ const RidesForPassenger = () => {
             fallback={renderSkeleton}
         >
             <RideList rides={data} mapper={ridesForPassengerMap} />
+            <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                page={page}
+                limit={limit}
+                handlePageChange={fetchDataHandler}
+            />
         </WithSuspense>
     )
 }

@@ -10,6 +10,7 @@ import useAuth from '../../hooks/useAuth';
 import { useNavigate } from 'react-router';
 import { useConfirmModal } from '../../context/ConfirmModalContext';
 import useInvalidateQuery from '../../hooks/useInvalidateQuery';
+import RatingStar from '../../components/Review/RatingStar';
 
 type FormValues = {
     rating: number;
@@ -17,7 +18,6 @@ type FormValues = {
 }
 
 const CreateReview = () => {
-    const [hovered, setHovered] = useState(0);
     const [isLoading, setIsLoading] = useState(false);
     const { showToast } = useToast();
     const { openModal } = useConfirmModal();
@@ -67,26 +67,14 @@ const CreateReview = () => {
             onSubmit={handleSubmit}
         >
             {({ values, handleChange, handleBlur, handleSubmit, setFieldValue }) => {
-                const handleChangeReview = (selectedRating: number) => {
+                const handleChangeRating = (selectedRating: number) => {
                     setFieldValue("rating", selectedRating);
                 };
                 return (
                     <form onSubmit={handleSubmit}>
                         <div className="bg-white p-6 rounded-xl shadow-md w-full max-w-xl mx-auto">
                             <h2 className="text-xl font-semibold mb-4 text-gray-800">{t("leaveReview")}</h2>
-                            {/* Star Rating */}
-                            <div className="flex mb-4">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <i
-                                        key={star}
-                                        className={`bi ${(hovered || values.rating) >= star ? 'bi-star-fill text-yellow-400' : 'bi-star text-gray-300'
-                                            } text-2xl cursor-pointer transition-all duration-150`}
-                                        onMouseEnter={() => setHovered(star)}
-                                        onMouseLeave={() => setHovered(0)}
-                                        onClick={() => handleChangeReview(star)}
-                                    />
-                                ))}
-                            </div>
+                            <RatingStar handleClick={handleChangeRating} rating={values.rating} />
 
                             <TextArea name={"review"} value={values.review} onChange={handleChange} onBlur={handleBlur}
                                 label={t("review")} rows={3} placeholder={t("enterReview")}

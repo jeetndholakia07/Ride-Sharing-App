@@ -14,6 +14,7 @@ type RideDetails = {
     _id: string;
     rideName: string;
     passengerStatus: string;
+    driverStatus: string;
     requestedAt: string;
     createdAt: string;
     updatedAt: string;
@@ -29,6 +30,7 @@ type DriveDetails = {
     departureTime: string;
     seatsAvailable: number;
     driveStatus: string;
+    pricePerPerson: number;
     specialNote: string;
     createdAt: string;
     updatedAt: string;
@@ -49,6 +51,7 @@ export const ridesForPassengerMap = (data: RidesForPassengerResponse): Record<st
         rideId: ride._id,
         rideName: ride.rideName,
         passengerStatus: ride.passengerStatus,
+        driverStatus: ride.driverStatus,
         requestedAt: ride.requestedAt,
         rideCreatedAt: ride.createdAt,
         rideUpdatedAt: ride.updatedAt,
@@ -58,6 +61,7 @@ export const ridesForPassengerMap = (data: RidesForPassengerResponse): Record<st
         driverName: driver.username,
         driverMobile: driver.mobile,
         driverProfileImg: data.driverProfileImg,
+        pricePerPerson: drive.pricePerPerson,
 
         vehicleType: vehicle.vehicleType,
         vehicleName: vehicle.vehicleName,

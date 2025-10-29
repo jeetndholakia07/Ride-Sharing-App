@@ -19,15 +19,13 @@ const driveSchema = new mongoose.Schema({
         required: true
     },
     seatsAvailable: {
-        type: Number, required: true
+        type: Number,
+        required: true
     },
     driveStatus: {
         type: String,
-        enum: ["pending", "accepted", "cancelled", "completed"],
+        enum: ["pending", "cancelled", "completed"],
         default: "pending"
-    },
-    acceptedAt: {
-        type: Date
     },
     cancelledAt: {
         type: Date
@@ -39,6 +37,10 @@ const driveSchema = new mongoose.Schema({
         vehicleType: { type: String, required: true },
         vehicleName: { type: String, required: true },
         vehicleNumber: { type: String, required: true },
+    },
+    pricePerPerson: {
+        type: Number,
+        required: true
     },
     specialNote: {
         type: String

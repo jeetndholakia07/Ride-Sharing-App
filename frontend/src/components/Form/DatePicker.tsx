@@ -1,6 +1,7 @@
 import Flatpickr from "react-flatpickr";
 import { type FC, useState } from "react";
 import "flatpickr/dist/themes/material_blue.css";
+import { formatDate } from "../../utils/dateFormat";
 
 type DatePickerProps = {
     label: string;
@@ -12,6 +13,7 @@ type DatePickerProps = {
     disabled?: boolean;
     placeholder?: string;
     icon?: string;
+    minDate?: Date;
 };
 
 const DatePicker: FC<DatePickerProps> = ({
@@ -23,7 +25,8 @@ const DatePicker: FC<DatePickerProps> = ({
     required = false,
     disabled = false,
     placeholder = " ",
-    icon
+    icon,
+    minDate
 }) => {
     const [isFocused, setIsFocused] = useState(false);
 
@@ -59,6 +62,7 @@ const DatePicker: FC<DatePickerProps> = ({
                 placeholder={placeholder}
                 options={{
                     dateFormat: "d-m-Y",
+                    minDate: formatDate(minDate)
                 }}
                 onOpen={() => setIsFocused(true)}
                 onClose={() => setIsFocused(false)}

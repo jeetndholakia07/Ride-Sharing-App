@@ -1,12 +1,11 @@
 import { Route, Routes } from "react-router-dom";
 import MainLayout from "../pages/MainLayout";
-import NotFoundPage from "../pages/Error/NotFound";
+import Error404Page from "../pages/Error/Error404.js";
 import AboutPage from "../pages/About/index";
 import LoginPage from "../pages/AuthLayout/Login";
 import SignupPage from "../pages/AuthLayout/Signup";
 import HomePage from "../pages/Home/index";
 import Rides from "../pages/Rides/index";
-import RideDetails from "../components/RideLocation/RideDetails.js";
 import ReviewPage from "../pages/Reviews/index";
 import AuthLayout from "../pages/AuthLayout/index.js";
 import PublicRoutes from "./PublicRoutes.js";
@@ -22,9 +21,8 @@ const AppRoutes = () => {
                 <Route path="/" index element={<HomePage />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/rides" element={<Rides />} />
-                <Route path="/rides/:id" element={<RideDetails />} />
                 <Route path="/reviews" element={<ReviewPage />} />
-                <Route path="*" element={<NotFoundPage />} />
+                <Route path="*" element={<Error404Page />} />
             </Route>
 
             {/*Auth Routes */}

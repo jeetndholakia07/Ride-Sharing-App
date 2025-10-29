@@ -1,25 +1,25 @@
-import { useTranslation } from "react-i18next";
-import { Link } from "react-router-dom";
+import React from "react";
 
-const NotFoundPage = () => {
-  const { t } = useTranslation();
-  return (
-    <div className="min-h-screen bg-white flex flex-col items-center justify-center px-6 py-12">
-      <div className="text-center">
-        <i className="bi bi-exclamation-triangle text-6xl text-yellow-500 mb-4"></i>
-        <h1 className="text-5xl font-bold text-gray-800 mb-4">{t("serviceunavailable")}</h1>
-        <p className="text-xl text-gray-600 mb-6">
-          {t("pageNotExists")}
-        </p>
-        <Link
-          to="/"
-          className="inline-block px-6 py-3 text-white bg-green-600 hover:bg-green-700 rounded-lg text-lg transition"
-        >
-          {t("returnHome")}
-        </Link>
-      </div>
-    </div>
-  );
+type NotFoundProps = {
+    title?: string;
+    message?: string;
+    icon?: React.ReactNode;
 };
 
-export default NotFoundPage;
+const NotFound: React.FC<NotFoundProps> = ({
+    title = "Not Found",
+    message = "We couldn't find what you're looking for.",
+    icon,
+}) => {
+    return (
+        <div className="flex flex-col items-center justify-center text-center px-4 py-16 sm:px-6 lg:px-8">
+            <div className="mb-4 text-blue-500 text-5xl">
+                {icon || <i className="bi bi-search" aria-hidden="true"></i>}
+            </div>
+            <h2 className="text-2xl font-semibold text-gray-800 dark:text-white">{title}</h2>
+            <p className="mt-2 text-gray-600 dark:text-gray-300">{message}</p>
+        </div>
+    );
+};
+
+export default NotFound;

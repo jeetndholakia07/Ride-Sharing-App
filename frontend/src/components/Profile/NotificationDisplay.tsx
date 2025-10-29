@@ -1,6 +1,7 @@
 import { type FC } from "react";
 import { formatDateTime } from "../../utils/dateFormat";
 import MarkAsRead from "../Buttons/MarkAsRead";
+import { useNavigate } from "react-router";
 
 type Props = {
     notifications: any[];
@@ -8,6 +9,12 @@ type Props = {
 };
 
 const NotificationDisplay: FC<Props> = ({ notifications, onMarkAsRead }) => {
+    const navigate = useNavigate();
+    const handleNotification = (notifId: any, linkId: any) => {
+        onMarkAsRead(notifId);
+        navigate(`/profile/rides/${linkId}`, { state: { linkId: linkId } });
+    };
+
     return (
         <div className="space-y-4">
             {notifications.map((notif) => (
@@ -15,8 +22,12 @@ const NotificationDisplay: FC<Props> = ({ notifications, onMarkAsRead }) => {
                     key={notif._id}
                     className={`flex justify-between items-start p-4 rounded-lg shadow-sm border transition ${notif.isRead
                         ? "bg-gray-50 border-gray-200"
-                        : "bg-white border-blue-300"
+                        : "bg-white border-blue-300 hover:cursor-pointer"
                         }`}
+                    role="button"
+                    onClick={() => !notif.isRead && handleNotification(notif._id, notif.linkId)}
+                    aria-disabled={notif.isRead}
+                    tabIndex={notif.isRead ? -1 : 0}
                 >
                     <div className="flex items-start gap-3">
                         <div className="pt-1">
@@ -36,7 +47,12 @@ const NotificationDisplay: FC<Props> = ({ notifications, onMarkAsRead }) => {
                     </div>
 
                     {!notif.isRead && (
-                        <MarkAsRead handleClick={() => onMarkAsRead(notif._id)} />
+                        <MarkAsRead
+                            handleClick={(e: any) => {
+                                e.stopPropagation();
+                                onMarkAsRead(notif._id);
+                            }}
+                        />
                     )}
                 </div>
             ))}

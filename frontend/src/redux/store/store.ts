@@ -1,10 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
-import paginationData from "../paginationSlice.js";
-import peerRideSlice from "../peerRideSlice.js";
+import peerRideSlice from "../slices/peerRideSlice.js";
 
 export const store = configureStore({
     reducer: {
-        paginationState: paginationData,
         peerRide: peerRideSlice
     }
 });

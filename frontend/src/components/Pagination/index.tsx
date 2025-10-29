@@ -13,7 +13,7 @@ type PaginationProps = {
 const Pagination: FC<PaginationProps> = ({ currentPage, totalPages, page, limit, handlePageChange }) => {
     return (
         <div className="flex flex-col md:flex-row items-center justify-between gap-4 px-6 py-4 !pb-0 border-t border-gray-200 bg-white">
-            <PaginationRows page={page} handlePageChange={handlePageChange} />
+            <PaginationRows page={page} limit={limit} handlePageChange={handlePageChange} />
             <PaginationButtons limit={limit} currentPage={currentPage} totalPages={totalPages} handlePageChange={handlePageChange} />
         </div>
     )

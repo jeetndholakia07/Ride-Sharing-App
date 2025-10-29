@@ -1,10 +1,11 @@
 import { type FC } from "react";
 import MarkAllAsRead from "../Buttons/MarkAllAsRead";
+import { getNotificationContext } from "../../context/NotificationContext";
 
 const tabOptions = [
     { label: "All", value: undefined, icon: "bi-bell" },
-    { label: "Unread", value: "false", icon: "bi-envelope" },
-    { label: "Read", value: "true", icon: "bi-envelope-open" },
+    { label: "Unread", value: false, icon: "bi-envelope" },
+    { label: "Read", value: true, icon: "bi-envelope-open" },
 ];
 
 type Props = {
@@ -18,6 +19,7 @@ const NotificationHeader: FC<Props> = ({
     onFilterChange,
     onMarkAllAsRead,
 }) => {
+    const { notificationCount } = getNotificationContext();
     return (
         <div className="flex flex-wrap justify-between items-center mb-4 gap-2">
             <div className="flex space-x-2">
@@ -35,7 +37,10 @@ const NotificationHeader: FC<Props> = ({
                     </button>
                 ))}
             </div>
-            <MarkAllAsRead handleClick={onMarkAllAsRead} />
+            <MarkAllAsRead
+                handleClick={onMarkAllAsRead}
+                disabled={notificationCount === 0}
+            />
         </div>
     );
 };

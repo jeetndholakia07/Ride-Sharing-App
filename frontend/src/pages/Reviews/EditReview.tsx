@@ -8,6 +8,7 @@ import { api } from '../../hooks/api';
 import { useTranslation } from 'react-i18next';
 import EditButton from '../../components/Buttons/EditButton';
 import useInvalidateQuery from '../../hooks/useInvalidateQuery';
+import RatingStar from '../../components/Review/RatingStar';
 
 type EditReviewProps = {
     reviewId: string;
@@ -51,7 +52,7 @@ const EditReview: React.FC<EditReviewProps> = ({ reviewId, initialRating, initia
             onSubmit={handleSubmit}
         >
             {({ values, handleChange, handleBlur, handleSubmit, setFieldValue }) => {
-                const handleChangeReview = (selectedRating: number) => {
+                const handleChangeRating = (selectedRating: number) => {
                     setFieldValue("rating", selectedRating);
                 };
 
@@ -62,18 +63,7 @@ const EditReview: React.FC<EditReviewProps> = ({ reviewId, initialRating, initia
                                 <h2 className="text-xl font-semibold mb-4 text-gray-800">Edit Your Review</h2>
                                 <EditButton isEditing={isEdit} onToggle={onEditToggle} onCancel={onCancel} />
                             </div>
-
-                            {/* Star Rating */}
-                            <div className="flex mb-4">
-                                {[1, 2, 3, 4, 5].map((star) => (
-                                    <i
-                                        key={star}
-                                        className={`bi ${(values.rating) >= star ? 'bi-star-fill text-yellow-400' : 'bi-star text-gray-300'
-                                            } text-2xl cursor-pointer transition-all duration-150`}
-                                        onClick={() => handleChangeReview(star)}
-                                    />
-                                ))}
-                            </div>
+                            <RatingStar handleClick={handleChangeRating} rating={values.rating} />
 
                             {/* Review */}
                             <TextArea
@@ -83,7 +73,7 @@ const EditReview: React.FC<EditReviewProps> = ({ reviewId, initialRating, initia
                                 onBlur={handleBlur}
                                 label={t("review")}
                                 rows={3}
-                                placeholder={t("editReview")}
+                                placeholder={values.review}
                             />
 
                             <div className="flex items-center justify-end mt-4">
