@@ -1,15 +1,14 @@
 {
     "passenger": [
         {"label":"All","value":"","filter":"driverStatus"},
-        {"label":"Accepted","value":"accepted","filter":"driverStatus"},
-        {"label":"Pending","value":"pending","filter":"driverStatus"},
-        {"label":"Completed","value":"completed","filter":"driveStatus"},
-        {"label":"Rejected","value":"rejected","filter":"driverStatus"}
+        {"label":"accepted","value":"accepted","filter":"driverStatus"},
+        {"label":"pending","value":"pending","filter":"driverStatus"},
+        {"label":"completed","value":"completed","filter":"driveStatus"}
     ],
     "driver": [
         {"label":"All","value":"","filter":"driveStatus"},
-        {"label":"Pending","value":"pending","filter":"driveStatus"},
-        {"label":"Completed","value":"completed","filter":"driveStatus"},
-        {"label":"Cancelled","value":"rejected","filter":"driveStatus"}
+        {"label":"pending","value":"pending","filter":"driveStatus"},
+        {"label":"completed","value":"completed","filter":"driveStatus"},
+        {"label":"cancelled","value":"cancelled","filter":"driveStatus"}
     ]
 }

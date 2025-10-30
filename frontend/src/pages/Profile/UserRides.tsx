@@ -4,7 +4,7 @@ import Skeleton from "@mui/material/Skeleton";
 import { getUtilContext } from "../../context/UtilsContext";
 const RidesForPassenger = lazy(() => import("../Rides/RidesForPassenger"));
 const RidesForDriver = lazy(() => import("../Rides/RidesForDriver"));
-import Filter from "../../components/Filter/Filter";
+import Filter from "../../components/Filter";
 
 const UserRides = () => {
     const { role } = useRole();

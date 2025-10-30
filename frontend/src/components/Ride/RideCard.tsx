@@ -78,6 +78,7 @@ const RideCard: FC<props> = ({ data }) => {
         navigate(`/profile/rides/${id}`, { state: { data: data } });
     };
 
+
     return (
         <div className="bg-white max-w-sm rounded-xl shadow-lg overflow-hidden mx-auto">
             <div className="p-4 flex flex-col sm:flex-row flex-wrap items-center space-x-4 space-y-2 sm:space-y-0">

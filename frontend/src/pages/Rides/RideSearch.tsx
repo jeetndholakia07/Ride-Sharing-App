@@ -1,6 +1,6 @@
 import { type FC } from 'react';
 import TextInput from '../../components/Form/TextInput';
-import SelectInput from '../../components/Form/SelectInput';
+import SelectInput from '../../components/Filter/StatusFilter';
 import { useTranslation } from 'react-i18next';
 import { seats } from "../../i18n/keys/seats.json";
 import DatePicker from '../../components/Form/DatePicker';
