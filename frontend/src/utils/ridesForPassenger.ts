@@ -17,7 +17,6 @@ type RideDetails = {
     driverStatus: string;
     requestedAt: string;
     createdAt: string;
-    updatedAt: string;
     drive: DriveDetails;
 }
 
@@ -32,13 +31,19 @@ type DriveDetails = {
     driveStatus: string;
     pricePerPerson: number;
     specialNote: string;
-    createdAt: string;
-    updatedAt: string;
 };
+
+type UserRating = {
+    rating: number;
+    review: string;
+    driver: string;
+}
 
 type RidesForPassengerResponse = {
     ride: RideDetails;
     driverProfileImg: string;
+    driverRating: number;
+    userRating: UserRating;
 };
 
 export const ridesForPassengerMap = (data: RidesForPassengerResponse): Record<string, any> => {
@@ -53,8 +58,6 @@ export const ridesForPassengerMap = (data: RidesForPassengerResponse): Record<st
         passengerStatus: ride.passengerStatus,
         driverStatus: ride.driverStatus,
         requestedAt: ride.requestedAt,
-        rideCreatedAt: ride.createdAt,
-        rideUpdatedAt: ride.updatedAt,
 
         driveId: drive._id,
         driverId: driver._id,
@@ -73,7 +76,7 @@ export const ridesForPassengerMap = (data: RidesForPassengerResponse): Record<st
         seatsAvailable: drive.seatsAvailable,
         driveStatus: drive.driveStatus,
         specialNote: drive.specialNote,
-        driveCreatedAt: drive.createdAt,
-        driveUpdatedAt: drive.updatedAt,
+        driverRating: data.driverRating,
+        userRating: data.userRating
     };
 };

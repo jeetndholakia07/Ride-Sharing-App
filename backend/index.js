@@ -8,6 +8,12 @@ import userRoute from "./src/routes/userRoute.js";
 import rideRoute from "./src/routes/rideRoute.js";
 import verifyUser from "./src/middlewares/verifyUser.js";
 import optionalAuth from "./src/middlewares/optionalAuth.js";
+import http from "http";
+import { Server } from "socket.io";
+import socketHandler from "./src/socket/socketHandler.js";
+import chatRoute from "./src/routes/chatRoute.js";
+import adminRoute from "./src/routes/adminRoute.js";
+import verifyAdmin from "./src/middlewares/verifyAdmin.js";
 
 const app = express();
 
@@ -21,10 +27,26 @@ app.use(`${baseURL}/public`, optionalAuth, publicRoute);
 app.use(`${baseURL}/auth`, authRoute);
 app.use(`${baseURL}/user`, verifyUser, userRoute);
 app.use(`${baseURL}/ride`, verifyUser, rideRoute);
+app.use(`${baseURL}/chat`, verifyUser, chatRoute);
+app.use(`${baseURL}/admin`, verifyAdmin, adminRoute);
 
 const PORT = process.env.PORT || 5000;
 
-const server = app.listen(PORT, async () => {
+//Create http server
+const httpServer = http.createServer(app);
+
+//Initialize socket.io
+const io = new Server(httpServer, {
+    cors: {
+        origin: "http://localhost:5173",
+        methods: ["GET", "POST"]
+    }
+});
+
+//Attach socket event handlers
+socketHandler(io);
+
+const server = httpServer.listen(PORT, async () => {
     await connectDB();
-    console.log(`Server running on PORT ${PORT}`);
+    console.log(`Server + Socket.IO running on PORT ${PORT}`);
 });

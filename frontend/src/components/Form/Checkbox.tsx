@@ -8,7 +8,7 @@ type checkboxProps = {
 
 const Checkbox: FC<checkboxProps> = ({ value, handleChange, label }) => {
     return (
-        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-2 max-w-2xl">
+        <div className="flex flex-col md:flex-row gap-4 md:gap-6 mb-4 max-w-2xl">
             <div className="flex items-center space-x-2">
                 <input
                     type="checkbox"

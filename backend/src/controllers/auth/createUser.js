@@ -35,6 +35,9 @@ const createUser = async (req, res) => {
                     width: result.width,
                     height: result.height
                 }
+            }),
+            ...(role === "driver" && {
+                isVerified: true
             })
         });
 
@@ -44,7 +47,11 @@ const createUser = async (req, res) => {
             email: "",
             fullName: "",
             profileImg: {
-                publicId: process.env.DEFAULT_PROFILE,
+                ...(newUser.isVerified ? {
+                    publicId: process.env.DEFAULT_PROFILE
+                } : {
+                    publicId: process.env.DEFAULT_VERIFIED_PROFILE
+                }),
                 format: "png",
                 width: 300,
                 height: 300

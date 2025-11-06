@@ -12,6 +12,8 @@ import { RoleProvider } from "./context/RoleContext";
 import { UtilContextProvider } from "./context/UtilsContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { FilterProvider } from "./context/FilterContext";
+import { SocketProvider } from "./context/SocketContext";
+import { ChatProvider } from "./context/ChatContext";
 
 function App() {
   const queryClient = new QueryClient();
@@ -24,9 +26,13 @@ function App() {
               <RoleProvider>
                 <UtilContextProvider>
                   <NotificationProvider>
-                    <FilterProvider>
-                      <AppRoutes />
-                    </FilterProvider>
+                    <ChatProvider>
+                      <FilterProvider>
+                        <SocketProvider>
+                          <AppRoutes />
+                        </SocketProvider>
+                      </FilterProvider>
+                    </ChatProvider>
                   </NotificationProvider>
                 </UtilContextProvider>
               </RoleProvider>

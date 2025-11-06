@@ -18,7 +18,7 @@ type SelectProps = {
     icon?: string;
 };
 
-const SelectInput: FC<SelectProps> = ({
+const StatusFilter: FC<SelectProps> = ({
     label,
     value,
     onChange,
@@ -49,7 +49,7 @@ const SelectInput: FC<SelectProps> = ({
                 `}
             >
                 {values.map((item) => (
-                    <option key={item.value} value={item.value}>
+                    <option key={item.label} value={item.value}>
                         {t(item.label)}
                     </option>
                 ))}
@@ -60,4 +60,4 @@ const SelectInput: FC<SelectProps> = ({
     );
 };
 
-export default SelectInput;
+export default StatusFilter;

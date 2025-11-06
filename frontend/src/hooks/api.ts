@@ -3,6 +3,7 @@ const publicURL = `${baseURL}/public`;
 const rideURL = `${baseURL}/ride`;
 const userURL = `${baseURL}/user`;
 const authURL = `${baseURL}/auth`;
+const chatURL = `${baseURL}/chat`;
 
 export const api = {
     auth: {
@@ -38,10 +39,19 @@ export const api = {
         updateDrive: `${rideURL}/editDrive`,
         checkRide: `${rideURL}/checkRide`,
         rideById: `${rideURL}/ride`,
-        driveById: `${rideURL}/drive`
+        driveById: `${rideURL}/drive`,
+        addDriverRating: `${rideURL}/addDriverRating`
     },
     public: {
         allReviews: `${publicURL}/ratings`,
         allRides: `${publicURL}/rides`,
+        frequentRides: `${publicURL}/frequent-rides`
+    },
+    chat: {
+        userChats: `${chatURL}/user-chats`,
+        userChat: `${chatURL}/user-chat`,
+        messages: `${chatURL}/messages`,
+        totalUnreadCount: `${chatURL}/totalUnreadCount`,
+        room: `${chatURL}/room`
     }
 }

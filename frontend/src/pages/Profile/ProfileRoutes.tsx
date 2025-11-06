@@ -6,6 +6,8 @@ import UserRides from './UserRides';
 import Layout from './Layout';
 import ProfileNotFound from '../Error/NotFound';
 import RideDisplay from '../Rides/RideDisplay';
+import UserChatsPage from './UserChatsPage';
+import ChatPage from './ChatPage';
 
 const ProfileRoutes = () => {
     return (
@@ -16,6 +18,8 @@ const ProfileRoutes = () => {
                 <Route path="/forget-password" element={<ForgotPassword />} />
                 <Route path="/rides" element={<UserRides />} />
                 <Route path="/rides/:id" element={<RideDisplay />} />
+                <Route path="/chats" element={<UserChatsPage />} />
+                <Route path="/chats/:roomId" element={<ChatPage />} />
                 <Route path="*" element={<ProfileNotFound />} />
             </Route>
         </Routes>

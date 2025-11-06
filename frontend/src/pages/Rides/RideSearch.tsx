@@ -1,10 +1,10 @@
-import { type FC } from 'react';
-import TextInput from '../../components/Form/TextInput';
-import SelectInput from '../../components/Filter/StatusFilter';
-import { useTranslation } from 'react-i18next';
+import { type FC } from "react";
+import TextInput from "../../components/Form/TextInput";
+import { useTranslation } from "react-i18next";
 import { seats } from "../../i18n/keys/seats.json";
-import DatePicker from '../../components/Form/DatePicker';
-import ReverseBtn from '../../components/Buttons/ReverseBtn';
+import DatePicker from "../../components/Form/DatePicker";
+import ReverseBtn from "../../components/Buttons/ReverseBtn";
+import SelectInput from "../../components/Form/SelectInput";
 
 type Props = {
     values: any;
@@ -25,7 +25,7 @@ const RideSearch: FC<Props> = ({
     touched,
     handleDateChange,
     handleSelectChange,
-    setFieldValue
+    setFieldValue,
 }) => {
     const { t } = useTranslation();
 
@@ -35,44 +35,46 @@ const RideSearch: FC<Props> = ({
     };
 
     return (
-        <div className="space-y-6 bg-white p-5 rounded-xl shadow-sm border border-gray-100">
-            <div className="relative flex flex-col sm:flex-row sm:items-center sm:gap-4">
-                <div className="flex-1">
-                    <TextInput
-                        label={t("from")}
-                        name="from"
-                        placeholder={t("startingLocation")}
-                        value={values.from}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        required
-                        error={touched?.from && errors.from}
-                        icon="bi bi-geo-alt-fill"
-                        isRide={true}
-                    />
-                </div>
-
-                <div className="absolute sm:static top-1/2 sm:top-auto left-1/2 sm:left-auto transform -translate-x-1/2 -translate-y-1/2 sm:translate-x-0 sm:translate-y-0 z-10">
-                    <ReverseBtn handleClick={handleReverse} />
-                </div>
-
-                <div className="flex-1 mt-8 sm:mt-0">
-                    <TextInput
-                        label={t("to")}
-                        name="to"
-                        placeholder={t("destinationLocation")}
-                        value={values.to}
-                        onChange={onChange}
-                        onBlur={onBlur}
-                        required
-                        error={touched?.to && errors.to}
-                        icon="bi bi-geo-alt-fill"
-                        isRide={true}
-                    />
-                </div>
+        <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-4 sm:space-y-0 px-2 sm:px-0">
+            {/* FROM */}
+            <div className="flex-1">
+                <TextInput
+                    label={t("from")}
+                    name="from"
+                    placeholder={t("startingLocation")}
+                    value={values.from}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    required
+                    error={touched?.from && errors.from}
+                    icon="bi bi-geo-alt-fill"
+                    isRide={true}
+                />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {/* REVERSE BUTTON */}
+            <div className="flex items-stretch justify-center">
+                <ReverseBtn handleClick={handleReverse} />
+            </div>
+
+            {/* TO */}
+            <div className="flex-1">
+                <TextInput
+                    label={t("to")}
+                    name="to"
+                    placeholder={t("destinationLocation")}
+                    value={values.to}
+                    onChange={onChange}
+                    onBlur={onBlur}
+                    required
+                    error={touched?.to && errors.to}
+                    icon="bi bi-geo-alt-fill"
+                    isRide={true}
+                />
+            </div>
+
+            {/* DATE PICKER */}
+            <div className="w-[180px] min-w-[150px]">
                 <DatePicker
                     label={t("date")}
                     name="date"
@@ -83,6 +85,10 @@ const RideSearch: FC<Props> = ({
                     icon="bi bi-calendar-event"
                     minDate={new Date()}
                 />
+            </div>
+
+            {/* SEATS SELECT */}
+            <div className="w-[130px] min-w-[110px]">
                 <SelectInput
                     name={t("seats")}
                     label={t("seats")}

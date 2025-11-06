@@ -1,7 +1,7 @@
 import { MapContainer, TileLayer, Marker, Popup, useMapEvents, Polyline, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import { reverseGeocode } from '../../utils/geocode';
+import { reverseGeocode } from '../../utils/maps';
 
 type MapViewProps = {
     center?: [number, number];

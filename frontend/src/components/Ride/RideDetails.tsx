@@ -15,6 +15,11 @@ import Seats from "../Ride UI/Seats";
 import VehicleImage from "../Ride UI/VehicleImage";
 import SpecialNote from "../Ride UI/SpecialNote";
 import { getRideStatus } from "../../utils/getRideStatus";
+import ChatBtn from "../Buttons/ChatBtn";
+import { useToast } from "../Toast/ToastContext";
+import DriverRating from "../Ride UI/DriverRating";
+import AddDriverRating from "../Review/AddDriverRating";
+import ViewUserRating from "../Review/ViewUserRating";
 
 type rideProps = {
     linkId: any;
@@ -25,6 +30,12 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
     const initialData = location.state?.data;
     const linkIdFromState = initialData?.driveId; // fallback linkId
     const linkIdToUse = linkId || linkIdFromState;
+    const hasInitialData = Boolean(initialData);
+    const shouldFetch = !hasInitialData && Boolean(linkId);
+
+    const { showToast } = useToast();
+    const navigate = useNavigate();
+    const { t } = useTranslation();
 
     const fetchRide = async () => {
         try {
@@ -37,12 +48,6 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
         }
     };
 
-    const navigate = useNavigate();
-    const { t } = useTranslation();
-
-    const hasInitialData = Boolean(initialData);
-    const shouldFetch = !hasInitialData && Boolean(linkId);
-
     const { data: ride, isLoading, isError } = useQuery({
         queryKey: ["ride", linkIdToUse],
         queryFn: fetchRide,
@@ -52,6 +57,36 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
         retry: false,
         select: shouldFetch ? (data: any) => data && ridesForPassengerMap(data) : undefined,
     });
+
+    const fetchUserChat = async (roomId: string) => {
+        try {
+            const response = await apiInterceptor.get(api.chat.userChat, { params: { roomId } });
+            return response.data;
+        } catch (err) {
+            console.error("Error fetching user chat:", err);
+            return null;
+        }
+    };
+
+    const checkRoom = async (receiverId: string) => {
+        try {
+            const response = await apiInterceptor.get(api.chat.room, { params: { receiverId } });
+            return response.data.roomId;
+        } catch (err) {
+            console.error("Error checking room:", err);
+            return null;
+        }
+    };
+
+    const handleJoinChat = async (receiverId: string) => {
+        const roomId = await checkRoom(receiverId);
+        if (!roomId) {
+            showToast("error", t("error.server"));
+            return;
+        }
+        const userChat = await fetchUserChat(roomId);
+        navigate(`/profile/chats/${roomId}`, { state: { data: userChat } });
+    };
 
     if (isLoading) return <PageLoader />;
 
@@ -102,13 +137,11 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
                         <p className="text-xl font-semibold text-gray-800">{t("driver")} {ride.driverName}</p>
                         <p className="text-gray-500 mt-1">Mobile: {ride.driverMobile}</p>
                         {ride.driverRating && (
-                            <div className="mt-2 inline-flex items-center text-yellow-600 font-medium">
-                                <i className="bi bi-star-fill text-yellow-500" />
-                                <span className="ml-2"> {Number(ride.driverRating).toFixed(1)}</span>
-                            </div>
+                            <DriverRating driverRating={ride.driverRating} />
                         )}
                     </div>
                 </div>
+                <ChatBtn label={t("chat")} onClick={() => handleJoinChat(ride.driverId)} />
             </div>
 
             <div className="flex items-center justify-between">
@@ -118,6 +151,16 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
                     )}
                 </div>
             </div>
+            {ride.driveStatus === "completed" && (
+                <>
+                    {ride.userRating.rating ? (
+                        <ViewUserRating rating={ride.userRating?.rating} review={ride.userRating?.review}
+                            heading={t("yourRating")} />
+                    ) : (
+                        <AddDriverRating driveId={ride.driveId} driverId={ride.driverId} />
+                    )}
+                </>
+            )}
         </div>
     );
 };

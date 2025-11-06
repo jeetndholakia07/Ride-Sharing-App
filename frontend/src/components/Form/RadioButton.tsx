@@ -37,20 +37,21 @@ const RadioButtonGroup: FC<RadioButtonGroupProps> = ({
                     {required && <span className="text-red-600 ml-1">*</span>}
                 </label>
             )}
-            <div className="flex flex-col sm:flex-row flex-wrap gap-4">
+            <div className="flex flex-col sm:flex-row flex-wrap gap-2 sm:gap-4">
                 {options.map((option) => {
                     const isSelected = value === option.value;
                     return (
                         <label
                             key={option.value}
                             htmlFor={`${name}-${option.value}`}
-                            className={`relative flex items-center justify-center px-4 py-2 rounded-full border transition-all duration-300
-                            ${isSelected
+                            className={`relative flex items-center justify-center
+                                px-3 sm:px-4 py-1.5 sm:py-2 rounded-full border transition-all duration-300
+                                ${isSelected
                                     ? 'bg-blue-600 text-white border-blue-600 shadow-md'
                                     : 'bg-white text-gray-700 border-gray-300 hover:border-blue-500'
                                 }
-                            ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer'}
-                        `}
+                                ${disabled ? 'opacity-50 cursor-not-allowed' : 'hover:cursor-pointer'}
+                            `}
                         >
                             <input
                                 id={`${name}-${option.value}`}
@@ -64,8 +65,8 @@ const RadioButtonGroup: FC<RadioButtonGroupProps> = ({
                                 required={required}
                                 className="absolute opacity-0 w-0 h-0"
                             />
-                            <div className="flex items-center space-x-2 text-base font-medium">
-                                <i className={`${option.icon} text-lg`} />
+                            <div className="flex items-center space-x-1 sm:space-x-2 text-sm sm:text-base font-medium">
+                                <i className={`${option.icon} text-xs sm:text-sm md:text-lg`} />
                                 <span>{option.label}</span>
                             </div>
                         </label>

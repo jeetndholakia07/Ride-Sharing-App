@@ -12,9 +12,10 @@ import { useRole } from '../../context/RoleContext';
 
 type props = {
     notificationCount?: number;
+    chatUnreadCount?: number;
 }
 
-const UserDropdown: FC<props> = ({ notificationCount }) => {
+const UserDropdown: FC<props> = ({ notificationCount, chatUnreadCount }) => {
     const [open, setOpen] = useState(false);
     const { setRole } = useRole();
     const dropdownRef = useRef<HTMLDivElement>(null);
@@ -108,6 +109,9 @@ const UserDropdown: FC<props> = ({ notificationCount }) => {
                         <MenuItem icon="bi bi-car-front-fill" label={t("yourRides")} onClick={() => navigate("/profile/rides")} />
                         <MenuItem icon="bi bi-bell" label={t("notifications")} onClick={() => navigate("/profile/notifications")}
                             isNotification={true} notificationCount={notificationCount}
+                        />
+                        <MenuItem icon="bi bi-chat-dots-fill" label={t("chats")} onClick={() => navigate("/profile/chats")}
+                            isChat={true} chatUnreadCount={chatUnreadCount}
                         />
                         <MenuItem icon="bi bi-key" label={t("forgetPassword")} onClick={() => navigate("/profile/forget-password")} />
                     </div>

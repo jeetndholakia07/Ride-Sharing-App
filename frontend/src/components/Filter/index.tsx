@@ -6,7 +6,7 @@ import statusConfig from "../../i18n/keys/filter.json";
 import { getDateComponentsfromDateObj } from "../../utils/dateFormat.js";
 import MonthPicker from "../Form/MonthPicker.js";
 import { useFilter } from "../../context/FilterContext.js";
-import useMediaQuery from "../../utils/useMediaQuery.js";
+import useMediaQuery from "../../hooks/useMediaQuery.js";
 
 const Filter = () => {
     const [menuOpen, setMenuOpen] = useState(false);

@@ -7,9 +7,11 @@ type menuItemProps = {
     isLogout?: boolean;
     isNotification?: boolean;
     notificationCount?: number;
+    isChat?: boolean;
+    chatUnreadCount?: number;
 }
 
-const MenuItem: FC<menuItemProps> = ({ icon, label, onClick, isLogout, isNotification, notificationCount }) => {
+const MenuItem: FC<menuItemProps> = ({ icon, label, onClick, isLogout, isNotification, notificationCount, isChat, chatUnreadCount }) => {
     return (
         <button
             className={`flex items-center w-full px-4 py-2 hover:cursor-pointer text-sm transition-colors duration-150 ${isLogout
@@ -24,6 +26,12 @@ const MenuItem: FC<menuItemProps> = ({ icon, label, onClick, isLogout, isNotific
                 <span className="relative top-0 ml-5 bg-yellow-600 
             text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
                     {notificationCount > 99 ? "99+" : notificationCount}
+                </span>
+            }
+            {(isChat && typeof chatUnreadCount === "number" && chatUnreadCount > 0) &&
+                <span className="relative top-0 ml-5 bg-yellow-600 
+            text-white text-xs font-bold px-1.5 py-0.5 rounded-full shadow-md animate-pulse">
+                    {chatUnreadCount > 99 ? "99+" : chatUnreadCount}
                 </span>
             }
         </button>

@@ -2,6 +2,7 @@ import Drive from "../../models/Drive.js";
 import Ride from "../../models/Ride.js";
 import getProfileImg from "../../crud/getProfileImg.js";
 import UserProfile from "../../models/UserProfile.js";
+import DriverRating from "../../models/DriverRating.js";
 
 const getDrivesForDriver = async (req, res) => {
     try {
@@ -52,6 +53,7 @@ const getDrivesForDriver = async (req, res) => {
                         const passengerProfile = await UserProfile.findOne({ user: ride.passenger });
                         const profileImg = await getProfileImg(passengerProfile.profileImg.publicId, passengerProfile.profileImg.format,
                             passengerProfile.isProfileUpdated);
+                        const userRating = await DriverRating.findOne({ driver: driverId, user: ride.passenger }).select("rating review");
                         return {
                             passenger: ride.passenger,
                             passengerProfileImg: profileImg,
@@ -59,7 +61,8 @@ const getDrivesForDriver = async (req, res) => {
                             passengerStatus: ride.passengerStatus,
                             rejectedAt: ride.rejectedAt,
                             driverStatus: ride.driverStatus,
-                            seats: ride.seats
+                            seats: ride.seats,
+                            passengerRating: userRating
                         };
                     })
                 );

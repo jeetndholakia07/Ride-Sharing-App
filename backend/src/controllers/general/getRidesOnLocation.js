@@ -1,6 +1,7 @@
 import Drive from "../../models/Drive.js";
 import getProfileImg from "../../crud/getProfileImg.js";
 import UserProfile from "../../models/UserProfile.js";
+import DriverStat from "../../models/DriverStat.js";
 
 const getRidesOnLocation = async (req, res) => {
     try {
@@ -34,10 +35,13 @@ const getRidesOnLocation = async (req, res) => {
             drives.map(async (drive) => {
                 const userProfile = await UserProfile.findOne({ user: drive.driver });
                 const profileImg = await getProfileImg(userProfile.profileImg.publicId, userProfile.profileImg.format, userProfile.isProfileUpdated);
+                const driverStat = await DriverStat.findOne({ driver: drive.driver });
+                const averageRating = driverStat?.averageRating ?? null;
                 return {
                     driveDetails: {
                         drive,
-                        driverProfileImg: profileImg
+                        driverProfileImg: profileImg,
+                        driverRating: averageRating
                     },
                 }
             })

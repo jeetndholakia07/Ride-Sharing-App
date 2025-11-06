@@ -43,8 +43,9 @@ const LoginPage = () => {
         try {
             setIsLoading(true);
             const response = await axiosInstance.post(api.auth.login, payload);
-            await addToken(response.data.token, response.data.userId, response.data.role, response.data.username);
-            setRole(response.data.role);
+            const { token, userId, role, username } = response.data;
+            await addToken(token, userId, role, username);
+            setRole(role);
             setError("");
             showToast("success", t("messages.loginSuccess"));
             navigate("/");

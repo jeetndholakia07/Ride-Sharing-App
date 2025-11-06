@@ -1,6 +1,6 @@
 import { type FC } from 'react';
 import Logo from './Logo';
-import useMediaQuery from '../../utils/useMediaQuery';
+import useMediaQuery from '../../hooks/useMediaQuery';
 
 type navbarProps = {
   children: React.ReactNode;

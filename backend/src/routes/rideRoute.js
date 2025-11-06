@@ -8,7 +8,7 @@ import acceptRide from "../controllers/ride/acceptRide.js";
 import completeRide from "../controllers/ride/completeRide.js";
 import rejectRide from "../controllers/ride/rejectRide.js";
 import updateDrive from "../controllers/ride/updateDrive.js";
-import addRatingForDriver from "../controllers/ride/addRatingForDriver.js";
+import addDriverRating from "../controllers/ride/addDriverRating.js";
 import checkRide from "../controllers/ride/checkRide.js";
 import getRideById from "../controllers/ride/getRideById.js";
 import getDriveById from "../controllers/ride/getDriveById.js";
@@ -30,6 +30,6 @@ rideRoute.put("/completeRide", authorizeRole(["driver"]), completeRide);
 rideRoute.put("/rejectRide", authorizeRole(["passenger"]), rejectRide);
 rideRoute.post("/checkRide", authorizeRole(["passenger"]), checkRide);
 rideRoute.put("/editDrive", updateDrive);
-rideRoute.put("/addRatingForDriver", authorizeRole(["passenger"]), addRatingForDriver);
+rideRoute.post("/addDriverRating", authorizeRole(["passenger"]), addDriverRating);
 
 export default rideRoute;

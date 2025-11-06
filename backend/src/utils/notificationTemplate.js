@@ -29,6 +29,12 @@ export const notificationTemplates = {
         linkId
     }),
 
+    driverRating: ({ passengerName, rating, linkId }) => ({
+        heading: "New Rating Received!",
+        message: `${passengerName} rated you ${rating}★ for your recent ride. Keep up the great work!`,
+        linkId
+    }),
+
     generic: ({ title, body }) => ({
         heading: title,
         message: body,

@@ -2,7 +2,7 @@ import { useState, useCallback } from "react";
 import { Outlet } from "react-router";
 import Breadcrumb from "../../components/Profile/Breadcrumb";
 import SidebarNav from "../../components/Profile/SideNavbar";
-import useMediaQuery from "../../utils/useMediaQuery";
+import useMediaQuery from "../../hooks/useMediaQuery";
 import { useTranslation } from "react-i18next";
 
 const Layout = () => {

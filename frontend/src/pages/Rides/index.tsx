@@ -9,6 +9,9 @@ import SearchButton from '../../components/Buttons/SearchButton';
 import RideList from '../../components/Ride/RideList';
 import { rideMap } from '../../utils/rideMapLocation';
 import { getUtilContext } from '../../context/UtilsContext';
+import FrequentRides from '../../components/Ride/FrequentRides';
+import { useQuery } from '@tanstack/react-query';
+import PageLoader from '../../components/Loading/PageLoader';
 
 type FormValues = {
     from: string;
@@ -39,6 +42,24 @@ const Index = () => {
         setTypeUsage("ride request");
     }, []);
 
+    const fetchFrequentRides = async () => {
+        try {
+            const response = await axiosInstance.get(api.public.frequentRides);
+            return response.data;
+        } catch (err) {
+            console.error("Error fetching frequent rides:", err);
+            return [];
+        }
+    };
+
+    const { data: frequentRides, isLoading: isRidesLoading } = useQuery({
+        queryKey: ["frequentRides"],
+        queryFn: fetchFrequentRides,
+        retry: false,
+        refetchOnWindowFocus: false,
+        staleTime: 0
+    });
+
     const handleSearchRides = async (payload: FormValues) => {
         try {
             setIsLoading(true);
@@ -60,6 +81,10 @@ const Index = () => {
         const payload = { ...formValues, seats: Number(seats) };
         await handleSearchRides(payload);
     };
+
+    if (isRidesLoading) {
+        return <PageLoader />;
+    }
 
     return (
         <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -91,6 +116,7 @@ const Index = () => {
 
                             return (
                                 <form onSubmit={handleSubmit}>
+                                    <FrequentRides rides={frequentRides} setFieldValue={setFieldValue} />
                                     <RideSearch values={values} onChange={handleChange} onBlur={handleBlur}
                                         errors={errors} touched={touched} setFieldValue={setFieldValue}
                                         handleDateChange={handleDateChange} handleSelectChange={handleSelectChange}

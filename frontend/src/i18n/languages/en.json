@@ -149,6 +149,14 @@
     "rejected": "Rejected",
     "cancelled": "Cancelled",
     "all": "All",
+    "chat": "Chat",
+    "chats": "Chats",
+    "rateDriver": "Rate Driver",
+    "optionalReview": "Comments (optional)",
+    "yourRating": "Your Rating",
+    "comment": "Comments",
+    "rememberVehicleDetails": "Remember for future use",
+    "vehicleDetails": "Vehicle Details",
     "messages": {
         "loginSuccess": "Successfully logged in",
         "registerSuccess": "Registered successfully",
@@ -172,7 +180,8 @@
         "completeRideSuccess": "Your ride has been completed successfully",
         "verifySuccess": "Verified successfully",
         "updatePasswordSuccess": "Password updated successfully",
-        "reviewEditSuccess": "Review updated successfully!"
+        "reviewEditSuccess": "Review updated successfully!",
+        "addDriverRatingSuccess": "Added driver rating successfully"
     },
     "error": {
         "login": "Invalid username or password",

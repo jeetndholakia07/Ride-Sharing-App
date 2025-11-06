@@ -2,6 +2,8 @@ import Ride from "../../models/Ride.js";
 import Drive from "../../models/Drive.js";
 import UserProfile from "../../models/UserProfile.js";
 import getProfileImg from "../../crud/getProfileImg.js";
+import DriverStat from "../../models/DriverStat.js";
+import DriverRating from "../../models/DriverRating.js";
 
 const getRidesForRider = async (req, res) => {
     try {
@@ -85,11 +87,16 @@ const getRidesForRider = async (req, res) => {
                         driverProfile.profileImg.format,
                         driverProfile.isProfileUpdated
                     );
-                }
+                };
 
+                const driverStat = await DriverStat.findOne({ driver: drive.driver });
+                const userRating = await DriverRating.findOne({ driver: drive.driver, user: passengerId }).select("rating review");
+                const averageRating = driverStat?.averageRating ?? null;
                 return {
                     ride,
                     driverProfileImg: profileImg,
+                    driverRating: averageRating,
+                    userRating: userRating
                 };
             })
         );

@@ -55,6 +55,36 @@ const getDateComponentsfromDateObj = (dateObj: any) => {
     const dateString = convertDateToString(dateObj);
     const dateComponents = getDateComponentsfromDateString(dateString);
     return dateComponents;
-}
+};
 
-export { formatDateTime, formatDate, mergeDateTime, getDateComponentsfromDateObj };
+/* For chats component */
+const formatMessageDate = (dateString: string | Date) => {
+    const date = moment(dateString);
+    if (date.isSame(moment(), "day")) return date.format("h:mm A"); // Today
+    if (date.isSame(moment().subtract(1, "days"), "day")) return `Yesterday ${date.format("h:mm A")}`;
+    return date.format("MMM D, h:mm A"); // Older dates
+};
+
+/* For chat window */
+const groupMessagesByDay = (messages: any[]) => {
+    const groups: { [key: string]: any[] } = {};
+    messages.forEach((msg) => {
+        const date = moment(msg.createdAt);
+        let key: string;
+        if (date.isSame(moment(), "day")) key = "Today";
+        else if (date.isSame(moment().subtract(1, "day"), "day")) key = "Yesterday";
+        else key = date.format("dddd, MMM D");
+        if (!groups[key]) groups[key] = [];
+        groups[key].push(msg);
+    });
+    return groups;
+};
+
+const formatMsgTimestamp = (createdAt: any) => {
+    return new Date(createdAt).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+};
+
+export {
+    formatDateTime, formatDate, mergeDateTime, getDateComponentsfromDateObj,
+    formatMessageDate, groupMessagesByDay, formatMsgTimestamp
+};

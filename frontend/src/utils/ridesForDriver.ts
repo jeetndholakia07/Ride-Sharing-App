@@ -5,6 +5,11 @@ type Passenger = {
     collegeName: string;
 };
 
+type PassengerRating = {
+    rating: number;
+    review: string;
+}
+
 type RideRequest = {
     passenger: Passenger;
     passengerProfileImg: string;
@@ -12,6 +17,7 @@ type RideRequest = {
     passengerStatus: string;
     driverStatus: string;
     seats: number;
+    passengerRating: PassengerRating;
 };
 
 type VehicleDetails = {
@@ -50,7 +56,8 @@ export const ridesForDriverMap = (data: RidesForDriverResponse): Record<string, 
         driverStatus: request.driverStatus,
         passengerProfileImg: request.passengerProfileImg,
         requestedAt: request.requestedAt,
-        seats: request.seats
+        seats: request.seats,
+        passengerRating: request.passengerRating
     }));
 
     return {

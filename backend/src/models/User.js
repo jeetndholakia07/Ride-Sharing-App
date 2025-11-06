@@ -42,9 +42,6 @@ const UserSchema = new mongoose.Schema({
     isVerified: {
         type: Boolean,
         default: false
-    },
-    rating: {
-        type: Number,
     }
 }, { timestamps: true });
 

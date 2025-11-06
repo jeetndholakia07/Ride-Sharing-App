@@ -13,24 +13,37 @@ import { useQuery } from "@tanstack/react-query";
 import apiInterceptor from "../../hooks/apiInterceptor";
 import { api } from "../../hooks/api";
 import { getNotificationContext } from "../../context/NotificationContext";
-import useMediaQuery from "../../utils/useMediaQuery";
+import useMediaQuery from "../../hooks/useMediaQuery";
+import { getChatContext } from "../../context/ChatContext";
 
 const MainLayout = () => {
   const [isOpen, setIsOpen] = useState(false);
   const onClose = useCallback(() => setIsOpen(false), []);
   const { isAuthenticated, loading } = useAuth();
   const { setNotificationCount } = getNotificationContext();
+  const { setChatUnreadCount } = getChatContext();
 
   const getNotificationCount = useCallback(async () => {
     try {
       const response = await apiInterceptor.get(api.user.notificationCount);
-      setNotificationCount(response.data);
-      return response.data;
+      setNotificationCount(response.data.notificationCount);
+      return response.data.notificationCount;
     } catch (err) {
       console.error("Error getting notification count");
       return 0;
     }
   }, [setNotificationCount]);
+
+  const getChatUnreadCount = useCallback(async () => {
+    try {
+      const response = await apiInterceptor.get(api.chat.totalUnreadCount);
+      setChatUnreadCount(response.data.totalUnreadCount);
+      return response.data.totalUnreadCount;
+    } catch (err) {
+      console.error("Error getting chat unread count");
+      return 0;
+    }
+  }, [setChatUnreadCount]);
 
   const isDesktop = useMediaQuery("(min-width: 768px)");
   const { data: notificationCount, isLoading } = useQuery({
@@ -41,12 +54,20 @@ const MainLayout = () => {
     enabled: isAuthenticated,
   });
 
+  const { data: chatUnreadCount } = useQuery({
+    queryKey: ["chatUnreadCount"],
+    queryFn: getChatUnreadCount,
+    retry: false,
+    refetchOnWindowFocus: false,
+    enabled: isAuthenticated
+  });
+
   const RightSection = useMemo(() => {
     if (isAuthenticated) {
-      return <UserDropdown notificationCount={notificationCount} />;
+      return <UserDropdown notificationCount={notificationCount} chatUnreadCount={chatUnreadCount} />;
     }
     return <LoginButtons />;
-  }, [isAuthenticated, notificationCount]);
+  }, [isAuthenticated, notificationCount, chatUnreadCount]);
 
 
   if (loading || isLoading) {
@@ -78,7 +99,7 @@ const MainLayout = () => {
             </MobileNav>
             {isAuthenticated && (
               <div className="ml-auto pr-2">
-                <UserDropdown notificationCount={notificationCount} />
+                <UserDropdown notificationCount={notificationCount} chatUnreadCount={chatUnreadCount} />
               </div>
             )}
           </div>
