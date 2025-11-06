@@ -53,7 +53,7 @@ const getDrivesForDriver = async (req, res) => {
                         const passengerProfile = await UserProfile.findOne({ user: ride.passenger });
                         const profileImg = await getProfileImg(passengerProfile.profileImg.publicId, passengerProfile.profileImg.format,
                             passengerProfile.isProfileUpdated);
-                        const userRating = await DriverRating.findOne({ driver: driverId, user: ride.passenger }).select("rating review");
+                        const userRating = await DriverRating.findOne({ driver: driverId, user: ride.passenger, drive: ride.drive }).select("rating review");
                         return {
                             passenger: ride.passenger,
                             passengerProfileImg: profileImg,

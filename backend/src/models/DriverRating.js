@@ -6,6 +6,11 @@ const driverRatingSchema = new mongoose.Schema({
         ref: "User",
         required: true,
     },
+    drive: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Drive",
+        required: true,
+    },
     user: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "User",

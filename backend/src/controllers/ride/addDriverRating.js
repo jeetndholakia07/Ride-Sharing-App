@@ -10,20 +10,21 @@ const addDriverRating = async (req, res) => {
             return res.status(404).json({ message: "User id not found" });
         }
         const { driveId, driverId, rating, review } = req.body;
-        if (!driverId || !rating || review === null) {
-            return res.status(404).json({ message: "Please enter driver id and rating" });
+        if (!driverId || !driveId || !rating || review === null) {
+            return res.status(404).json({ message: "Please enter driver id, drive id and rating" });
         }
         const driver = await User.findById(driverId);
         if (!driver) {
             return res.status(400).json({ message: "Driver not found" });
         }
-        const previousRating = await driverRating.findOne({ driver: driverId, user: userId });
+        const previousRating = await driverRating.findOne({ driver: driverId, user: userId, drive: driveId });
         if (previousRating) {
             return res.status(400).json({ message: "Rating already exists" });
         }
         await driverRating.create({
             driver: driverId,
             user: userId,
+            drive: driveId,
             rating: rating,
             review: review
         });

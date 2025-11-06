@@ -13,6 +13,8 @@ import checkRide from "../controllers/ride/checkRide.js";
 import getRideById from "../controllers/ride/getRideById.js";
 import getDriveById from "../controllers/ride/getDriveById.js";
 import authorizeRole from "../middlewares/authorizeRole.js";
+import saveVehicle from "../controllers/ride/saveVehicle.js";
+import getVehicleDetails from "../controllers/ride/getVehicleDetails.js";
 
 const rideRoute = express.Router();
 rideRoute.use(express.json());
@@ -31,5 +33,7 @@ rideRoute.put("/rejectRide", authorizeRole(["passenger"]), rejectRide);
 rideRoute.post("/checkRide", authorizeRole(["passenger"]), checkRide);
 rideRoute.put("/editDrive", updateDrive);
 rideRoute.post("/addDriverRating", authorizeRole(["passenger"]), addDriverRating);
+rideRoute.put("/vehicle", authorizeRole(["driver"]), saveVehicle);
+rideRoute.get("/vehicle", authorizeRole(["driver"]), getVehicleDetails);
 
 export default rideRoute;

@@ -90,7 +90,7 @@ const getRidesForRider = async (req, res) => {
                 };
 
                 const driverStat = await DriverStat.findOne({ driver: drive.driver });
-                const userRating = await DriverRating.findOne({ driver: drive.driver, user: passengerId }).select("rating review");
+                const userRating = await DriverRating.findOne({ driver: drive.driver, user: passengerId, drive: drive }).select("rating review");
                 const averageRating = driverStat?.averageRating ?? null;
                 return {
                     ride,

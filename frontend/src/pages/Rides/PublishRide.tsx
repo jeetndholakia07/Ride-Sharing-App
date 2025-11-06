@@ -13,12 +13,13 @@ import LoadingButton from "../../components/Form/LoadingButton";
 import apiInterceptor from "../../hooks/apiInterceptor";
 import { api } from "../../hooks/api";
 import { mergeDateTime } from "../../utils/dateFormat";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router";
 import NumberInput from "../../components/Form/NumberInput";
 import SelectInput from "../../components/Form/SelectInput";
 import Checkbox from "../../components/Form/Checkbox";
 import Collapsible from "../../components/Form/Collapsible";
+import PageLoader from "../../components/Loading/PageLoader";
 
 type VehicleType = "two-wheeler" | "four-wheeler";
 
@@ -39,7 +40,8 @@ const PublishRide = () => {
     const { t } = useTranslation();
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
-    const [remember, setRemember] = useState(true);
+    const [isRemember, setIsRemember] = useState(true);
+    const [loading,setLoading] = useState(false);
     const navigate = useNavigate();
 
     const validationSchema = Yup.object().shape({
@@ -54,6 +56,30 @@ const PublishRide = () => {
             .min(0, t("formMessages.priceConstraint")),
     });
 
+    useEffect(() => {
+        const fetchVehicleDetails = async () => {
+            try {
+                setLoading(true);
+                const response = await apiInterceptor.get(api.ride.getVehicle);
+                const vehicle = response.data;
+                if (vehicle) {
+                    setInitialValues((prev) => ({
+                        ...prev,
+                        vehicleName: vehicle.vehicleDetails.vehicleName,
+                        vehicleType: vehicle.vehicleDetails.vehicleType,
+                        vehicleNumber: vehicle.vehicleDetails.vehicleNumber
+                    }));
+                }
+            } catch (err) {
+                console.error("Error fetching vehicle details:", err);
+            }
+            finally{
+                setLoading(false);
+            }
+        };
+        fetchVehicleDetails();
+    }, []);
+
     const handleCreateRide = async (payload: any) => {
         try {
             setIsLoading(true);
@@ -67,7 +93,15 @@ const PublishRide = () => {
         }
     };
 
-    const initialValues: FormValues = {
+    const saveVehicleDetails = async (payload: any) => {
+        try {
+            await apiInterceptor.put(api.ride.saveVehicle, payload);
+        } catch (err) {
+            console.error("Error saving vehicle details:", err);
+        }
+    };
+
+    const [initialValues, setInitialValues] = useState<FormValues>({
         from: "",
         to: "",
         seats: 1,
@@ -78,7 +112,7 @@ const PublishRide = () => {
         vehicleType: "four-wheeler",
         comments: "",
         price: 1,
-    };
+    });
 
     const handleSubmit = async (
         values: FormValues,
@@ -93,10 +127,19 @@ const PublishRide = () => {
             departureTime: dateTime,
         };
         await handleCreateRide(payload);
+        if (isRemember) {
+            const { vehicleName, vehicleNumber, vehicleType } = values;
+            const vehicleData = { vehicleName, vehicleType, vehicleNumber };
+            await saveVehicleDetails(vehicleData);
+        }
     };
 
     const handleToggleRemember = () => {
-        setRemember((prev) => !prev);
+        setIsRemember((prev) => !prev);
+    };
+
+    if(loading){
+        return <PageLoader/>;
     }
 
     return (
@@ -266,7 +309,7 @@ const PublishRide = () => {
                                         </div>
                                     </Collapsible>
                                     <Checkbox
-                                        value={remember}
+                                        value={isRemember}
                                         handleChange={handleToggleRemember}
                                         label={t("rememberVehicleDetails")}
                                     />

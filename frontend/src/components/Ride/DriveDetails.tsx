@@ -39,7 +39,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
 
     const fetchDrive = async () => {
         try {
-            const response = await apiInterceptor.get(`${api.ride.driveById}`, { params: { driveId: linkId } });
+            const response = await apiInterceptor.get(api.ride.driveById, { params: { driveId: linkIdToUse } });
             return response.data;
         }
         catch (err) {
@@ -223,9 +223,9 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                                         <p className="text-sm text-gray-500">
                                             {t("seats")}: {passenger?.seats}
                                         </p>
-                                        {passenger.passengerRating?.rating && (
-                                            <RatingDisplay rating={passenger.passengerRating?.rating}
-                                                review={passenger.passengerRating?.review}
+                                        {passenger?.passengerRating?.rating && (
+                                            <RatingDisplay rating={passenger?.passengerRating?.rating}
+                                                review={passenger?.passengerRating?.review}
                                             />
                                         )}
                                     </div>

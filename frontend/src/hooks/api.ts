@@ -40,7 +40,9 @@ export const api = {
         checkRide: `${rideURL}/checkRide`,
         rideById: `${rideURL}/ride`,
         driveById: `${rideURL}/drive`,
-        addDriverRating: `${rideURL}/addDriverRating`
+        addDriverRating: `${rideURL}/addDriverRating`,
+        saveVehicle: `${rideURL}/vehicle`,
+        getVehicle: `${rideURL}/vehicle`
     },
     public: {
         allReviews: `${publicURL}/ratings`,

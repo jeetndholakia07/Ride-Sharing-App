@@ -39,7 +39,7 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
 
     const fetchRide = async () => {
         try {
-            const response = await apiInterceptor.get(`${api.ride.rideById}`, { params: { rideId: linkId } });
+            const response = await apiInterceptor.get(api.ride.rideById, { params: { rideId: linkIdToUse } });
             return response.data;
         }
         catch (err) {
@@ -153,7 +153,7 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
             </div>
             {ride.driveStatus === "completed" && (
                 <>
-                    {ride.userRating.rating ? (
+                    {ride.userRating?.rating ? (
                         <ViewUserRating rating={ride.userRating?.rating} review={ride.userRating?.review}
                             heading={t("yourRating")} />
                     ) : (
