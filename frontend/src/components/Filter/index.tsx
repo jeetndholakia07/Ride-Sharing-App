@@ -38,7 +38,6 @@ const Filter = () => {
         return () => document.removeEventListener("mousedown", handleClickOutside);
     }, [isCalendarOpen, isDesktop]);
 
-
     const handleMonthChange = (date: any) => setSelectedMonthYear(date);
 
     const handleStatusChange = (e: any) => {

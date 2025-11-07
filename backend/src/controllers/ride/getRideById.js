@@ -30,7 +30,7 @@ const getRideById = async (req, res) => {
 
         const driverProfile = await UserProfile.findOne({ user: drive.driver });
         const profileImg = await getProfileImg(driverProfile.profileImg.publicId, driverProfile.profileImg.format,
-            driverProfile.isProfileUpdated);
+            driverProfile.profileImg.isUpdated);
 
         const response = {
             ride,

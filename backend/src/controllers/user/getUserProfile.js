@@ -23,8 +23,8 @@ const getUserProfile = async (req, res) => {
             ...(role === "passenger" && { collegeIDProof: await getCollegeID(user.collegeIDProof.publicId, user.collegeIDProof.format) })
         };
         let response = { fullName: userProfile.fullName, email: userProfile.email, ...userData, profileImg: userProfile.profileImg.publicId };
-        if (userProfile.isProfileUpdated) {
-            const profileImg = await getProfileImg(userProfile.profileImg.publicId, userProfile.profileImg.format, userProfile.isProfileUpdated);
+        if (userProfile.profileImg.isUpdated) {
+            const profileImg = await getProfileImg(userProfile.profileImg.publicId, userProfile.profileImg.format, userProfile.profileImg.isUpdated);
             response = {
                 ...response,
                 profileImg: profileImg

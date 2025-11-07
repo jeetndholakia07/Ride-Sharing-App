@@ -32,7 +32,7 @@ const getRatings = async (req, res) => {
         const allRatings = await Promise.all(
             ratings.map(async (rating) => {
                 const profile = await UserProfile.findOne({ user: rating.user._id });
-                const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.isProfileUpdated);
+                const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.profileImg.isUpdated);
                 return {
                     rating: rating.rating,
                     review: rating.review,
@@ -50,7 +50,7 @@ const getRatings = async (req, res) => {
         //If logged-in user, add it to the response
         if (userId && userRating) {
             const profile = await UserProfile.findOne({ user: userId });
-            const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.isProfileUpdated);
+            const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.profileImg.isUpdated);
 
             const rating = {
                 rating: userRating.rating,

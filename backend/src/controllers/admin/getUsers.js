@@ -34,7 +34,7 @@ const getUsers = async (req, res) => {
                     collegeIDProof = await getCollegeID(publicId, format);
                 }
                 const profile = await UserProfile.findOne({ user: user._id });
-                const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.isProfileUpdated);
+                const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.profileImg.isUpdated);
                 return {
                     id: user.id,
                     username: user.username,

@@ -1,5 +1,6 @@
 import getProfileImg from "../../crud/getProfileImg.js";
 import UserProfile from "../../models/UserProfile.js";
+import cloudinary from "cloudinary";
 
 const getProfileImage = async (req, res) => {
     try {
@@ -7,11 +8,11 @@ const getProfileImage = async (req, res) => {
         if (!userId) {
             return res.status(400).json({ message: "User id not found" });
         }
-        const user = await UserProfile.findOne({ user: userId });
-        if (!user) {
+        const profile = await UserProfile.findOne({ user: userId });
+        if (!profile) {
             return res.status(401).json({ message: "User not found" });
         }
-        const profileImg = await getProfileImg(user.profileImg.publicId, user.profileImg.format, user.isProfileUpdated);
+        const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.profileImg.isUpdated);
         res.status(200).json(profileImg);
     }
     catch (err) {

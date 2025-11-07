@@ -34,7 +34,7 @@ const getRidesOnLocation = async (req, res) => {
         const driveDetails = await Promise.all(
             drives.map(async (drive) => {
                 const userProfile = await UserProfile.findOne({ user: drive.driver });
-                const profileImg = await getProfileImg(userProfile.profileImg.publicId, userProfile.profileImg.format, userProfile.isProfileUpdated);
+                const profileImg = await getProfileImg(userProfile.profileImg.publicId, userProfile.profileImg.format, userProfile.profileImg.isUpdated);
                 const driverStat = await DriverStat.findOne({ driver: drive.driver });
                 const averageRating = driverStat?.averageRating ?? null;
                 return {

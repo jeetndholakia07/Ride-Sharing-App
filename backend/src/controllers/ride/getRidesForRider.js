@@ -85,7 +85,7 @@ const getRidesForRider = async (req, res) => {
                     profileImg = await getProfileImg(
                         driverProfile.profileImg.publicId,
                         driverProfile.profileImg.format,
-                        driverProfile.isProfileUpdated
+                        driverProfile.profileImg.isUpdated
                     );
                 };
 

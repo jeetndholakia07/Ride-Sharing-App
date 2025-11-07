@@ -24,7 +24,7 @@ const getDriveById = async (req, res) => {
             rides.map(async (ride) => {
                 const passengerProfile = await UserProfile.findOne({ user: ride.passenger });
                 const profileImg = await getProfileImg(passengerProfile.profileImg.publicId, passengerProfile.profileImg.format,
-                    passengerProfile.isProfileUpdated);
+                    passengerProfile.profileImg.isUpdated);
                 return {
                     passenger: ride.passenger,
                     passengerProfileImg: profileImg,

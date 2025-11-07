@@ -27,7 +27,7 @@ const getUserChats = async (req, res) => {
                 const otherProfileImg = await getProfileImg(
                     otherProfile.profileImg.publicId,
                     otherProfile.profileImg.format,
-                    otherProfile.isProfileUpdated
+                    otherProfile.profileImg.isUpdated
                 );
 
                 const messageDoc = await Message.findOne({ chat: chat._id });
