@@ -1,7 +1,6 @@
 import User from "../../models/User.js";
 import UserProfile from "../../models/UserProfile.js";
-import addVerifiedBadge from "../../crud/addVerifiedBadge.js";
-import cloudinary from "cloudinary";
+import uploadImageWithBadge from "../../crud/uploadImageWithBadge.js";
 
 const verifyUser = async (req, res) => {
     try {
@@ -20,31 +19,11 @@ const verifyUser = async (req, res) => {
             return res.status(400).json({ message: "User profile not found" });
         }
 
-        let finalUrl;
-        const finalPublicId = profile.profileImg.publicId;
-        const result = await addVerifiedBadge(finalPublicId);
-        if (result.eager && result.eager.length > 0) {
-            finalUrl = result.eager[0].secure_url;
-        }
-
-        const derivedFile = finalUrl;
-
-        const uploadOptions = {
-            public_id: finalPublicId,
-            overwrite: true,
-            resource_type: "image",
-        };
-
-        if (profile.profileImg.isUpdated) {
-            uploadOptions.type = "private";
-        }
-
-        const overwrite = await cloudinary.v2.uploader.upload(derivedFile, uploadOptions);
-        finalUrl = overwrite.secure_url;
+        const overwrite = await uploadImageWithBadge(profile.profileImg.publicId, true);
 
         // Update the profile image with new info
         profile.profileImg = {
-            publicId: finalPublicId,
+            publicId: overwrite.publicId,
             format: overwrite.format,
             width: 300,
             height: 300,

@@ -2,11 +2,7 @@ import UserProfile from "../../models/UserProfile.js";
 import uploadImage from "../../crud/uploadImage.js";
 import User from "../../models/User.js";
 import fs from "fs";
-import cloudinary from "cloudinary";
-import cloudinaryConfig from "../../config/cloudinary.js";
-import addVerifiedBadge from "../../crud/addVerifiedBadge.js";
-
-cloudinaryConfig();
+import uploadImageWithBadge from "../../crud/uploadImageWithBadge.js";
 
 const updateProfileImg = async (req, res) => {
     let filePath;
@@ -31,30 +27,13 @@ const updateProfileImg = async (req, res) => {
 
         // Upload original profile image
         const uploaded = await uploadImage(filePath, "user_profiles", userId);
-        let finalPublicId = uploaded.public_id;
-        let finalUrl = uploaded.secure_url;
 
-        // If verified, transform the image with verified tag
-        if (user.isVerified) {
-            const result = await addVerifiedBadge(finalPublicId);
-            if (result.eager && result.eager.length > 0) {
-                finalUrl = result.eager[0].secure_url;
-            }
-            const derivedFile = finalUrl;
-            //Upload or overwrite the new image in cloudinary
-            const overwrite = await cloudinary.v2.uploader.upload(derivedFile, {
-                public_id: finalPublicId,
-                type: "private",
-                overwrite: true,
-                resource_type: "image",
-            });
-            finalUrl = overwrite.secure_url;
-        }
+        const overwrite = await uploadImageWithBadge(uploaded.public_id, true);
 
         // Update user profile
         userProfile.profileImg = {
-            publicId: finalPublicId,
-            format: uploaded.format,
+            publicId: overwrite.public_id,
+            format: overwrite.format,
             width: 300,
             height: 300,
         };
