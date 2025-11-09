@@ -6,12 +6,12 @@ type rideDetails = {
                 vehicleType: string;
                 vehicleName: string;
                 vehicleNumber: string;
+                fuelType: string;
+                isAc: boolean;
             };
             driver: {
                 _id: string;
                 username: string;
-                mobile: string;
-                rating?: number;
             };
             from: string;
             to: string;
@@ -27,7 +27,7 @@ type rideDetails = {
     };
 };
 
-export const rideMap = (data: rideDetails): Record<string, string | number> => {
+export const rideMap = (data: rideDetails): Record<string, any> => {
     const drive = data.driveDetails.drive;
     const driver = drive.driver;
     const vehicle = drive.vehicleDetails;
@@ -36,6 +36,8 @@ export const rideMap = (data: rideDetails): Record<string, string | number> => {
         vehicleType: vehicle.vehicleType,
         vehicleName: vehicle.vehicleName,
         vehicleNumber: vehicle.vehicleNumber,
+        fuelType: vehicle.fuelType,
+        isAc: vehicle.isAc,
         driveId: drive._id,
         from: drive.from,
         to: drive.to,
@@ -45,7 +47,6 @@ export const rideMap = (data: rideDetails): Record<string, string | number> => {
         driveStatus: drive.driveStatus,
         driverId: driver._id,
         driverName: driver.username,
-        mobile: driver.mobile,
         createdAt: drive.createdAt,
         driverProfileImg: data.driveDetails.driverProfileImg,
         driverRating: data.driveDetails.driverRating,

@@ -5,6 +5,7 @@ import { seats } from "../../i18n/keys/seats.json";
 import DatePicker from "../../components/Form/DatePicker";
 import ReverseBtn from "../../components/Buttons/ReverseBtn";
 import SelectInput from "../../components/Form/SelectInput";
+import ComboBox from "../../components/Form/ComboBox";
 
 type Props = {
     values: any;
@@ -38,17 +39,18 @@ const RideSearch: FC<Props> = ({
         <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-3 space-y-4 sm:space-y-0 px-2 sm:px-0">
             {/* FROM */}
             <div className="flex-1">
-                <TextInput
+                <ComboBox
                     label={t("from")}
-                    name="from"
                     placeholder={t("startingLocation")}
                     value={values.from}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    required
-                    error={touched?.from && errors.from}
+                    onChange={(val) => setFieldValue("from", val)}
+                    onSelect={(option) => setFieldValue("from", {
+                        address: option.address,
+                        lat: option.lat, lng: option.lng,
+                        state: option.state
+                    })}
                     icon="bi bi-geo-alt-fill"
-                    isRide={true}
+                    required
                 />
             </div>
 
@@ -59,17 +61,18 @@ const RideSearch: FC<Props> = ({
 
             {/* TO */}
             <div className="flex-1">
-                <TextInput
+                <ComboBox
                     label={t("to")}
-                    name="to"
                     placeholder={t("destinationLocation")}
                     value={values.to}
-                    onChange={onChange}
-                    onBlur={onBlur}
-                    required
-                    error={touched?.to && errors.to}
+                    onChange={(val) => setFieldValue("to", val)}
+                    onSelect={(option) => setFieldValue("to", {
+                        address: option.address,
+                        lat: option.lat, lng: option.lng,
+                        state: option.state
+                    })}
                     icon="bi bi-geo-alt-fill"
-                    isRide={true}
+                    required
                 />
             </div>
 

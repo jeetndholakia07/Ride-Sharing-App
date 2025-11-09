@@ -25,9 +25,9 @@ const FrequentRides: FC<Props> = ({ rides, setFieldValue }) => {
                             <div className="flex flex-col justify-center items-center py-2">
                                 {/* Ride Info */}
                                 <h3 className="text-xs font-medium text-gray-800 text-center">
-                                    {ride.from}{" "}
+                                    {ride.from.address}{" "}
                                     <i className="bi bi-arrow-right mx-1 text-xs text-gray-500" />{" "}
-                                    {ride.to}
+                                    {ride.to.address}
                                 </h3>
                             </div>
                         </div>

@@ -7,12 +7,12 @@ const driveSchema = new mongoose.Schema({
         required: true
     },
     from: {
-        type: String,
-        required: true
+        address: String,
+        location: { type: { type: String, enum: ['Point'], default: 'Point' }, coordinates: [Number] }
     },
     to: {
-        type: String,
-        required: true
+        address: String,
+        location: { type: { type: String, enum: ['Point'], default: 'Point' }, coordinates: [Number] }
     },
     departureTime: {
         type: Date,
@@ -27,25 +27,26 @@ const driveSchema = new mongoose.Schema({
         enum: ["pending", "cancelled", "completed"],
         default: "pending"
     },
-    cancelledAt: {
-        type: Date
+    estimatedTimeMin: {
+        type: Number
     },
-    completedAt: {
-        type: Date
-    },
+    cancelledAt: { type: Date },
+    completedAt: { type: Date },
     vehicleDetails: {
-        vehicleType: { type: String, required: true },
-        vehicleName: { type: String, required: true },
-        vehicleNumber: { type: String, required: true },
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "Vehicle",
+        required: true
     },
     pricePerPerson: {
         type: Number,
         required: true
     },
-    specialNote: {
-        type: String
-    }
+    specialNote: { type: String }
 }, { timestamps: true });
+
+// ---- Create geospatial indexes 
+driveSchema.index({ "from.location": "2dsphere" });
+driveSchema.index({ "to.location": "2dsphere" });
 
 const Drive = mongoose.model("Drive", driveSchema);
 export default Drive;

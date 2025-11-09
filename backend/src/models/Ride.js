@@ -11,10 +11,13 @@ const rideSchema = new mongoose.Schema({
         ref: "Drive",
         required: true
     },
-    passengerStatus: {
-        type: String,
-        enum: ["accepted"],
-        default: "accepted"
+    from: {
+        address: String,
+        location: { type: { type: String, enum: ['Point'], default: 'Point' }, coordinates: [Number] }
+    },
+    to: {
+        address: String,
+        location: { type: { type: String, enum: ['Point'], default: 'Point' }, coordinates: [Number] }
     },
     driverStatus: {
         type: String,

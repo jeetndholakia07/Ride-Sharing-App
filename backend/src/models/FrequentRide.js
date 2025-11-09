@@ -2,13 +2,36 @@ import mongoose from "mongoose";
 
 const frequentRideSchema = new mongoose.Schema({
     from: {
-        type: String,
-        required: true
+        address: { type: String, required: true },
+        location: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: true,
+                default: 'Point'
+            },
+            coordinates: {
+                type: [Number], // [longitude, latitude]
+                required: true
+            }
+        }
     },
+    // Dropoff Location 
     to: {
-        type: String,
-        required: true
-    }
+        address: { type: String, required: true },
+        location: {
+            type: {
+                type: String,
+                enum: ['Point'],
+                required: true,
+                default: 'Point'
+            },
+            coordinates: {
+                type: [Number], // [longitude, latitude]
+                required: true
+            }
+        }
+    },
 }, { timestamps: true });
 
 const FrequentRide = mongoose.model("FrequentRide", frequentRideSchema);

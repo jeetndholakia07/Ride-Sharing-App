@@ -2,17 +2,17 @@ import Ride from "../../models/Ride.js";
 import User from "../../models/User.js";
 import Drive from "../../models/Drive.js";
 import createNotification from "../../crud/createNotification.js";
+import { geocodeAddress } from "../../maps/geocode.js";
 
 const createRide = async (req, res) => {
     try {
-        const { driveId, seats } = req.body;
-        if (!driveId || !seats) {
-            return res.status(404).json({ message: "Please enter drive id and seats" });
-        }
-
         const passengerId = req.user.id;
         if (!passengerId) {
             return res.status(400).json({ message: "Passenger id not found" });
+        }
+        const { from, to, driveId, seats, price } = req.body;
+        if (!driveId || !seats || !from || !to || price === null) {
+            return res.status(404).json({ message: "Please enter drive id and seats" });
         }
 
         //Check for seats availability
@@ -25,12 +25,43 @@ const createRide = async (req, res) => {
             return res.status(400).json({ message: "No seats available" });
         }
 
+        let fromCoords, toCoords;
+        if (from.lat && from.lng) {
+            fromCoords = { lat: from.lat, lng: from.lng };
+        } else {
+            fromCoords = await geocodeAddress(from);
+        }
+
+        if (to.lat && to.lng) {
+            toCoords = { lat: to.lat, lng: to.lng };
+        } else {
+            toCoords = await geocodeAddress(to);
+        }
+
+        if (!fromCoords || !toCoords) {
+            return res.status(400).json({ message: "Unable to fetch coordinates" });
+        }
+
         //Create Ride Request
         await Ride.create({
             drive: driveId,
             passenger: passengerId,
-            passengerStatus: "accepted",
-            seats: seats
+            from: {
+                address: from.address,
+                location: {
+                    type: "Point",
+                    coordinates: [fromCoords.lng, fromCoords.lat] // [longitude, latitude]
+                }
+            },
+            to: {
+                address: to.address,
+                location: {
+                    type: "Point",
+                    coordinates: [toCoords.lng, toCoords.lat]
+                }
+            },
+            seats: seats,
+            amountRequested: price
         });
 
         //Update drive seats
@@ -44,8 +75,8 @@ const createRide = async (req, res) => {
         //Notify driver about ride request
         await createNotification("rideRequested", driverId, {
             passengerName: passenger.username,
-            from: drive.from,
-            to: drive.to,
+            from: from.address,
+            to: to.address,
             linkId: drive._id
         });
 

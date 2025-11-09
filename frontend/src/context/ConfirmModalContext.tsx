@@ -1,6 +1,14 @@
 import React, { createContext, useContext, useState, useCallback, type ReactNode, } from "react";
 import ConfirmModal from "../components/Modal/ConfirmModal";
 
+interface RideDetails {
+    from?: string;
+    to?: string;
+    distance?: number;
+    duration?: number;
+    price?: number;
+}
+
 interface ConfirmModalContextType {
     openModal: (
         title: string,
@@ -8,7 +16,8 @@ interface ConfirmModalContextType {
         confirmBtn: string,
         handleSubmit: () => void,
         handleCancel?: () => void,
-        bgColor?: string
+        bgColor?: string,
+        rideDetails?: RideDetails
     ) => void;
     closeModal: () => void;
 }
@@ -31,6 +40,7 @@ export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ childr
     const [handleSubmit, setHandleSubmit] = useState<() => void>(() => () => { });
     const [handleCancel, setHandleCancel] = useState<() => void>(() => () => { });
     const [bgColor, setBgColor] = useState("bg-green-600 hover:bg-green-700");
+    const [rideDetails, setRideDetails] = useState<RideDetails | null>(null)
 
     const openModal = useCallback((
         title: string,
@@ -38,7 +48,8 @@ export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ childr
         confirmBtn: string,
         onSubmit: () => void,
         onCancel: () => void = () => setOpen(false),
-        bg: string = "bg-green-600 hover:bg-green-700"
+        bg: string = "bg-green-600 hover:bg-green-700",
+        rideInfo?: RideDetails
     ) => {
         setTitle(title);
         setMessage(message);
@@ -47,6 +58,7 @@ export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ childr
         setHandleCancel(() => onCancel);
         setBgColor(bg);
         setOpen(true);
+        setRideDetails(rideInfo ?? null);
     }, []);
 
     const closeModal = () => setOpen(false);
@@ -66,6 +78,7 @@ export const ConfirmModalProvider: React.FC<{ children: ReactNode }> = ({ childr
                 handleCancel={handleCancel}
                 bgColor={bgColor}
                 closeModal={closeModal}
+                rideDetails={rideDetails}
             />
         </ConfirmModalContext.Provider>
     );

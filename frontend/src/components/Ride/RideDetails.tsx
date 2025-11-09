@@ -27,12 +27,13 @@ type rideProps = {
 
 const RideDetails: FC<rideProps> = ({ linkId }) => {
     const location = useLocation();
-    const initialData = location.state?.data;
-    const linkIdFromState = initialData?.driveId; // fallback linkId
-    const linkIdToUse = linkId || linkIdFromState;
-    const hasInitialData = Boolean(initialData);
-    const shouldFetch = !hasInitialData && Boolean(linkId);
-
+    const initialData = location.state?.data;  // Data passed via state
+    const linkIdFromState = initialData?.driveId;  // Fallback ID from state
+    const linkIdToUse = linkId || linkIdFromState; // Final ID to use (from state or URL)
+    
+    const hasInitialData = Boolean(initialData);  // Check if initialData is available
+    const shouldFetch = !hasInitialData && Boolean(linkId);  // Fetch only if initialData is not available
+    
     const { showToast } = useToast();
     const navigate = useNavigate();
     const { t } = useTranslation();
@@ -48,12 +49,13 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
         }
     };
 
+    
     const { data: ride, isLoading, isError } = useQuery({
         queryKey: ["ride", linkIdToUse],
         queryFn: fetchRide,
         refetchOnWindowFocus: false,
-        initialData: hasInitialData ? initialData : undefined,
-        enabled: shouldFetch,
+        initialData: hasInitialData ? initialData : undefined,  // Use initialData if passed
+        enabled: shouldFetch,  // Fetch only if shouldFetch is true
         retry: false,
         select: shouldFetch ? (data: any) => data && ridesForPassengerMap(data) : undefined,
     });
@@ -105,6 +107,9 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
                 <h1 className="text-2xl md:text-3xl font-bold text-indigo-700">
                     {ride.from} {t("arrow")} {ride.to}
                 </h1>
+                <p className="text-lg text-gray-500 mt-1">
+                    {t("dropoff")}: {ride.dropoff}
+                </p>
                 <p className="mt-2 text-gray-700 font-bold text-sm md:text-base">
                     <i className="bi bi-clock-fill mr-1" /> {t("departure")}  {formatDateTime(ride.departureTime)}
                 </p>
@@ -124,8 +129,8 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
             </div>
 
             <div className="flex items-center justify-between mb-2">
-                <PriceDisplay price={ride.pricePerPerson} />
-                <Seats seats={ride.seatsAvailable} />
+                <PriceDisplay price={ride.amountRequested} />
+                <Seats seats={ride.userSeats} />
             </div>
 
             <hr className="mb-4 border-gray-300" />

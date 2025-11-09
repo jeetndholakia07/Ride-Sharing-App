@@ -35,8 +35,8 @@ const cancelRide = async (req, res) => {
             rides.map((ride) =>
                 createNotification("driveCancelled", ride.passenger, {
                     driverName: driver.username,
-                    from: drive.from,
-                    to: drive.to,
+                    from: ride.from.address,
+                    to: ride.to.address,
                     linkId: ride._id
                 })
             )

@@ -47,7 +47,9 @@ export const api = {
     public: {
         allReviews: `${publicURL}/ratings`,
         allRides: `${publicURL}/rides`,
-        frequentRides: `${publicURL}/frequent-rides`
+        frequentRides: `${publicURL}/frequent-rides`,
+        autoComplete: `${publicURL}/auto-complete`,
+        ridePrice: `${publicURL}/ride-price`
     },
     chat: {
         userChats: `${chatURL}/user-chats`,

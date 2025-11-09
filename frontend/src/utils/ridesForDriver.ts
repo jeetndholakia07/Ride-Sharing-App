@@ -14,9 +14,11 @@ type RideRequest = {
     passenger: Passenger;
     passengerProfileImg: string;
     requestedAt: string;
-    passengerStatus: string;
     driverStatus: string;
     seats: number;
+    pickup: string;
+    dropoff: string;
+    amountRequested: number;
     passengerRating: PassengerRating;
 };
 
@@ -24,6 +26,8 @@ type VehicleDetails = {
     vehicleType: string;
     vehicleName: string;
     vehicleNumber: string;
+    fuelType: string;
+    isAc: boolean;
 };
 
 type DriveDetails = {
@@ -52,11 +56,13 @@ export const ridesForDriverMap = (data: RidesForDriverResponse): Record<string, 
         passengerName: request.passenger.username,
         passengerMobile: request.passenger.mobile,
         passengerCollegeName: request.passenger.collegeName,
-        passengerStatus: request.passengerStatus,
         driverStatus: request.driverStatus,
         passengerProfileImg: request.passengerProfileImg,
         requestedAt: request.requestedAt,
         seats: request.seats,
+        pickup: request.pickup,
+        dropoff: request.dropoff,
+        amountRequested: request.amountRequested,
         passengerRating: request.passengerRating
     }));
 
@@ -68,6 +74,8 @@ export const ridesForDriverMap = (data: RidesForDriverResponse): Record<string, 
         vehicleType: vehicle.vehicleType,
         vehicleName: vehicle.vehicleName,
         vehicleNumber: vehicle.vehicleNumber,
+        fuelType: vehicle.fuelType,
+        isAc: vehicle.isAc,
         seatsAvailable: drive.seatsAvailable,
         driveStatus: drive.driveStatus,
         specialNote: drive.specialNote,

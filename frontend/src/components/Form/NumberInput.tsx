@@ -12,6 +12,7 @@ type NumberInputProps = {
     error?: any;
     disabled?: boolean;
     icon?: string;
+    msg?: string;
 };
 
 const NumberInput: FC<NumberInputProps> = ({
@@ -25,7 +26,8 @@ const NumberInput: FC<NumberInputProps> = ({
     required = false,
     error,
     disabled = false,
-    icon
+    icon,
+    msg
 }) => {
     return (
         <div className="relative w-full mb-2">
@@ -49,22 +51,23 @@ const NumberInput: FC<NumberInputProps> = ({
           ${disabled ? 'bg-gray-100 text-gray-400 cursor-not-allowed' : ''}
         `}
             />
-            {icon && <i className={`${icon} text-md text-gray-400 mr-1`} aria-hidden="true" />}
             <label
                 htmlFor={name}
                 className={`
-          absolute left-3 top-1.5 z-10 origin-[0]
-          text-gray-500 text-sm transition-all duration-200
-          peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
-          peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-blue-500
-          ${error ? 'text-red-500 peer-focus:text-red-500' : ''}
-          ${disabled ? 'text-gray-400' : ''}
-        `}
-            >
+                absolute left-3 top-1.5 z-10 origin-[0]
+                text-gray-500 text-sm transition-all duration-200
+                peer-placeholder-shown:top-3.5 peer-placeholder-shown:text-sm peer-placeholder-shown:text-gray-400
+                peer-focus:top-1.5 peer-focus:text-xs peer-focus:text-blue-500
+                ${error ? 'text-red-500 peer-focus:text-red-500' : ''}
+                ${disabled ? 'text-gray-400' : ''}
+                `}
+                >
+                {icon && <i className={`${icon} text-md text-gray-400 mr-1`} aria-hidden="true" />}
                 {label}
                 {required && <span className="text-red-500 ml-0.5">*</span>}
             </label>
             {error && <p className="text-red-500 text-sm mt-1">{error}</p>}
+            {msg && <p className="text-sm text-gray-500 mt-1 italic">{msg}</p>}
         </div>
     );
 };

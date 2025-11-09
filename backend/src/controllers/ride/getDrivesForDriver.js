@@ -37,6 +37,11 @@ const getDrivesForDriver = async (req, res) => {
 
         // Get all drives created by the driver
         const drives = await Drive.find(query)
+            .populate({
+                path: "vehicleDetails",
+                select: "vehicleDetails -_id",
+                transform: doc => doc?.vehicleDetails,
+            })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
@@ -45,7 +50,7 @@ const getDrivesForDriver = async (req, res) => {
         const driveDetails = await Promise.all(
             drives.map(async (drive) => {
                 // Get all rides that reference this drive
-                const rides = await Ride.find({ drive: drive._id }).populate("passenger", "username mobile collegeName");
+                const rides = await Ride.find({ drive: drive._id }).populate("passenger", "username mobile collegeName")
 
                 // For each ride, fetch passenger and profile manually
                 const rideRequests = await Promise.all(
@@ -58,10 +63,12 @@ const getDrivesForDriver = async (req, res) => {
                             passenger: ride.passenger,
                             passengerProfileImg: profileImg,
                             requestedAt: ride.requestedAt,
-                            passengerStatus: ride.passengerStatus,
                             rejectedAt: ride.rejectedAt,
                             driverStatus: ride.driverStatus,
                             seats: ride.seats,
+                            pickup: ride.from.address,
+                            dropoff: ride.to.address,
+                            amountRequested: ride.amountRequested,
                             passengerRating: userRating
                         };
                     })
@@ -70,8 +77,8 @@ const getDrivesForDriver = async (req, res) => {
                 return {
                     driveDetails: {
                         driveId: drive._id,
-                        from: drive.from,
-                        to: drive.to,
+                        from: drive.from.address,
+                        to: drive.to.address,
                         departureTime: drive.departureTime,
                         vehicleDetails: drive.vehicleDetails,
                         seatsAvailable: drive.seatsAvailable,

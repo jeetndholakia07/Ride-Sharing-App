@@ -20,8 +20,13 @@ import SelectInput from "../../components/Form/SelectInput";
 import Checkbox from "../../components/Form/Checkbox";
 import Collapsible from "../../components/Form/Collapsible";
 import PageLoader from "../../components/Loading/PageLoader";
+import { fuelType } from "../../i18n/keys/fuelType.json";
+import axiosInstance from "../../hooks/axiosInstance";
+import ComboBox from "../../components/Form/ComboBox";
+import GetPriceBtn from "../../components/Buttons/GetPriceBtn";
 
 type VehicleType = "two-wheeler" | "four-wheeler";
+type FuelType = "petrol" | "diesel" | "cng";
 
 type FormValues = {
     from: string;
@@ -32,8 +37,9 @@ type FormValues = {
     vehicleType: VehicleType;
     vehicleName: string;
     vehicleNumber: string;
+    fuelType: FuelType;
     comments: string;
-    price: number;
+    isAc: boolean;
 };
 
 const PublishRide = () => {
@@ -41,19 +47,29 @@ const PublishRide = () => {
     const { showToast } = useToast();
     const [isLoading, setIsLoading] = useState(false);
     const [isRemember, setIsRemember] = useState(true);
-    const [loading,setLoading] = useState(false);
+    const [loading, setLoading] = useState(false);
+    const [isAc, setIsAc] = useState(false);
+    const [isPriceFetched, setIsPriceFetched] = useState(false);
+    const [isPriceLoading, setIsPriceLoading] = useState(false);
+    const [priceMsg, setPriceMsg] = useState("");
+    const [price, setPrice] = useState<any>();
     const navigate = useNavigate();
 
     const validationSchema = Yup.object().shape({
-        from: Yup.string().required(t("formMessages.fromRequired")),
-        to: Yup.string().required(t("formMessages.toRequired")),
+        from: Yup.object({
+            address: Yup.string().required(t("formMessages.fromRequired")),
+            lat: Yup.number().required(),
+            lng: Yup.number().required(),
+        }).required(t("formMessages.fromRequired")),
+        to: Yup.object({
+            address: Yup.string().required(t("formMessages.toRequired")),
+            lat: Yup.number().required(),
+            lng: Yup.number().required(),
+        }).required(t("formMessages.toRequired")),
         date: Yup.date().required(t("formMessages.dateRequired")),
         time: Yup.date().required(t("formMessages.timeRequired")),
         vehicleName: Yup.string().required(t("formMessages.vehicleNameRequired")),
-        vehicleNumber: Yup.string().required(t("formMessages.vehicleNumberRequired")),
-        price: Yup.number()
-            .required(t("formMessages.priceRequired"))
-            .min(0, t("formMessages.priceConstraint")),
+        vehicleNumber: Yup.string().required(t("formMessages.vehicleNumberRequired"))
     });
 
     useEffect(() => {
@@ -67,13 +83,15 @@ const PublishRide = () => {
                         ...prev,
                         vehicleName: vehicle.vehicleDetails.vehicleName,
                         vehicleType: vehicle.vehicleDetails.vehicleType,
-                        vehicleNumber: vehicle.vehicleDetails.vehicleNumber
+                        vehicleNumber: vehicle.vehicleDetails.vehicleNumber,
+                        fuelType: vehicle.vehicleDetails.fuelType
                     }));
+                    setIsAc(vehicle.vehicleDetails.isAc);
                 }
             } catch (err) {
                 console.error("Error fetching vehicle details:", err);
             }
-            finally{
+            finally {
                 setLoading(false);
             }
         };
@@ -110,8 +128,9 @@ const PublishRide = () => {
         vehicleName: "",
         vehicleNumber: "",
         vehicleType: "four-wheeler",
+        fuelType: "petrol",
         comments: "",
-        price: 1,
+        isAc: isAc
     });
 
     const handleSubmit = async (
@@ -125,21 +144,43 @@ const PublishRide = () => {
             ...formValues,
             seats: Number(seats),
             departureTime: dateTime,
+            isAc: isAc,
+            price: parseInt(price.pricePerPerson),
+            durationMin: parseInt(price.durationMin)
         };
-        await handleCreateRide(payload);
         if (isRemember) {
-            const { vehicleName, vehicleNumber, vehicleType } = values;
-            const vehicleData = { vehicleName, vehicleType, vehicleNumber };
+            const { vehicleName, vehicleNumber, vehicleType, fuelType } = values;
+            const vehicleData = { vehicleName, vehicleType, vehicleNumber, fuelType, isAc: isAc };
             await saveVehicleDetails(vehicleData);
         }
+        await handleCreateRide(payload);
     };
+
+    const getRidePrice = async (payload: any) => {
+        try {
+            setIsPriceLoading(true);
+            const response = await axiosInstance.post(api.public.ridePrice, payload);
+            const priceData = response.data;
+            setPrice(priceData);
+            setPriceMsg(
+                `Distance: ${priceData.distanceKm} km, ₹${priceData.fuelCostPerKm} per km, Duration: ${priceData.durationMin} min`
+            );
+        } catch (err) {
+            console.error("Error getting ride price:", err);
+            setPrice(null);
+            setPriceMsg("");
+        }
+        finally {
+            setIsPriceLoading(false);
+        }
+    }
 
     const handleToggleRemember = () => {
         setIsRemember((prev) => !prev);
     };
 
-    if(loading){
-        return <PageLoader/>;
+    if (loading) {
+        return <PageLoader />;
     }
 
     return (
@@ -158,6 +199,7 @@ const PublishRide = () => {
                         enableReinitialize
                         onSubmit={handleSubmit}
                         validationSchema={validationSchema}
+                        validateOnMount
                     >
                         {({
                             values,
@@ -183,16 +225,42 @@ const PublishRide = () => {
                             const handleSelectChange = (e: any) => {
                                 setFieldValue("seats", parseInt(e.target.value));
                             };
+                            const handleFuelType = (e: any) => {
+                                setFieldValue("fuelType", e.target.value);
+                            };
+                            const handleAc = () => {
+                                if (values.vehicleType === "four-wheeler") {
+                                    setIsAc((prev) => !prev);
+                                }
+                            }
                             const handleVehicleChange = (
                                 e: React.ChangeEvent<HTMLInputElement>
                             ) => {
                                 const newType = e.target.value as VehicleType;
                                 setFieldValue("vehicleType", newType);
 
+                                if (newType === "two-wheeler") {
+                                    setIsAc(false);
+                                    setFieldValue("isAc", false);
+                                }
+
                                 const validSeats = passengerSeats[newType];
                                 if (!validSeats.includes(values.seats)) {
                                     setFieldValue("seats", 1);
                                 }
+                            };
+
+                            const handlePrice = async () => {
+                                const payload = {
+                                    from: values.from,
+                                    to: values.to,
+                                    seats: values.seats,
+                                    fuelType: values.fuelType,
+                                    isAc: isAc,
+                                    vehicleType: values.vehicleType
+                                }
+                                await getRidePrice(payload);
+                                setIsPriceFetched(true);
                             };
 
                             return (
@@ -202,29 +270,31 @@ const PublishRide = () => {
                                 >
                                     {/* FROM, TO, DATE, TIME */}
                                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6">
-                                        <TextInput
+                                        <ComboBox
                                             label={t("from")}
-                                            name="from"
                                             placeholder={t("startingLocation")}
                                             value={values.from}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            required
-                                            error={touched?.from && errors.from}
+                                            onChange={(val) => setFieldValue("from", val)}
+                                            onSelect={(option) => setFieldValue("from", {
+                                                address: option.address,
+                                                lat: option.lat, lng: option.lng,
+                                                state: option.state
+                                            })}
                                             icon="bi bi-geo-alt-fill"
-                                            isRide
+                                            required
                                         />
-                                        <TextInput
+                                        <ComboBox
                                             label={t("to")}
-                                            name="to"
                                             placeholder={t("destinationLocation")}
                                             value={values.to}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            required
-                                            error={touched?.to && errors.to}
+                                            onChange={(val) => setFieldValue("to", val)}
+                                            onSelect={(option) => setFieldValue("to", {
+                                                address: option.address,
+                                                lat: option.lat, lng: option.lng,
+                                                state: option.state
+                                            })}
                                             icon="bi bi-geo-alt-fill"
-                                            isRide
+                                            required
                                         />
                                         <DatePicker
                                             label={t("date")}
@@ -251,40 +321,26 @@ const PublishRide = () => {
                                         />
                                     </div>
 
-                                    {/* SEATS & PRICE */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
-                                        <SelectInput
-                                            label={t("seatsAvailable")}
-                                            name="seats"
-                                            value={values.seats}
-                                            values={seatOptions}
-                                            onChange={handleSelectChange}
-                                            icon="bi bi-person-fill"
-                                        />
-                                        <NumberInput
-                                            label={t("price")}
-                                            name="price"
-                                            value={values.price}
-                                            placeholder={t("pricePerPerson")}
-                                            onChange={handleChange}
-                                            onBlur={handleBlur}
-                                            min={0}
-                                            error={touched?.price && errors.price}
-                                        />
-                                    </div>
-
                                     {/* VEHICLE DETAILS */}
                                     <Collapsible title={t("vehicleDetails")} defaultOpen>
-                                        <RadioButtonGroup
-                                            label={t("vehicleType")}
-                                            name="vehicleType"
-                                            value={values.vehicleType}
-                                            options={vehicleType}
-                                            onChange={handleVehicleChange}
-                                            onBlur={handleBlur}
-                                            required
-                                        />
-
+                                        <div className="grid grid-cols-1 sm:grid-cols-1 items-center gap-4">
+                                            <RadioButtonGroup
+                                                label={t("vehicleType")}
+                                                name="vehicleType"
+                                                value={values.vehicleType}
+                                                options={vehicleType}
+                                                onChange={handleVehicleChange}
+                                                onBlur={handleBlur}
+                                                required
+                                            />
+                                        </div>
+                                        <div className="grid grid-cols-1 gap-4 mb-4">
+                                            <Checkbox
+                                                value={isAc}
+                                                handleChange={handleAc}
+                                                label={t("ac")}
+                                            />
+                                        </div>
                                         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                                             <TextInput
                                                 label={t("vehicleName")}
@@ -307,6 +363,24 @@ const PublishRide = () => {
                                                 error={errors?.vehicleNumber && touched?.vehicleNumber}
                                             />
                                         </div>
+                                        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                                            <SelectInput
+                                                label={t("seatsAvailable")}
+                                                name="seats"
+                                                value={values.seats}
+                                                values={seatOptions}
+                                                onChange={handleSelectChange}
+                                                icon="bi bi-person-fill"
+                                            />
+                                            <SelectInput
+                                                label={t("fuelType")}
+                                                name="fuelType"
+                                                value={values.fuelType}
+                                                values={fuelType}
+                                                onChange={handleFuelType}
+                                                icon="bi bi-fuel-pump-fill"
+                                            />
+                                        </div>
                                     </Collapsible>
                                     <Checkbox
                                         value={isRemember}
@@ -327,12 +401,32 @@ const PublishRide = () => {
                                         />
                                     </div>
 
+                                    <div className="grid grid-cols-1 sm:grid-cols-2 items-end gap-4">
+                                        {isPriceFetched && <NumberInput
+                                            label={t("price")}
+                                            name="price"
+                                            value={price.pricePerPerson}
+                                            onChange={handleChange}
+                                            placeholder="Enter price"
+                                            disabled={!isPriceFetched}
+                                            icon="bi bi-currency-rupee"
+                                            msg={priceMsg}
+                                        />
+                                        }
+                                    </div>
+
                                     {/* SUBMIT */}
-                                    <div className="flex justify-end mt-4">
+                                    <div className="flex justify-end mt-4 gap-6">
+                                        <GetPriceBtn
+                                            isLoading={isPriceLoading}
+                                            onClick={handlePrice}
+                                            disabled={!isValid || isPriceLoading}
+                                            label="Get Price"
+                                        />
                                         <LoadingButton
                                             name={t("publishRide")}
                                             handleApi={handleSubmit}
-                                            disabled={!isValid || !dirty}
+                                            disabled={!isPriceFetched || !isValid || !dirty}
                                             isLoading={isLoading}
                                         />
                                     </div>

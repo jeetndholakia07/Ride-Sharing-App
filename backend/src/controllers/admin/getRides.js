@@ -43,7 +43,6 @@ const getRides = async (req, res) => {
                     rides.map(async (ride) => {
                         return {
                             passenger: ride.passenger,
-                            passengerStatus: ride.passengerStatus,
                             driverStatus: ride.driverStatus,
                             seats: ride.seats
                         };

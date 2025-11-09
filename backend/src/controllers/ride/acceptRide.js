@@ -25,8 +25,8 @@ const acceptRide = async (req, res) => {
         const driver = await User.findById(drive.driver);
         await createNotification("rideAccepted", passengerId, {
             driverName: driver.username,
-            from: drive.from,
-            to: drive.to,
+            from: ride.from.address,
+            to: ride.to.address,
             linkId: ride._id
         });
 

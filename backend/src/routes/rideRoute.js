@@ -29,7 +29,7 @@ rideRoute.post("/drive", authorizeRole(["driver"]), createDrive);
 rideRoute.put("/cancelRide", authorizeRole(["driver"]), cancelRide);
 rideRoute.put("/acceptRide", authorizeRole(["driver"]), acceptRide);
 rideRoute.put("/completeRide", authorizeRole(["driver"]), completeRide);
-rideRoute.put("/rejectRide", authorizeRole(["passenger"]), rejectRide);
+rideRoute.put("/rejectRide", authorizeRole(["driver"]), rejectRide);
 rideRoute.post("/checkRide", authorizeRole(["passenger"]), checkRide);
 rideRoute.put("/editDrive", updateDrive);
 rideRoute.post("/addDriverRating", authorizeRole(["passenger"]), addDriverRating);

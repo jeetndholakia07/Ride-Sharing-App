@@ -31,10 +31,10 @@ const completeRide = async (req, res) => {
         //Notify passengers of completed ride
         await Promise.all(
             rides.map((ride) =>
-                ride.passengerStatus !== "rejected" && createNotification("rideCompleted", ride.passenger, {
+                createNotification("rideCompleted", ride.passenger, {
                     driverName: driver.username,
-                    from: drive.from,
-                    to: drive.to,
+                    from: ride.from.address,
+                    to: ride.to.address,
                     linkId: ride._id
                 }))
         );

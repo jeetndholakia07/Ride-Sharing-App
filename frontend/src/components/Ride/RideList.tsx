@@ -20,10 +20,10 @@ const RideList: FC<Props> = ({ rides, mapper }) => {
                 {t("availableRides")}
             </h2>
             <div className={`grid grid-cols-1 ${rides.length === 1 ? "sm:grid-cols-1" : "sm:grid-cols-2"} gap-6`}>
-                {rides.map((ride: any) => {
-                    const id = mapper(ride).driveId;
+                {rides.map((ride: any, index: any) => {
+                    const data = mapper(ride);
                     return (
-                        <RideCard key={id} data={mapper(ride)} />
+                        <RideCard key={index} data={data} />
                     )
                 })}
             </div>

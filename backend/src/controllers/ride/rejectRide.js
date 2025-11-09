@@ -14,7 +14,7 @@ const rejectRide = async (req, res) => {
         if (!passengerId) {
             return res.status(400).json({ message: "Passenger id not found" });
         }
-        const ride = await Ride.findOne({ drive: driverId, passenger: passengerId });
+        const ride = await Ride.findOne({ drive: driveId, passenger: passengerId });
         const drive = await Drive.findById(driveId);
 
         if (!ride || !drive) {
@@ -31,8 +31,8 @@ const rejectRide = async (req, res) => {
         //Notify passenger of rejected ride
         await createNotification("rideRejected", passengerId, {
             driverName: driver.username,
-            from: drive.from,
-            to: drive.to
+            from: ride.from.address,
+            to: ride.to.address
         });
 
         res.status(200).send();

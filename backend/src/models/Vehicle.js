@@ -9,11 +9,13 @@ const vehicleSchema = new mongoose.Schema({
     vehicleDetails: {
         vehicleType: { type: String },
         vehicleName: { type: String },
-        vehicleNumber: { type: String }
+        vehicleNumber: { type: String },
+        fuelType: { type: String, required: true },
+        isAc: { type: Boolean, required: true }
     },
     isSaved: {
         type: Boolean,
-        default: true
+        default: false
     }
 });
 

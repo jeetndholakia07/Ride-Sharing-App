@@ -26,10 +26,11 @@ type driveProps = {
 
 const DriveDetails: FC<driveProps> = ({ linkId }) => {
     const location = useLocation();
-    const initialData = location.state?.data;
-    const linkIdFromState = initialData?.driveId; // fallback linkId
-    const linkIdToUse = linkId || linkIdFromState;
-    const hasInitialData = Boolean(initialData);
+    const initialData = location.state?.data;  // Data passed via state
+    const linkIdFromState = initialData?.driveId;  // Fallback ID from state
+    const linkIdToUse = linkId || linkIdFromState; // Final ID to use (from state or URL)
+
+    const hasInitialData = Boolean(initialData);  // Check if initialData is available
     const shouldFetch = !hasInitialData && Boolean(linkId);
 
     const navigate = useNavigate();
@@ -48,12 +49,12 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         }
     };
 
-    const { data: ride, isLoading, isError } = useQuery({
+    const { data: ride, isLoading, isError, refetch } = useQuery({
         queryKey: ["ride", linkIdToUse],
         queryFn: fetchDrive,
         refetchOnWindowFocus: false,
-        initialData: hasInitialData ? initialData : undefined,
-        enabled: shouldFetch,
+        initialData: hasInitialData ? initialData : undefined,  // Use initialData if passed
+        enabled: shouldFetch,  // Fetch only if shouldFetch is true
         retry: false,
         select: shouldFetch ? (data: any) => data && ridesForDriverMap(data) : undefined,
     });
@@ -66,6 +67,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         try {
             await apiInterceptor.put(api.ride.acceptRide, payload);
             showToast("success", t("messages.acceptRideSuccess"));
+            refetch();
             navigate("/profile/rides");
         }
         catch (err) {
@@ -81,6 +83,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         try {
             await apiInterceptor.put(api.ride.cancelRide, { driveId: ride.driveId });
             showToast("success", t("messages.cancelRideSuccess"));
+            refetch();
             navigate("/profile/rides");
         }
         catch (err) {
@@ -96,6 +99,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         try {
             await apiInterceptor.put(api.ride.completeRide, { driveId: ride.driveId });
             showToast("success", t("messages.completeRideSuccess"));
+            refetch();
             navigate("/profile/rides");
         }
         catch (err) {
@@ -112,6 +116,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
             await apiInterceptor.put(api.ride.rejectRide, { driveId: ride.driveId, passengerId: passengerId });
             showToast("success", t("messages.rejectRideSuccess"));
             navigate("/profile/rides");
+            refetch();
         }
         catch (err) {
             console.error("Error rejecting ride:", err);
@@ -157,7 +162,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                 {t("goback")}
             </button>
 
-            <div className="text-center mb-6">
+            <div className="text-center mb-6 mt-2">
                 <h1 className="text-2xl md:text-3xl font-bold text-indigo-700">
                     {ride.from} {t("arrow")} {ride.to}
                 </h1>
@@ -166,9 +171,9 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                 </p>
             </div>
 
-            {/* Vehicle Info + Status */}
-            <div className="flex flex-col md:flex-row items-center md:justify-between">
-                <div className="flex items-center space-x-4">
+            {/* Vehicle Info */}
+            <div className="flex flex-col md:flex-row md:items-center md:justify-between">
+                <div className="flex items-center space-x-4 mb-2 md:mb-0">
                     <VehicleImage vehicleType={ride.vehicleType} />
                     <div>
                         <span className="text-xl font-semibold text-gray-800">
@@ -177,90 +182,114 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                         <p className="mt-1 text-gray-500">{t(ride.vehicleType)}</p>
                     </div>
                 </div>
-                <StatusDisplay status={ride.driveStatus} />
+                <div className="mb-2">
+                    <StatusDisplay status={ride.driveStatus} />
+                </div>
             </div>
 
-            <div className="flex items-center justify-between">
+            <div className="flex items-center">
                 <div className="text-gray-700 space-y-2 mt-2">
                     {ride.specialNote && (
                         <SpecialNote specialNote={ride.specialNote} />
                     )}
                 </div>
-                <Seats seats={ride.seatsAvailable} />
             </div>
             <div className="mb-2">
                 <PriceDisplay price={ride.pricePerPerson} />
+                <Seats seats={ride.seatsAvailable} isLeft={true} />
             </div>
 
             <hr className="border-gray-300" />
+
             {/* Passenger Requests Section */}
             <div className="mt-4">
                 <h2 className="text-xl font-bold text-gray-800 mb-4">{t("passengerRequests")}</h2>
                 {ride.passengers.length > 0 ? (
                     <div className="space-y-4">
-                        {ride.passengers.map((passenger: any) => (
+                        {ride.passengers.map((passenger: any, index: number) => (
                             <div
                                 key={passenger.passengerId}
-                                className="flex flex-col md:flex-row md:items-center md:justify-between p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition"
+                                className="p-4 bg-gray-50 rounded-lg shadow-sm hover:bg-gray-100 transition border-l-4 border-blue-500"
                             >
-                                {/* Passenger Info */}
-                                <div className="flex items-center space-x-4 mb-3 md:mb-0">
-                                    <img
-                                        src={passenger.passengerProfileImg}
-                                        alt={passenger.passengerName}
-                                        className="w-[4rem] h-[4rem] rounded-full object-cover"
-                                    />
-                                    <div>
-                                        <p className="text-lg font-semibold text-gray-700">
-                                            {t("name")}: {passenger.passengerName}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            {t("collegeName")}: {passenger.passengerCollegeName}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            {t("mobile")}: {passenger.passengerMobile}
-                                        </p>
-                                        <p className="text-sm text-gray-500">
-                                            {t("seats")}: {passenger?.seats}
-                                        </p>
-                                        {passenger?.passengerRating?.rating && (
-                                            <RatingDisplay rating={passenger?.passengerRating?.rating}
-                                                review={passenger?.passengerRating?.review}
-                                            />
-                                        )}
-                                    </div>
-                                </div>
-
-                                {/* Action Buttons */}
-                                <div className="flex items-center justify-end gap-3">
-                                    {/* Chat Button */}
-                                    <ChatBtn label={t("chat")} onClick={() => handleJoinChat(passenger.passengerId)} />
-
-                                    {/* Conditional Ride Buttons */}
-                                    {(ride.driveStatus !== "cancelled" &&
-                                        passenger.driverStatus === "pending" &&
-                                        ride.driverStatus !== "accepted") && (
-                                            <AcceptButton
-                                                label={t("accept")}
-                                                handleClick={() =>
-                                                    handleAcceptRide({
-                                                        passengerId: passenger.passengerId,
-                                                        driveId: ride.driveId,
-                                                    })
-                                                }
-                                            />
-                                        )}
-                                    {(ride.driveStatus !== "cancelled" &&
-                                        passenger.driverStatus === "pending" &&
-                                        ride.driverStatus !== "rejected") && (
-                                            <CancelButton
-                                                label={t("reject")}
-                                                handleClick={() => confirmReject(passenger.passengerId)}
-                                            />
-                                        )}
-                                    {passenger.driverStatus === "accepted" && (
+                                {/* Header with number/icon */}
+                                <div className="flex items-center gap-2 mb-3">
+                                    <span className="text-blue-500 font-bold">{index + 1}.</span>
+                                    <i className="bi bi-person-fill text-gray-400" />
+                                    <span className="font-semibold text-gray-700">{passenger.passengerName}</span>
+                                    {(passenger.driverStatus === "accepted" || passenger.driverStatus === "rejected") && (
                                         <StatusDisplay status={passenger.driverStatus} />
                                     )}
+                                </div>
+
+                                {/* Passenger Info Grid */}
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                                    <div className="flex gap-2">
+                                        <span className="text-sm text-gray-500 font-medium">{t("mobile")}:</span>
+                                        <span className="text-sm text-gray-700">{passenger.passengerMobile}</span>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <span className="text-sm text-gray-500 font-medium">{t("seats")}:</span>
+                                        <span className="text-sm text-gray-700">{passenger.seats}</span>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <span className="text-sm text-gray-500 font-medium">{t("pickup")}:</span>
+                                        <span className="text-sm text-gray-700">{passenger.pickup}</span>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <span className="text-sm text-gray-500 font-medium">{t("amount")}:</span>
+                                        <span className="text-sm text-gray-700 font-semibold">{t("rs")} {passenger.amountRequested}</span>
+                                    </div>
+
+                                    <div className="flex gap-2">
+                                        <span className="text-sm text-gray-500 font-medium">{t("dropoff")}:</span>
+                                        <span className="text-sm text-gray-700">{passenger.dropoff}</span>
+                                    </div>
+
+                                    {passenger?.passengerRating?.rating && (
+                                        <div className="flex justify-between">
+                                            <span className="text-sm text-gray-500 font-medium">{t("rating")}:</span>
+                                            <RatingDisplay
+                                                rating={passenger.passengerRating.rating}
+                                                review={passenger.passengerRating.review}
+                                            />
+                                        </div>
+                                    )}
+                                </div>
+
+                                {/* Buttons */}
+                                <div className="flex flex-col sm:flex-row sm:justify-between gap-2">
+                                    {/* Chat button */}
+                                    {passenger.driverStatus !== "rejected" && (<div className="flex justify-start sm:justify-start">
+                                        <ChatBtn
+                                            label={t("chat")}
+                                            onClick={() => handleJoinChat(passenger.passengerId)}
+                                        />
+                                    </div>)}
+                                    {/* Accept/Reject buttons */}
+                                    <div className="flex gap-2 justify-start sm:justify-end">
+                                        {(ride.driveStatus !== "cancelled" &&
+                                            passenger.driverStatus !== "accepted") && (
+                                                <AcceptButton
+                                                    label={t("accept")}
+                                                    handleClick={() =>
+                                                        handleAcceptRide({
+                                                            passengerId: passenger.passengerId,
+                                                            driveId: ride.driveId,
+                                                        })
+                                                    }
+                                                />
+                                            )}
+                                        {(ride.driveStatus !== "cancelled" &&
+                                            passenger.driverStatus !== "rejected") && (
+                                                <CancelButton
+                                                    label={t("reject")}
+                                                    handleClick={() => confirmReject(passenger.passengerId)}
+                                                />
+                                            )}
+                                    </div>
                                 </div>
                             </div>
                         ))}
@@ -268,7 +297,6 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                 ) : (
                     <p className="text-gray-500">{t("noPassengerRequests")}</p>
                 )}
-
             </div>
             <div className="flex items-center justify-end mt-4 gap-4">
                 {(ride.driveStatus !== "cancelled" && ride.driveStatus !== "completed") &&

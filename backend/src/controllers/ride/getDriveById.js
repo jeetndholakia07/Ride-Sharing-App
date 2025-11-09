@@ -2,16 +2,26 @@ import Drive from "../../models/Drive.js";
 import Ride from "../../models/Ride.js";
 import getProfileImg from "../../crud/getProfileImg.js";
 import UserProfile from "../../models/UserProfile.js";
+import DriverRating from "../../models/DriverRating.js";
 
 const getDriveById = async (req, res) => {
     try {
+        const driverId = req.user.id;
+
+        if (!driverId) {
+            return res.status(400).json({ message: "Driver id not found" });
+        }
         const { driveId } = req.query;
 
         if (!driveId) {
             return res.status(404).json({ message: "Drive id not found" });
         };
 
-        const drive = await Drive.findById(driveId);
+        const drive = await Drive.findById(driveId).populate({
+            path: "vehicleDetails",
+            select: "vehicleDetails -_id",
+            transform: doc => doc?.vehicleDetails,
+        });
 
         if (!drive) {
             return res.status(404).json({ message: "Drive not found" });
@@ -25,13 +35,18 @@ const getDriveById = async (req, res) => {
                 const passengerProfile = await UserProfile.findOne({ user: ride.passenger });
                 const profileImg = await getProfileImg(passengerProfile.profileImg.publicId, passengerProfile.profileImg.format,
                     passengerProfile.profileImg.isUpdated);
+                const userRating = await DriverRating.findOne({ driver: driverId, user: ride.passenger, drive: ride.drive }).select("rating review");
                 return {
                     passenger: ride.passenger,
                     passengerProfileImg: profileImg,
                     requestedAt: ride.requestedAt,
-                    passengerStatus: ride.passengerStatus,
                     rejectedAt: ride.rejectedAt,
-                    driverStatus: ride.driverStatus
+                    driverStatus: ride.driverStatus,
+                    seats: ride.seats,
+                    pickup: ride.from.address,
+                    dropoff: ride.to.address,
+                    amountRequested: ride.amountRequested,
+                    passengerRating: userRating
                 };
             })
         );
@@ -39,8 +54,8 @@ const getDriveById = async (req, res) => {
         const response = {
             driveDetails: {
                 driveId: drive._id,
-                from: drive.from,
-                to: drive.to,
+                from: drive.from.address,
+                to: drive.to.address,
                 departureTime: drive.departureTime,
                 vehicleDetails: drive.vehicleDetails,
                 seatsAvailable: drive.seatsAvailable,

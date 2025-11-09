@@ -31,11 +31,19 @@ const Index = () => {
         seats: 1,
         date: null
     };
-    const { setSeats, setTypeUsage } = getUtilContext();
+    const { setSeats, setTypeUsage, setDropoff, setPickup } = getUtilContext();
 
     const validationSchema = Yup.object().shape({
-        from: Yup.string().required(t("formMessages.fromRequired")),
-        to: Yup.string().required(t("formMessages.toRequired"))
+        from: Yup.object({
+            address: Yup.string().required(t("formMessages.fromRequired")),
+            lat: Yup.number().required(),
+            lng: Yup.number().required(),
+        }).required(t("formMessages.fromRequired")),
+        to: Yup.object({
+            address: Yup.string().required(t("formMessages.toRequired")),
+            lat: Yup.number().required(),
+            lng: Yup.number().required(),
+        }).required(t("formMessages.toRequired")),
     });
 
     useEffect(() => {
@@ -79,6 +87,8 @@ const Index = () => {
         setSubmitting(false);
         const { seats, ...formValues } = values;
         const payload = { ...formValues, seats: Number(seats) };
+        setPickup(values.from);
+        setDropoff(values.to);
         await handleSearchRides(payload);
     };
 

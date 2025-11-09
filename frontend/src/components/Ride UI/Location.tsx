@@ -1,17 +1,24 @@
 import type { FC } from "react";
 
-type props = {
+type Props = {
     from: string;
     to: string;
-}
+    dropoff?: string;
+    isPassenger?: boolean;
+};
 
-const Location: FC<props> = ({ from, to }) => {
+const Location: FC<Props> = ({ from, to, dropoff, isPassenger = false }) => {
     return (
-        <div className="flex md:flex-nowrap flex-wrap items-center space-x-2">
-            <span className="text-lg font-bold text-gray-800">{from}</span>
-            <span className="text-gray-500 text-md font-bold"><i className="bi bi-arrow-right" /></span>
-            <span className="text-lg font-bold text-gray-800">{to}</span>
+        <div className="w-full text-gray-800">
+            <div className="text-lg font-bold">{from} -</div>
+            <div className="text-lg font-bold">{to}</div>
+            {isPassenger && dropoff && (
+                <div className="text-sm text-gray-500 italic mt-1">
+                    Dropoff: {dropoff}
+                </div>
+            )}
         </div>
-    )
-}
+    );
+};
+
 export default Location;

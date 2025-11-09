@@ -6,7 +6,7 @@ const saveVehicle = async (req, res) => {
         if (!driverId) {
             return res.status(400).json({ message: "Driver id not found" });
         };
-        const { vehicleName, vehicleType, vehicleNumber } = req.body;
+        const { vehicleName, vehicleType, vehicleNumber, fuelType, isAc } = req.body;
         if (!vehicleName || !vehicleType || !vehicleNumber) {
             return res.status(400).json({ message: "Please provide vehicle details" });
         }
@@ -18,6 +18,8 @@ const saveVehicle = async (req, res) => {
                         vehicleType,
                         vehicleName,
                         vehicleNumber,
+                        fuelType,
+                        isAc
                     },
                     isSaved: true,
                 },

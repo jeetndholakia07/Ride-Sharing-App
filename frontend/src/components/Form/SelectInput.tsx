@@ -1,4 +1,5 @@
 import { type FC, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 type SelectProps = {
     label: string;
@@ -25,6 +26,7 @@ const SelectInput: FC<SelectProps> = ({
 }) => {
     const [isFocused, setIsFocused] = useState(false);
     const labelFloats = isFocused || value;
+    const { t } = useTranslation();
 
     return (
         <div className="relative w-full mb-2">
@@ -75,7 +77,7 @@ const SelectInput: FC<SelectProps> = ({
 
                 {values.map((item, index) => (
                     <option key={index} value={item}>
-                        {item}
+                        {t(item)}
                     </option>
                 ))}
             </select>

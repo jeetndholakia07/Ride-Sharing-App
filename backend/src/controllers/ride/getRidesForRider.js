@@ -4,6 +4,7 @@ import UserProfile from "../../models/UserProfile.js";
 import getProfileImg from "../../crud/getProfileImg.js";
 import DriverStat from "../../models/DriverStat.js";
 import DriverRating from "../../models/DriverRating.js";
+import Vehicle from "../../models/Vehicle.js";
 
 const getRidesForRider = async (req, res) => {
     try {
@@ -68,6 +69,7 @@ const getRidesForRider = async (req, res) => {
                     path: "driver",
                     select: "username mobile",
                 },
+                select: "departureTime driveStatus estimatedTimeMin specialNote from to"
             })
             .sort({ createdAt: -1 })
             .skip(skip)
@@ -87,13 +89,34 @@ const getRidesForRider = async (req, res) => {
                         driverProfile.profileImg.format,
                         driverProfile.profileImg.isUpdated
                     );
-                };
+                }
 
                 const driverStat = await DriverStat.findOne({ driver: drive.driver });
-                const userRating = await DriverRating.findOne({ driver: drive.driver, user: passengerId, drive: drive }).select("rating review");
+                const userRating = await DriverRating.findOne({
+                    driver: drive.driver,
+                    user: passengerId,
+                    drive: drive._id
+                }).select("rating review");
                 const averageRating = driverStat?.averageRating ?? null;
+                const vehicle = await Vehicle.findOne({ driver: drive.driver });
+
+                const { from: driveFromObj, to: driveToObj, ...driveRest } = drive.toObject();
+                const updatedDrive = {
+                    ...driveRest,
+                    driveFrom: driveFromObj?.address,
+                    driveTo: driveToObj?.address,
+                    vehicleDetails: vehicle.vehicleDetails
+                };
+                const { from: rideFromObj, to: rideToObj, ...rideRest } = ride.toObject();
+                const updatedRide = {
+                    ...rideRest,
+                    rideFrom: rideFromObj?.address,
+                    rideTo: rideToObj?.address,
+                    drive: updatedDrive
+                };
+
                 return {
-                    ride,
+                    ride: updatedRide,
                     driverProfileImg: profileImg,
                     driverRating: averageRating,
                     userRating: userRating

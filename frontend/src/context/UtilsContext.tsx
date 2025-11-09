@@ -7,6 +7,10 @@ interface UtilContextProps {
     setTypeUsage: (type: typeUsage) => void;
     seats: number;
     setSeats: (seat: number) => void;
+    pickup: any;
+    setPickup: (pickup: any) => void;
+    dropoff: any;
+    setDropoff: (dropoff: any) => void;
 }
 
 interface UtilContextProvider {
@@ -26,9 +30,11 @@ export const getUtilContext = () => {
 export const UtilContextProvider: FC<UtilContextProvider> = ({ children }) => {
     const [typeUsage, setTypeUsage] = useState<typeUsage>("ride request");
     const [seats, setSeats] = useState<number>(1);
+    const [pickup, setPickup] = useState<any>(null);
+    const [dropoff, setDropoff] = useState<any>(null);
 
     return (
-        <UtilContext.Provider value={{ typeUsage, setTypeUsage, seats, setSeats }}>
+        <UtilContext.Provider value={{ typeUsage, setTypeUsage, seats, setSeats, pickup, setPickup, dropoff, setDropoff }}>
             {children}
         </UtilContext.Provider>
     )
