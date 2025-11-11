@@ -28,6 +28,11 @@ const getRides = async (req, res) => {
 
         const drives = await Drive.find(query)
             .populate("driver", "username")
+            .populate({
+                path: "vehicleDetails",
+                select: "vehicleDetails -_id",
+                transform: doc => doc?.vehicleDetails,
+            })
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);

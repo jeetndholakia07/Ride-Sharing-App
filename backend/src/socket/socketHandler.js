@@ -1,13 +1,10 @@
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
-import { v4 as uuidv4 } from "uuid";
 import jwt from "jsonwebtoken";
 
-// Track online users
 const onlineUsers = new Map();
 
 const socketHandler = (io) => {
-  // ---- AUTHENTICATION ----
   io.use((socket, next) => {
     try {
       const token = socket.handshake.auth?.token;
@@ -15,94 +12,77 @@ const socketHandler = (io) => {
 
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       socket.userId = payload.id;
+
+      console.log(`[AUTH] Socket authenticated: userId=${payload.id}`);
       next();
     } catch (err) {
-      console.error("Socket authentication failed:", err.message);
+      console.error("[AUTH ERROR]", err.message);
       next(new Error("Authentication error"));
     }
   });
 
-  // ---- CONNECTION ----
-  io.on("connection", async (socket) => {
+  io.on("connection", (socket) => {
     const userId = socket.userId;
-    console.log(`User connected: ${userId}, socketId: ${socket.id}`);
+    console.log(`[CONNECTED] userId=${userId}, socketId=${socket.id}`);
 
-    // Track socket
     if (!onlineUsers.has(userId)) onlineUsers.set(userId, new Set());
     onlineUsers.get(userId).add(socket.id);
-
-    // Join personal room for this user
     socket.join(userId);
 
-    // If first socket for this user -> broadcast online
-    if (onlineUsers.get(userId).size === 1) {
-      await broadcastOnlineStatus(io, userId, true);
-    }
-
-    // ---- JOIN ROOM ----
     socket.on("joinRoom", async ({ roomId }) => {
-      try {
-        const senderId = socket.userId;
+      console.log(`[JOIN ROOM] userId=${userId} joining roomId=${roomId}`);
+      socket.join(roomId);
 
-        socket.join(roomId);
-        console.log(`User ${senderId} joined room ${roomId}`);
-
-        // ---- Notify everyone in the room that this user joined ----
-        socket.to(roomId).emit("roomJoined", { userId: senderId });
-
-        // ---- Send the online status of all users already in the room to this user ----
-        const socketsInRoom = await io.in(roomId).fetchSockets();
-        const existingUsers = new Set();
-        socketsInRoom.forEach((s) => {
-          if (s.userId !== senderId && !existingUsers.has(s.userId)) {
-            existingUsers.add(s.userId);
-            socket.emit("onlineStatus", { userId: s.userId, isOnline: true });
-          }
-        });
-
-        // ---- Also broadcast that this user is online to everyone in the room ----
-        socket.to(roomId).emit("onlineStatus", { userId: senderId, isOnline: true });
-      } catch (err) {
-        console.error("Error joining room:", err);
-        socket.emit("error", "Unable to join room");
-      }
-    });
-
-    // ---- SEND MESSAGE ----
-    socket.on("sendMessage", async ({ roomId, content, tempId }) => {
-      try {
-        const senderId = socket.userId;
-        const chat = await Chat.findOne({ roomId });
-        if (!chat) return socket.emit("error", "Chat not found");
-
-        const newMessage = {
-          tempId: tempId,
-          content,
-          senderId,
-          isRead: false,
-          createdAt: new Date()
-        };
-
-        let savedMessage;
-        let messageDoc = await Message.findOne({ chat: chat._id });
-        if (messageDoc) {
-          messageDoc.messages.push(newMessage);
-          savedMessage = messageDoc.messages[messageDoc.messages.length - 1];
-          await messageDoc.save();
-        } else {
-          messageDoc = await Message.create({ chat: chat._id, messages: [newMessage] });
-          savedMessage = messageDoc.messages[messageDoc.messages.length - 1];
+      const socketsInRoom = await io.in(roomId).fetchSockets();
+      const userIds = socketsInRoom.map((s) => s.userId);
+      console.log(`Users currently in room ${roomId}:`, userIds);
+      // ---- Notify everyone in the room that this user joined ----
+      socket.to(roomId).emit("roomJoined", { userId: userId });
+      // ---- Send the online status of all users already in the room to this user ----
+      const existingUsers = new Set();
+      socketsInRoom.forEach((s) => {
+        if (s.userId !== userId && !existingUsers.has(s.userId)) {
+          existingUsers.add(s.userId);
+          socket.emit("onlineStatus", { userId: s.userId, isOnline: true });
         }
+      });
 
-        // Send message
-        io.to(roomId).emit("newMessage", { roomId, message: savedMessage, tempId });
-      } catch (err) {
-        console.error("Error sending message:", err);
-        socket.emit("error", "Failed to send message");
-      }
+      // ---- Also broadcast that this user is online to everyone in the room ----
+      socket.to(roomId).emit("onlineStatus", { userId: userId, isOnline: true });
     });
 
-    // ---- TYPING ----
+    socket.on("sendMessage", async ({ roomId, content, tempId }) => {
+      console.log(`[SEND MESSAGE] from userId=${userId} to roomId=${roomId}`);
+      console.log(`content="${content}", tempId=${tempId}`);
+
+      const chat = await Chat.findOne({ roomId });
+      if (!chat) {
+        console.warn(`Chat not found for roomId=${roomId}`);
+        return socket.emit("error", "Chat not found");
+      }
+
+      const message = {
+        tempId,
+        content,
+        senderId: userId,
+        isRead: false,
+        createdAt: new Date(),
+      };
+
+      let msgDoc = await Message.findOne({ chat: chat._id });
+      if (!msgDoc) {
+        msgDoc = await Message.create({ chat: chat._id, messages: [message] });
+      } else {
+        msgDoc.messages.push(message);
+        await msgDoc.save();
+      }
+
+      const savedMessage = msgDoc.messages[msgDoc.messages.length - 1];
+      io.to(roomId).emit("newMessage", { roomId, message: savedMessage, tempId });
+
+      console.log(`[MESSAGE STORED] chatId=${chat._id}, messageId=${savedMessage._id}`);
+    });
+
     socket.on("typing", ({ roomId, isTyping }) => {
       socket.to(roomId).emit("typingStatus", {
         senderId: socket.userId,
@@ -147,8 +127,6 @@ const socketHandler = (io) => {
       }
     });
 
-
-    // ---- GET ONLINE STATUSES ----
     socket.on("getOnlineStatuses", () => {
       try {
         const statuses = {};
@@ -163,7 +141,6 @@ const socketHandler = (io) => {
       }
     });
 
-    // ---- LEAVE ROOM ----
     socket.on("leaveRoom", ({ roomId }) => {
       socket.leave(roomId);
       console.log(`User ${socket.userId} left room ${roomId}`);
@@ -202,7 +179,6 @@ const socketHandler = (io) => {
       }
     });
 
-    // ---- DISCONNECT ----
     socket.on("disconnect", async () => {
       const sockets = onlineUsers.get(userId);
       if (sockets) {
@@ -212,30 +188,29 @@ const socketHandler = (io) => {
           await broadcastOnlineStatus(io, userId, false);
         }
       }
-      console.log(`User disconnected: ${userId}`);
+      console.log(`[DISCONNECT] userId=${userId}, socketId=${socket.id}`);
     });
   });
-};
 
-// ---- BROADCAST ONLINE STATUS ----
-async function broadcastOnlineStatus(io, userId, isOnline) {
-  try {
-    // Emit to all chats involving this user
-    const chats = await Chat.find({
-      $or: [{ sender: userId }, { receiver: userId }],
-    });
+  // ---- BROADCAST ONLINE STATUS ----
+  async function broadcastOnlineStatus(io, userId, isOnline) {
+    try {
+      // Emit to all chats involving this user
+      const chats = await Chat.find({
+        $or: [{ sender: userId }, { receiver: userId }],
+      });
 
-    chats.forEach((chat) => {
-      io.to(chat.roomId).emit("onlineStatus", { userId, isOnline });
-    });
+      chats.forEach((chat) => {
+        io.to(chat.roomId).emit("onlineStatus", { userId, isOnline });
+      });
 
-    // Also emit to the user's personal room
-    io.to(userId).emit("onlineStatus", { userId, isOnline });
+      // Also emit to the user's personal room
+      io.to(userId).emit("onlineStatus", { userId, isOnline });
 
-  } catch (err) {
-    console.error("Error broadcasting online status:", err);
+    } catch (err) {
+      console.error("Error broadcasting online status:", err);
+    }
   }
-}
-
+};
 
 export default socketHandler;

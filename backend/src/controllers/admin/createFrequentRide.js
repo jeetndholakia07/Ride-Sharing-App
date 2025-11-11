@@ -43,14 +43,14 @@ const createFrequentRide = async (req, res) => {
 
         await FrequentRide.create({
             from: {
-                address: from,
+                address: from.address,
                 location: {
                     type: "Point",
                     coordinates: [fromCoords.lng, fromCoords.lat] // [longitude, latitude]
                 }
             },
             to: {
-                address: to,
+                address: to.address,
                 location: {
                     type: "Point",
                     coordinates: [toCoords.lng, toCoords.lat]

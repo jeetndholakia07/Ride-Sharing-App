@@ -33,6 +33,7 @@ export async function findRidesByLocation({
       select: "vehicleDetails -_id",
       transform: doc => doc?.vehicleDetails,
     })
+    .lean()
     .sort({ departureTime: 1 })
     .skip(skip)
     .limit(limit);
@@ -78,6 +79,7 @@ export async function findRidesByLocation({
       select: "vehicleDetails -_id",
       transform: doc => doc?.vehicleDetails,
     })
+    .lean()
     .sort({ departureTime: 1 })
     .cursor();
 

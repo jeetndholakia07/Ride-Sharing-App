@@ -55,10 +55,17 @@ const ChatWindow: FC<ChatProps> = ({ chat, previousMessages, height = "500px", o
     };
 
     const handleSend = async () => {
-        if (!socket || !newMessage.trim()) return;
+        if (!socket?.connected) {
+            console.warn("Socket not connected, cannot send message");
+            return;
+        }
+        if (!newMessage.trim()) {
+            console.warn("Empty message, ignoring send");
+            return;
+        }
 
-        const tempId = `temp-${new Date().getTime()}`;
-        const optimisticMessage = {
+        const tempId = `temp-${Date.now()}`;
+        const optimistic = {
             tempId,
             content: newMessage.trim(),
             senderId: chat.user.id,
@@ -66,16 +73,16 @@ const ChatWindow: FC<ChatProps> = ({ chat, previousMessages, height = "500px", o
             isRead: false,
         };
 
-        setMessages((prev) => [...prev, optimisticMessage]);
+        setMessages((prev) => [...prev, optimistic]);
         setNewMessage("");
-        emitTypingStatus(false);
 
         socket.emit("sendMessage", {
             roomId: chat.roomId,
-            content: optimisticMessage.content,
+            content: optimistic.content,
             tempId,
         });
     };
+
 
     const handleKeyDown = (e: any) => {
         if (e.key === "Enter" && !e.shiftKey) {
@@ -108,7 +115,6 @@ const ChatWindow: FC<ChatProps> = ({ chat, previousMessages, height = "500px", o
         if (!socket) return;
 
         socket.emit("joinRoom", { roomId: chat.roomId });
-
         socket.emit("updateOnlineStatus", { isOnline: true });
 
         const handleRoomJoined = ({ userId }: { userId: string }) => {
@@ -162,12 +168,17 @@ const ChatWindow: FC<ChatProps> = ({ chat, previousMessages, height = "500px", o
             }
         };
 
+        const handleError = (msg: any) => {
+            console.error("[SOCKET ERROR]", msg);
+        };
+
         socket.on("newMessage", handleNewMessage);
         socket.on("typingStatus", handleTypingStatus);
         socket.on("messagesRead", handleMessagesRead);
         socket.on("onlineStatus", handleOnlineStatus);
         socket.on("roomJoined", handleRoomJoined);
         socket.on("roomLeft", handleRoomLeft);
+        socket.on("error", handleError);
 
         return () => {
             socket.emit("updateOnlineStatus", { isOnline: false });
@@ -177,6 +188,7 @@ const ChatWindow: FC<ChatProps> = ({ chat, previousMessages, height = "500px", o
             socket.off("messagesRead", handleMessagesRead);
             socket.off("roomJoined", handleRoomJoined);
             socket.off("roomLeft", handleRoomLeft);
+            socket.off("error", handleError);
         };
     }, [socket, chat.roomId]);
 

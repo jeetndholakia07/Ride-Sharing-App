@@ -23,7 +23,7 @@ const getRideById = async (req, res) => {
             path: "drive",
             populate: {
                 path: "driver",
-                select: "username mobile"
+                select: "username mobile",
             },
             select: "departureTime driveStatus estimatedTimeMin specialNote from to"
         });
@@ -32,7 +32,7 @@ const getRideById = async (req, res) => {
             return res.status(404).json({ message: "Ride not found" });
         }
 
-        const drive = await Drive.findById(ride.drive);
+        const drive = ride.drive;
         if (!drive) {
             return res.status(404).json({ message: "Associated drive not found" });
         }

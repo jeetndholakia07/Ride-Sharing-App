@@ -7,8 +7,8 @@ type Props = {
 
 const FrequentRides: FC<Props> = ({ rides, setFieldValue }) => {
     const handleClick = (ride: any) => {
-        setFieldValue("from", ride.from);
-        setFieldValue("to", ride.to);
+        setFieldValue("from", ride.from.address);
+        setFieldValue("to", ride.to.address);
     };
 
     return (

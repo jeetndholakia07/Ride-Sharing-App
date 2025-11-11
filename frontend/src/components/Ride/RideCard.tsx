@@ -1,4 +1,4 @@
-import { useState, type FC } from "react";
+import { type FC } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router";
 import RideRequestBtn from "../Buttons/RideRequestBtn";
@@ -23,6 +23,8 @@ import StatusDisplay from "../Ride UI/StatusDisplay";
 import axiosInstance from "../../hooks/axiosInstance";
 import useMediaQuery from "../../hooks/useMediaQuery";
 import { getRoleBasedProps } from "../../utils/getRoleBasedProps";
+import ACDisplay from "../Ride UI/ACDisplay";
+import FuelTypeDisplay from "../Ride UI/FuelType";
 
 type props = {
     data: any;
@@ -37,7 +39,6 @@ const RideCard: FC<props> = ({ data }) => {
     const { showToast } = useToast();
     const { role } = useRole();
     const { seats, typeUsage, pickup, dropoff } = getUtilContext();
-    const [price, setPrice] = useState<any>();
     const isMedium = useMediaQuery("(min-width: 768px)");
 
     const { price: ridePrice, status: rideStatus, seats: rideSeats, isDriver, isPassenger } = getRoleBasedProps(role, ride);
@@ -64,7 +65,6 @@ const RideCard: FC<props> = ({ data }) => {
                 isAc: ride.isAc
             };
             const response = await axiosInstance.post(api.public.ridePrice, payload);
-            setPrice(response.data);
             return response.data;
         } catch (err) {
             console.error("Error getting ride price:", err);
@@ -87,7 +87,7 @@ const RideCard: FC<props> = ({ data }) => {
                 t("confirmRide"),
                 "",
                 t("confirm"),
-                handleRequestRide,
+                () => handleRequestRide(priceData.pricePerPerson),
                 undefined,
                 undefined,
                 {
@@ -103,7 +103,7 @@ const RideCard: FC<props> = ({ data }) => {
         }
     };
 
-    const handleRequestRide = async () => {
+    const handleRequestRide = async (price: any) => {
         try {
             const response = await handleCheckRide();
             if (response === null) {
@@ -115,7 +115,7 @@ const RideCard: FC<props> = ({ data }) => {
                 seats: seats,
                 from: pickup,
                 to: dropoff,
-                price: price.pricePerPerson
+                price: price
             });
             showToast("success", t("messages.rideCreatedSuccess"));
             navigate("/profile/rides");
@@ -126,17 +126,22 @@ const RideCard: FC<props> = ({ data }) => {
 
     const handleView = () => {
         const id = role === "passenger" ? ride.rideId : ride.driveId;
-        navigate(`/profile/rides/${id}`, { state: { data: data } });
+        navigate(`/profile/rides/${id}`, { state: { linkId: id } });
     };
 
     return (
         <div className="bg-white max-w-md rounded-xl shadow-lg overflow-hidden mx-auto">
             <div className="flex flex-col md:flex-row">
-                <div className="flex-shrink-0 flex items-center justify-center md:w-28 md:pl-4 md:pr-6 border-b md:border-b-0 md:border-r border-gray-200 py-4 md:py-0">
+                <div className="flex-shrink-0 flex flex-col items-center justify-center md:w-28 md:pl-4 md:pr-6 border-b md:border-b-0 md:border-r border-gray-200 py-4 md:py-0">
                     <VehicleImage vehicleType={ride.vehicleType} />
+                    <div className="mt-3 flex flex-col items-center space-y-1">
+                        <ACDisplay isAc={ride.isAc} />
+                        <FuelTypeDisplay fuelType={ride.fuelType} />
+                    </div>
                 </div>
 
                 <div className="flex-1 flex flex-col p-4 space-y-3">
+                    {/* Add AC and FuelType display here */}
                     <Location from={ride.from} to={ride.to} isPassenger={isPassenger} dropoff={ride.dropoff} />
                     <Departure departureTime={ride.departureTime} />
 

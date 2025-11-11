@@ -26,17 +26,13 @@ type driveProps = {
 
 const DriveDetails: FC<driveProps> = ({ linkId }) => {
     const location = useLocation();
-    const initialData = location.state?.data;  // Data passed via state
-    const linkIdFromState = initialData?.driveId;  // Fallback ID from state
-    const linkIdToUse = linkId || linkIdFromState; // Final ID to use (from state or URL)
-
-    const hasInitialData = Boolean(initialData);  // Check if initialData is available
-    const shouldFetch = !hasInitialData && Boolean(linkId);
-
     const navigate = useNavigate();
     const { t } = useTranslation();
     const { showToast } = useToast();
     const { openModal } = useConfirmModal();
+
+    const linkIdFromState = location.state?.data?.driveId;  // If data is passed via location state
+    const linkIdToUse = linkId || linkIdFromState;  // Use either the linkId prop or linkIdFromState
 
     const fetchDrive = async () => {
         try {
@@ -49,25 +45,22 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         }
     };
 
-    const { data: ride, isLoading, isError, refetch } = useQuery({
+    const { data: ride, isLoading, isError } = useQuery({
         queryKey: ["ride", linkIdToUse],
         queryFn: fetchDrive,
         refetchOnWindowFocus: false,
-        initialData: hasInitialData ? initialData : undefined,  // Use initialData if passed
-        enabled: shouldFetch,  // Fetch only if shouldFetch is true
+        enabled: Boolean(linkIdToUse), // Ensure it only fetches if a valid linkId exists
         retry: false,
-        select: shouldFetch ? (data: any) => data && ridesForDriverMap(data) : undefined,
+        select: (data: any) => data && ridesForDriverMap(data),  // Apply transformation if needed
     });
 
     if (isLoading) return <PageLoader />;
-
     if (!ride || isError) return <NotFound />;
 
     const handleAcceptRide = async (payload: any) => {
         try {
             await apiInterceptor.put(api.ride.acceptRide, payload);
             showToast("success", t("messages.acceptRideSuccess"));
-            refetch();
             navigate("/profile/rides");
         }
         catch (err) {
@@ -83,7 +76,6 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         try {
             await apiInterceptor.put(api.ride.cancelRide, { driveId: ride.driveId });
             showToast("success", t("messages.cancelRideSuccess"));
-            refetch();
             navigate("/profile/rides");
         }
         catch (err) {
@@ -99,7 +91,6 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
         try {
             await apiInterceptor.put(api.ride.completeRide, { driveId: ride.driveId });
             showToast("success", t("messages.completeRideSuccess"));
-            refetch();
             navigate("/profile/rides");
         }
         catch (err) {
@@ -116,7 +107,6 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
             await apiInterceptor.put(api.ride.rejectRide, { driveId: ride.driveId, passengerId: passengerId });
             showToast("success", t("messages.rejectRideSuccess"));
             navigate("/profile/rides");
-            refetch();
         }
         catch (err) {
             console.error("Error rejecting ride:", err);
@@ -270,7 +260,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                                     </div>)}
                                     {/* Accept/Reject buttons */}
                                     <div className="flex gap-2 justify-start sm:justify-end">
-                                        {(ride.driveStatus !== "cancelled" &&
+                                        {(ride.driveStatus !== "cancelled" && passenger.driverStatus !== "rejected" &&
                                             passenger.driverStatus !== "accepted") && (
                                                 <AcceptButton
                                                     label={t("accept")}
@@ -283,7 +273,7 @@ const DriveDetails: FC<driveProps> = ({ linkId }) => {
                                                 />
                                             )}
                                         {(ride.driveStatus !== "cancelled" &&
-                                            passenger.driverStatus !== "rejected") && (
+                                            passenger.driverStatus !== "accepted" && passenger.driverStatus !== "rejected") && (
                                                 <CancelButton
                                                     label={t("reject")}
                                                     handleClick={() => confirmReject(passenger.passengerId)}

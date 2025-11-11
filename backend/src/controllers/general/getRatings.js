@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Rating from "../../models/Rating.js";
 import UserProfile from "../../models/UserProfile.js";
 import getProfileImg from "../../crud/getProfileImg.js";
@@ -6,81 +7,63 @@ const getRatings = async (req, res) => {
     try {
         const { page = 1, limit = 5 } = req.query;
         const skip = (page - 1) * limit;
-        const totalRatings = await Rating.countDocuments();
+        const userId = req.user?.id
 
-        //Check if the user is logged in
-        const userId = req.user ? req.user.id : null;
-
-        //Find the user's rating if it exists
-        let userRating = null;
-        if (userId) {
-            userRating = await Rating.findOne({ user: userId });
-        };
-
-        let ratingsQuery = Rating.find().populate("user", "username role _id")
+        const ratings = await Rating.find()
+            .populate("user", "username role _id")
             .sort({ createdAt: -1 })
             .skip(skip)
             .limit(limit);
 
-        if (userId) {
-            ratingsQuery = ratingsQuery.where("user").ne(userId);
-        }
+        const totalRatings = await Rating.countDocuments();
 
-        //Get the ratings
-        const ratings = await ratingsQuery;
+        const formattedRatings = await Promise.all(
+            ratings.map(async (ratingDoc) => {
+                const profile = await UserProfile.findOne({ user: ratingDoc.user._id });
+                const profileImg = profile
+                    ? await getProfileImg(
+                        profile.profileImg.publicId,
+                        profile.profileImg.format,
+                        profile.profileImg.isUpdated
+                    )
+                    : null;
 
-        const allRatings = await Promise.all(
-            ratings.map(async (rating) => {
-                const profile = await UserProfile.findOne({ user: rating.user._id });
-                const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.profileImg.isUpdated);
+                const isUserRating =
+                    userId &&
+                    ratingDoc.user._id.toString() === userId.toString();
+
                 return {
-                    rating: rating.rating,
-                    review: rating.review,
-                    updatedAt: rating.updatedAt,
+                    rating: ratingDoc.rating,
+                    review: ratingDoc.review,
+                    updatedAt: ratingDoc.updatedAt,
+                    isUserRating,
                     user: {
-                        userId: rating.user._id,
-                        username: rating.user.username,
-                        role: rating.user.role,
-                        profileImg: profileImg
-                    }
-                }
+                        userId: ratingDoc.user._id,
+                        username: ratingDoc.user.username,
+                        role: ratingDoc.user.role,
+                        profileImg,
+                    },
+                };
             })
         );
 
-        //If logged-in user, add it to the response
-        if (userId && userRating) {
-            const profile = await UserProfile.findOne({ user: userId });
-            const profileImg = await getProfileImg(profile.profileImg.publicId, profile.profileImg.format, profile.profileImg.isUpdated);
-
-            const rating = {
-                rating: userRating.rating,
-                review: userRating.review,
-                updatedAt: userRating.updatedAt,
-                user: {
-                    userId: userId,
-                    username: req.user.username,
-                    role: req.user.role,
-                    profileImg: profileImg
-                }
-            };
-
-            //Add the user's rating to all ratings
-            allRatings.unshift(rating);
-        }
+        const sortedRatings = userId
+            ? formattedRatings.sort((a, b) => (a.isUserRating === b.isUserRating ? 0 : a.isUserRating ? -1 : 1))
+            : formattedRatings;
 
         const totalPages = Math.ceil(totalRatings / limit);
-        const response = {
-            page,
-            limit,
+
+        res.status(200).json({
+            page: Number(page),
+            limit: Number(limit),
             totalItems: totalRatings,
             totalPages,
-            data: allRatings
-        }
-        res.status(200).json(response);
-    }
-    catch (err) {
+            data: sortedRatings,
+        });
+    } catch (err) {
         console.error("Error getting ratings:", err);
-        res.status(500).send();
+        res.status(500).json({ message: "Server error" });
     }
-}
+};
+
 export default getRatings;

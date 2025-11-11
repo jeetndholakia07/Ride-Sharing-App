@@ -2,29 +2,35 @@ import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 
 const optionalAuth = async (req, res, next) => {
-    let token = req.header("Authorization");
-    //If token exists, parse and check for authentication
-    if (token) {
-        try {
-            token = token.replace("Bearer ", "");
+    try {
+        let token = req.header("Authorization");
+
+        if (token) {
+            token = token.replace("Bearer ", "").trim();
+
+            // Verify the token
             const decoded = jwt.verify(token, process.env.JWT_SECRET);
-            const id = decoded.id;
-            const user = await User.findById(id);
-            if (!user) {
-                return res.status(401).json({ message: "Invalid username or token provided" });
+            if (!decoded?.id) {
+                return res.status(401).json({ message: "Invalid token payload" });
             }
+
+            const user = await User.findById(decoded.id);
+            if (!user) {
+                return res.status(401).json({ message: "User not found" });
+            }
+
             req.user = {
                 id: user.id,
                 role: user.role,
                 username: user.username
             };
         }
-        catch (err) {
-            console.error("Error verifying user:", err);
-            res.status(401).json({ message: "Invalid or expired token" });
-        }
+
+        next();
+    } catch (err) {
+        console.error("Error verifying user:", err.message);
+        next();
     }
-    //Else, continue
-    next();
-}
+};
+
 export default optionalAuth;

@@ -27,16 +27,12 @@ type rideProps = {
 
 const RideDetails: FC<rideProps> = ({ linkId }) => {
     const location = useLocation();
-    const initialData = location.state?.data;  // Data passed via state
-    const linkIdFromState = initialData?.driveId;  // Fallback ID from state
-    const linkIdToUse = linkId || linkIdFromState; // Final ID to use (from state or URL)
-    
-    const hasInitialData = Boolean(initialData);  // Check if initialData is available
-    const shouldFetch = !hasInitialData && Boolean(linkId);  // Fetch only if initialData is not available
-    
-    const { showToast } = useToast();
     const navigate = useNavigate();
     const { t } = useTranslation();
+    const { showToast } = useToast();
+
+    const linkIdFromState = location.state?.data?.driveId;  // If data is passed via location state
+    const linkIdToUse = linkId || linkIdFromState;   // Fetch only if initialData is not available
 
     const fetchRide = async () => {
         try {
@@ -49,16 +45,17 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
         }
     };
 
-    
     const { data: ride, isLoading, isError } = useQuery({
         queryKey: ["ride", linkIdToUse],
         queryFn: fetchRide,
         refetchOnWindowFocus: false,
-        initialData: hasInitialData ? initialData : undefined,  // Use initialData if passed
-        enabled: shouldFetch,  // Fetch only if shouldFetch is true
+        enabled: Boolean(linkIdToUse), // Ensure it only fetches if a valid linkId exists
         retry: false,
-        select: shouldFetch ? (data: any) => data && ridesForPassengerMap(data) : undefined,
+        select: (data: any) => data && ridesForPassengerMap(data),  // Apply transformation if needed
     });
+
+    if (isLoading) return <PageLoader />;
+    if (!ride || isError) return <NotFound />;
 
     const fetchUserChat = async (roomId: string) => {
         try {
@@ -89,10 +86,6 @@ const RideDetails: FC<rideProps> = ({ linkId }) => {
         const userChat = await fetchUserChat(roomId);
         navigate(`/profile/chats/${roomId}`, { state: { data: userChat } });
     };
-
-    if (isLoading) return <PageLoader />;
-
-    if (!ride || isError) return <NotFound />;
 
     return (
         <div className="max-w-4xl mx-auto p-8 bg-white rounded-2xl shadow-lg border border-gray-200">

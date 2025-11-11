@@ -31,8 +31,12 @@ const RideSearch: FC<Props> = ({
     const { t } = useTranslation();
 
     const handleReverse = () => {
-        setFieldValue("from", values.to);
-        setFieldValue("to", values.from);
+        if (!values.from && !values.to) return;
+        const fromValue = values.from ? { ...values.from } : null;
+        const toValue = values.to ? { ...values.to } : null;
+
+        setFieldValue("from", toValue);
+        setFieldValue("to", fromValue);
     };
 
     return (
@@ -55,9 +59,9 @@ const RideSearch: FC<Props> = ({
             </div>
 
             {/* REVERSE BUTTON */}
-            <div className="flex items-stretch justify-center">
+            {/* <div className="flex items-stretch justify-center">
                 <ReverseBtn handleClick={handleReverse} />
-            </div>
+            </div> */}
 
             {/* TO */}
             <div className="flex-1">

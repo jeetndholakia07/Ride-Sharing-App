@@ -126,7 +126,6 @@ const Index = () => {
 
                             return (
                                 <form onSubmit={handleSubmit}>
-                                    <FrequentRides rides={frequentRides} setFieldValue={setFieldValue} />
                                     <RideSearch values={values} onChange={handleChange} onBlur={handleBlur}
                                         errors={errors} touched={touched} setFieldValue={setFieldValue}
                                         handleDateChange={handleDateChange} handleSelectChange={handleSelectChange}

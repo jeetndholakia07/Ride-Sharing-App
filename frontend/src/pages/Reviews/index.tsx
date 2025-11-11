@@ -1,4 +1,4 @@
-import { lazy, useEffect, useState, useMemo } from 'react';
+import { lazy, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiInterceptor from '../../hooks/apiInterceptor';
 import axiosInstance from "../../hooks/axiosInstance";
@@ -10,13 +10,11 @@ const ReviewDisplay = lazy(() => import("./ReviewDisplay"));
 import WithSuspense from '../../components/Loading/WithSuspense';
 import useAuth from '../../hooks/useAuth';
 import PageLoader from '../../components/Loading/PageLoader';
-import { findUserId } from '../../IndexedDB/tokens';
 import RenderUserReview from './RenderUserReview';
 
 const ReviewSection = () => {
     const { t } = useTranslation();
     const { isAuthenticated, loading } = useAuth();
-    const [userId, setUserId] = useState<string | null>(null);
     const [isEdit, setIsEdit] = useState(false);
 
     const getReviews = async () => {
@@ -26,7 +24,7 @@ const ReviewSection = () => {
             return response.data.data;
         } catch (err) {
             console.error("Error fetching all reviews:", err);
-            return null;
+            return [];
         }
     };
 
@@ -34,40 +32,20 @@ const ReviewSection = () => {
         queryKey: ["allReviews"],
         queryFn: getReviews,
         refetchOnWindowFocus: false,
-        retry: false
+        retry: false,
     });
 
-    // Extract user review (if authenticated and it matches)
+    // Extract the user's own review from the array using isUserRating
     const userReview = useMemo(() => {
-        if (!isAuthenticated || !userId || !Array.isArray(reviews)) return null;
+        if (!Array.isArray(reviews)) return null;
+        return reviews.find((r: any) => r.isUserRating === true) || null;
+    }, [reviews]);
 
-        const firstReview = reviews[0];
-        const reviewUserId = firstReview?.user?.userId;
-
-        const isMatch = reviewUserId?.toString() === userId?.toString();
-
-        return isMatch ? firstReview : null;
-    }, [isAuthenticated, userId, reviews]);
-
-
-    // Filter out the user review if it exists
-    const filteredReviews = useMemo(() => {
-        return userReview
-            ? reviews.filter((review: any) => review.user.userId !== userId)
-            : reviews;
-    }, [reviews, userReview, userId]);
-
-    useEffect(() => {
-        const fetchUserId = async () => {
-            if (isAuthenticated) {
-                const id = await findUserId();
-                setUserId(id);
-            } else {
-                setUserId(null);
-            }
-        };
-        fetchUserId();
-    }, [isAuthenticated]);
+    // Filter out the user's review for the general reviews section
+    const otherReviews = useMemo(() => {
+        if (!Array.isArray(reviews)) return [];
+        return reviews.filter((r: any) => !r.isUserRating);
+    }, [reviews]);
 
     const renderSkeleton = (
         <>
@@ -83,13 +61,13 @@ const ReviewSection = () => {
         return <PageLoader />;
     }
 
-    if (!reviews || (isAuthenticated && userId === null)) {
+    if (!reviews) {
         return renderSkeleton;
     }
 
     return (
         <div className="p-6 bg-gray-50 min-h-screen">
-            {/* Your Review Section */}
+            {/* User Review Section */}
             <RenderUserReview
                 userReview={userReview}
                 isEdit={isEdit}
@@ -97,19 +75,19 @@ const ReviewSection = () => {
                 onCancel={handleCancel}
             />
 
-            {/* All Other Reviews Section */}
+            {/* All Other Reviews */}
             <WithSuspense
-                data={filteredReviews}
+                data={otherReviews}
                 fallback={renderSkeleton}
                 empty={<NotFoundReview />}
                 isLoading={false}
             >
-                {filteredReviews && filteredReviews.length > 0 && (
-                    <ReviewDisplay reviews={filteredReviews} heading={t("userReview")} />
+                {otherReviews.length > 0 && (
+                    <ReviewDisplay reviews={otherReviews} heading={t("userReview")} />
                 )}
             </WithSuspense>
         </div>
-    )
-}
+    );
+};
 
 export default ReviewSection;

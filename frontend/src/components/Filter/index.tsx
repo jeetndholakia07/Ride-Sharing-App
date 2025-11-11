@@ -85,18 +85,18 @@ const Filter = () => {
                     {/* Mobile Overlay */}
                     {!isDesktop && (
                         <div
-                            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm flex items-center justify-center"
+                            className="fixed inset-0 z-40 bg-black/40 backdrop-blur-sm"
                             onClick={() => setMenuOpen(false)}
-                        ></div>
+                        />
                     )}
 
                     {/* Filter Panel */}
                     <div
                         ref={menuRef}
-                        className={`z-50 bg-white rounded-xl shadow-2xl border border-gray-100 p-6 
+                        className={`z-50 bg-white rounded-xl shadow-2xl border border-gray-100 p-6
               ${!isDesktop
-                                ? "fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-[90%] max-w-sm"
-                                : "absolute right-0 mt-2 w-96"
+                                ? "fixed bottom-0 left-1/2 transform -translate-x-1/2 w-full max-h-[80vh] overflow-y-auto rounded-t-2xl"
+                                : "absolute right-0 mt-2 w-96 max-h-[50vh] overflow-y-auto"
                             }`}
                     >
                         {/* Header */}
