@@ -5,9 +5,9 @@ import Vehicle from "../../models/Vehicle.js";
 
 const createDrive = async (req, res) => {
     try {
-        const { from, to, departureTime, vehicleName, vehicleType, vehicleNumber, seats, comments, fuelType, isAc, price, durationMin } = req.body;
+        const { from, to, departureTime, vehicleName, vehicleType, vehicleNumber, seats, comments, fuelType, isAc, price, durationMin, distanceKm } = req.body;
         if (!from || !to || !departureTime || !vehicleName || !vehicleType || !vehicleNumber || !seats || comments === null || !price
-            || !fuelType || isAc === null || !durationMin) {
+            || !fuelType || isAc === null || !durationMin || !distanceKm) {
             return res.status(404).json({ message: "Please enter all fields" });
         }
         const userId = req.user.id;
@@ -64,6 +64,7 @@ const createDrive = async (req, res) => {
             vehicleDetails: vehicle._id,
             specialNote: comments,
             pricePerPerson: price,
+            distanceKm: distanceKm,
             estimatedTimeMin: durationMin
         });
         res.status(201).json();

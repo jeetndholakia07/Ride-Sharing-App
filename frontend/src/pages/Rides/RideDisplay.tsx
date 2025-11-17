@@ -1,10 +1,11 @@
 import RideDetails from "../../components/Ride/RideDetails";
 import DriveDetails from "../../components/Ride/DriveDetails";
-import { useRole } from "../../context/RoleContext";
+import { getUserContext } from "../../context/UserContext";
 import { useLocation } from "react-router";
 
 const RideDisplay = () => {
-    const { role } = useRole();
+    const { getRole } = getUserContext();
+    const role = getRole();
     const location = useLocation();
     const linkId = location?.state.linkId;
 

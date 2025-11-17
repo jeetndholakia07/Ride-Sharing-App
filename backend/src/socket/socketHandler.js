@@ -1,14 +1,21 @@
 import Chat from "../models/Chat.js";
 import Message from "../models/Message.js";
 import jwt from "jsonwebtoken";
+import cookie from "cookie";
 
 const onlineUsers = new Map();
 
 const socketHandler = (io) => {
   io.use((socket, next) => {
     try {
-      const token = socket.handshake.auth?.token;
-      if (!token) throw new Error("Missing token");
+      //Get cookie header
+      const cookieHeader = socket.handshake.headers.cookie;
+      if (!cookieHeader) throw new Error("No cookies sent");
+
+      //Parse cookies
+      const cookies = cookie.parse(cookieHeader);
+      const token = cookies['access_token'];
+      if (!token) throw new Error("Missing token cookie");
 
       const payload = jwt.verify(token, process.env.JWT_SECRET);
       socket.userId = payload.id;

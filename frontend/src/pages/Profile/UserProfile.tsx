@@ -20,8 +20,7 @@ import { roleTypes } from "../../i18n/keys/role.json";
 import LoadingButton from "../../components/Form/LoadingButton";
 import FileUpload from "../../components/Form/FileUpload";
 import useInvalidateQuery from "../../hooks/useInvalidateQuery";
-import { updateRole, updateUsername } from "../../IndexedDB/tokens";
-import { useRole } from "../../context/RoleContext";
+import { getUserContext } from "../../context/UserContext";
 
 type FormValues = {
     username: string;
@@ -40,6 +39,7 @@ const UserProfile = () => {
     const [isEdit, setIsEdit] = useState(false);
     const [role, setRole] = useState<any>("");
     const invalidateQuery = useInvalidateQuery();
+    const { setUser } = getUserContext();
 
     const getUserProfile = async () => {
         try {
@@ -149,10 +149,10 @@ const UserProfile = () => {
                 }
             });
             showToast("success", t("messages.EditProfileSuccess"));
-            await updateRole(role);
-            const { setRole } = useRole();
-            setRole(role);
-            await updateUsername(payload.username);
+            setUser((prev: any) => {
+                if (!prev) return null;
+                return { ...prev, role: role, username: payload.username };
+            });
             invalidateQuery(["userProfile"]);
         }
         catch (err) {

@@ -8,7 +8,7 @@ import { Provider } from "react-redux";
 import { store } from "./redux/store/store";
 import { ConfirmModalProvider } from "./context/ConfirmModalContext";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { RoleProvider } from "./context/RoleContext";
+import { UserProvider } from "./context/UserContext";
 import { UtilContextProvider } from "./context/UtilsContext";
 import { NotificationProvider } from "./context/NotificationContext";
 import { FilterProvider } from "./context/FilterContext";
@@ -23,7 +23,7 @@ function App() {
         <ConfirmModalProvider>
           <QueryClientProvider client={queryClient}>
             <Provider store={store}>
-              <RoleProvider>
+              <UserProvider>
                 <UtilContextProvider>
                   <NotificationProvider>
                     <ChatProvider>
@@ -35,7 +35,7 @@ function App() {
                     </ChatProvider>
                   </NotificationProvider>
                 </UtilContextProvider>
-              </RoleProvider>
+              </UserProvider>
             </Provider>
           </QueryClientProvider>
         </ConfirmModalProvider>

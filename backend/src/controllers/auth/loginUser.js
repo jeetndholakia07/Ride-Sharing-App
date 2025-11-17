@@ -20,7 +20,19 @@ const login = async (req, res) => {
 
         const token = jwt.sign({ username: user.username, id: user.id, role: user.role }, process.env.JWT_SECRET);
 
-        res.status(200).json({ token, userId: user.id, role: user.role, username: user.username });
+        res.cookie("access_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+        });
+
+        res.status(200).json({
+            success: true,
+            userId: user.id,
+            role: user.role,
+            username: user.username
+        });
     }
     catch (err) {
         console.error("Error logging user:", err);

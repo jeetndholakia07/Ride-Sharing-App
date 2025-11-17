@@ -1,21 +1,16 @@
-import { Suspense, lazy, useEffect } from "react";
-import { useRole } from "../../context/RoleContext";
+import { Suspense, lazy } from "react";
+import { getUserContext } from "../../context/UserContext";
 import Skeleton from "@mui/material/Skeleton";
-import { getUtilContext } from "../../context/UtilsContext";
 const RidesForPassenger = lazy(() => import("../Rides/RidesForPassenger"));
 const RidesForDriver = lazy(() => import("../Rides/RidesForDriver"));
-import Filter from "../../components/Filter";
+const Filter = lazy(() => import("../../components/Filter"));
 
 const UserRides = () => {
-    const { role } = useRole();
-    const { setTypeUsage } = getUtilContext();
+    const { getRole } = getUserContext();
+    const role = getRole();
 
     const renderSkeleton = <><Skeleton variant="text" width={"100%"} />
         <Skeleton variant="rectangular" width={"100%"} height={"40"} /></>;
-
-    useEffect(() => {
-        setTypeUsage("view");
-    }, []);
 
     return (
         <Suspense fallback={renderSkeleton}>

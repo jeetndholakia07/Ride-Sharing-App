@@ -14,7 +14,7 @@ const NotificationContext = createContext<NotificationProps | undefined>(undefin
 export const getNotificationContext = () => {
     const context = useContext(NotificationContext);
     if (!context) {
-        throw new Error("Notification content must be used within a Provider");
+        throw new Error("Notification context must be used within a Provider");
     }
     return context;
 }

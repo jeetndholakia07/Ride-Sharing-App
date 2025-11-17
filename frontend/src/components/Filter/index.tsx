@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import StatusFilter from "./StatusFilter.js";
-import { useRole } from "../../context/RoleContext.js";
+import { getUserContext } from "../../context/UserContext.js";
 import statusConfig from "../../i18n/keys/filter.json";
 import { getDateComponentsfromDateObj } from "../../utils/dateFormat.js";
 import MonthPicker from "../Form/MonthPicker.js";
@@ -14,10 +14,10 @@ const Filter = () => {
     const [isCalendarOpen, setIsCalendarOpen] = useState(false);
     const menuRef = useRef<any>(null);
     const { t } = useTranslation();
-    const { role } = useRole();
+    const { getRole } = getUserContext();
     const { filters, setFilters, onApply } = useFilter();
 
-    const statuses = role === "driver" ? statusConfig.driver : statusConfig.passenger;
+    const statuses = getRole() === "driver" ? statusConfig.driver : statusConfig.passenger;
     const isDesktop = useMediaQuery('(min-width:767px)');
 
     useEffect(() => {

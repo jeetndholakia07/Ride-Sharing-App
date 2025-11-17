@@ -1,26 +1,22 @@
 import { lazy, useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import apiInterceptor from '../../hooks/apiInterceptor';
-import axiosInstance from "../../hooks/axiosInstance";
 import { api } from '../../hooks/api';
 import { useQuery } from '@tanstack/react-query';
 import Skeleton from '@mui/material/Skeleton';
 import NotFoundReview from './NotFoundReview';
 const ReviewDisplay = lazy(() => import("./ReviewDisplay"));
 import WithSuspense from '../../components/Loading/WithSuspense';
-import useAuth from '../../hooks/useAuth';
 import PageLoader from '../../components/Loading/PageLoader';
 import RenderUserReview from './RenderUserReview';
 
 const ReviewSection = () => {
     const { t } = useTranslation();
-    const { isAuthenticated, loading } = useAuth();
     const [isEdit, setIsEdit] = useState(false);
 
     const getReviews = async () => {
         try {
-            const client = isAuthenticated ? apiInterceptor : axiosInstance;
-            const response = await client.get(api.public.allReviews);
+            const response = await apiInterceptor.get(api.public.allReviews);
             return response.data.data;
         } catch (err) {
             console.error("Error fetching all reviews:", err);
@@ -57,7 +53,7 @@ const ReviewSection = () => {
     const handleEditToggle = () => setIsEdit(true);
     const handleCancel = () => setIsEdit(false);
 
-    if (loading || isReviewsLoading) {
+    if (isReviewsLoading) {
         return <PageLoader />;
     }
 

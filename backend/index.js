@@ -1,6 +1,7 @@
 import express from "express";
 import dotenv from "dotenv";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import connectDB from "./src/config/db.js";
 import authRoute from "./src/routes/authRoute.js";
 import publicRoute from "./src/routes/publicRoute.js";
@@ -20,7 +21,20 @@ const app = express();
 dotenv.config({ quiet: true });
 
 const baseURL = "/peerRide/api";
-app.use(cors());
+const allowedOrigins = ["http://localhost:5173", "http://localhost:3000"];
+
+app.use(cors({
+    credentials: true,
+    origin: function (origin, callback) {
+        if (!origin) return callback(null, true);
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error("Not allowed by CORS"));
+        }
+    },
+}));
+app.use(cookieParser());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(`${baseURL}/public`, optionalAuth, publicRoute);
@@ -39,7 +53,8 @@ const httpServer = http.createServer(app);
 const io = new Server(httpServer, {
     cors: {
         origin: "http://localhost:5173",
-        methods: ["GET", "POST"]
+        methods: ["GET", "POST"],
+        credentials: true
     }
 });
 

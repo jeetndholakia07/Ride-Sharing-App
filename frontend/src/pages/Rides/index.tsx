@@ -2,16 +2,16 @@ import RideSearch from './RideSearch';
 import { useTranslation } from 'react-i18next';
 import { Formik, type FormikHelpers } from 'formik';
 import * as Yup from "yup";
-import { useEffect, useState } from 'react';
-import axiosInstance from '../../hooks/axiosInstance';
+import { useState } from 'react';
+import apiInterceptor from '../../hooks/apiInterceptor';
 import { api } from '../../hooks/api';
 import SearchButton from '../../components/Buttons/SearchButton';
-import RideList from '../../components/Ride/RideList';
 import { rideMap } from '../../utils/rideMapLocation';
 import { getUtilContext } from '../../context/UtilsContext';
 import FrequentRides from '../../components/Ride/FrequentRides';
 import { useQuery } from '@tanstack/react-query';
 import PageLoader from '../../components/Loading/PageLoader';
+import Rides from '../../components/Ride/Rides';
 
 type FormValues = {
     from: string;
@@ -24,14 +24,14 @@ const Index = () => {
     const { t } = useTranslation();
     const [isLoading, setIsLoading] = useState(false);
     const [isSearch, setIsSearch] = useState(false);
-    const [data, setData] = useState([]);
+    const [data, setData] = useState<any[]>([]);
     const initialValues: FormValues = {
         from: "",
         to: "",
         seats: 1,
         date: null
     };
-    const { setSeats, setTypeUsage, setDropoff, setPickup } = getUtilContext();
+    const { setSeats, setDropoff, setPickup } = getUtilContext();
 
     const validationSchema = Yup.object().shape({
         from: Yup.object({
@@ -46,13 +46,9 @@ const Index = () => {
         }).required(t("formMessages.toRequired")),
     });
 
-    useEffect(() => {
-        setTypeUsage("ride request");
-    }, []);
-
     const fetchFrequentRides = async () => {
         try {
-            const response = await axiosInstance.get(api.public.frequentRides);
+            const response = await apiInterceptor.get(api.public.frequentRides);
             return response.data;
         } catch (err) {
             console.error("Error fetching frequent rides:", err);
@@ -71,7 +67,7 @@ const Index = () => {
     const handleSearchRides = async (payload: FormValues) => {
         try {
             setIsLoading(true);
-            const response = await axiosInstance.post(api.public.allRides, payload);
+            const response = await apiInterceptor.post(api.public.allRides, payload);
             setData(response.data.data);
             setIsSearch(true);
         }
@@ -94,7 +90,7 @@ const Index = () => {
 
     if (isRidesLoading) {
         return <PageLoader />;
-    }
+    };
 
     return (
         <div className="min-h-screen bg-gray-100 py-12 px-4 sm:px-6 lg:px-8">
@@ -142,7 +138,7 @@ const Index = () => {
                 </div>
                 {isSearch && (
                     <div className="mt-6 border-t border-gray-200 pt-10 animate-fade-in">
-                        <RideList rides={data} mapper={rideMap} />
+                        <Rides rides={data} mapper={rideMap} />
                     </div>
                 )}
             </div>

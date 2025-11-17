@@ -2,13 +2,13 @@ import { useState, useRef, useEffect, type FC } from 'react';
 import MenuItem from './MenuItem';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router';
-import { deleteToken, findUsername } from '../../IndexedDB/tokens';
 import { api } from '../../hooks/api';
 import apiInterceptor from '../../hooks/apiInterceptor';
 import useAuth from '../../hooks/useAuth';
 import PageLoader from '../Loading/PageLoader';
 import { useQuery } from '@tanstack/react-query';
-import { useRole } from '../../context/RoleContext';
+import { getUserContext } from '../../context/UserContext';
+import { useSocket } from '../../context/SocketContext';
 
 type props = {
     notificationCount?: number;
@@ -17,13 +17,13 @@ type props = {
 
 const UserDropdown: FC<props> = ({ notificationCount, chatUnreadCount }) => {
     const [open, setOpen] = useState(false);
-    const { setRole } = useRole();
+    const { user, setUser, hasValidatedRef } = getUserContext();
     const dropdownRef = useRef<HTMLDivElement>(null);
     const toggleMenu = () => setOpen(!open);
     const { t } = useTranslation();
     const navigate = useNavigate();
     const { isAuthenticated, loading } = useAuth();
-    const [username, setUsername] = useState("");
+    const { disconnect } = useSocket();
 
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
@@ -33,14 +33,6 @@ const UserDropdown: FC<props> = ({ notificationCount, chatUnreadCount }) => {
         };
         document.addEventListener('mousedown', handleClickOutside);
         return () => document.removeEventListener('mousedown', handleClickOutside);
-    }, []);
-
-    useEffect(() => {
-        const getUsername = async () => {
-            const username = await findUsername();
-            setUsername(username);
-        }
-        getUsername();
     }, []);
 
     const handleProfileImg = async () => {
@@ -64,15 +56,22 @@ const UserDropdown: FC<props> = ({ notificationCount, chatUnreadCount }) => {
     });
 
     const handleLogout = async () => {
-        await deleteToken();
-        setRole(null);
-        navigate("/login");
+        try {
+            disconnect();
+            const res = await apiInterceptor.post(api.auth.logoutUser);
+            if (res.data.success) {
+                setUser(null);
+                hasValidatedRef.current = false;
+                navigate("/login");
+            }
+        } catch (err) {
+            console.error("Error logging out:", err);
+        }
     };
-
 
     if (loading || isLoading) {
         return <PageLoader />
-    }
+    };
 
     return (
         <div className="relative inline-block text-left" ref={dropdownRef}>
@@ -92,7 +91,6 @@ const UserDropdown: FC<props> = ({ notificationCount, chatUnreadCount }) => {
                 <i className={`bi bi-chevron-${open ? 'up' : 'down'} text-gray-500 text-sm`} />
             </button>
 
-
             {/* Dropdown Menu */}
             {open && (
                 <div className="absolute right-0 mt-2 w-56 origin-top-right bg-white border border-gray-200 divide-y divide-gray-100 rounded-lg shadow-lg z-50">
@@ -100,7 +98,7 @@ const UserDropdown: FC<props> = ({ notificationCount, chatUnreadCount }) => {
                         <div className="flex items-center space-x-2">
                             <i className="bi bi-person-circle text-blue-500 text-lg" />
                             <div className="text-sm text-gray-700 font-medium">
-                                {t("welcome")}, <span className="font-semibold text-gray-900">{username}</span>
+                                {t("welcome")}, <span className="font-semibold text-gray-900">{user?.username}</span>
                             </div>
                         </div>
                     </div>

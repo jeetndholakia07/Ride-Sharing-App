@@ -30,6 +30,9 @@ const driveSchema = new mongoose.Schema({
     estimatedTimeMin: {
         type: Number
     },
+    distanceKm: {
+        type: Number
+    },
     cancelledAt: { type: Date },
     completedAt: { type: Date },
     vehicleDetails: {
@@ -49,4 +52,5 @@ driveSchema.index({ "from.location": "2dsphere" });
 driveSchema.index({ "to.location": "2dsphere" });
 
 const Drive = mongoose.model("Drive", driveSchema);
+
 export default Drive;

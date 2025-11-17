@@ -1,7 +1,7 @@
 import { type FC, useMemo } from "react";
 import NavItem from "./NavItem";
 import { useTranslation } from "react-i18next";
-import { useRole } from "../../context/RoleContext";
+import { getUserContext } from "../../context/UserContext";
 
 type NavMenuProps = {
     onItemClick?: () => void;
@@ -9,7 +9,8 @@ type NavMenuProps = {
 
 const NavMenu: FC<NavMenuProps> = ({ onItemClick }) => {
     const { t } = useTranslation();
-    const { role } = useRole();
+    const { getRole } = getUserContext();
+    const role = getRole();
 
     const navItems = useMemo(() => [
         { path: "/", name: t("home"), icon: "bi bi-house-door-fill" },
@@ -17,7 +18,6 @@ const NavMenu: FC<NavMenuProps> = ({ onItemClick }) => {
         { path: "/rides", name: t("rides"), icon: "bi bi-car-front-fill" },
         { path: "/reviews", name: t("reviews"), icon: "bi bi-star-fill" },
     ], []);
-
 
     const protectedItems = useMemo(() => {
         if (role === "driver") {

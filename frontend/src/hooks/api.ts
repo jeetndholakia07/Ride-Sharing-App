@@ -7,8 +7,10 @@ const chatURL = `${baseURL}/chat`;
 
 export const api = {
     auth: {
-        signup: `${authURL}/registerUser`,
-        login: `${authURL}/loginUser`,
+        signup: `${authURL}/register-user`,
+        login: `${authURL}/login-user`,
+        validateUser: `${authURL}/validate-user`,
+        logoutUser: `${authURL}/logout-user`
     },
     user: {
         userProfile: `${userURL}/userProfile`,

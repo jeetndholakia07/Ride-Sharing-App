@@ -15,6 +15,15 @@ export async function findRidesByLocation({
 }) {
   const skip = (page - 1) * limit;
 
+  const formatResponse = (rides) => {
+    return rides.map(r => {
+      return {
+        ...r,
+        vehicleDetails: r.vehicleDetails?.vehicleDetails,
+      };
+    });
+  };
+
   let query = {
     driveStatus: { $nin: ["completed", "cancelled"] },
     seatsAvailable: { $gte: seats },
@@ -30,15 +39,17 @@ export async function findRidesByLocation({
     .populate("driver", "username")
     .populate({
       path: "vehicleDetails",
-      select: "vehicleDetails -_id",
-      transform: doc => doc?.vehicleDetails,
+      select: "vehicleDetails"
     })
     .lean()
     .sort({ departureTime: 1 })
     .skip(skip)
     .limit(limit);
 
-  if (rides.length > 0) return rides;
+  if (rides.length > 0) {
+    const res = formatResponse(rides);
+    return res;
+  }
 
   // Geo search using destination (toCoords)
   if (toCoords) {
@@ -60,10 +71,28 @@ export async function findRidesByLocation({
       { $sort: { departureTime: 1 } },
       { $skip: skip },
       { $limit: limit },
+      {
+        $lookup: {
+          from: "users",
+          localField: "driver",
+          foreignField: "_id",
+          as: "driver",
+        },
+      },
+      { $unwind: "$driver" },
+      {
+        $lookup: {
+          from: "vehicles",
+          localField: "vehicleDetails",
+          foreignField: "_id",
+          as: "vehicleDetails",
+        },
+      },
+      { $unwind: "$vehicleDetails" }
     ];
 
     rides = await Drive.aggregate(geoQuery);
-    if (rides.length > 0) return rides;
+    if (rides.length > 0) return formatResponse(rides);
   }
 
   // Fallback — use OSRM distance if none found within radius
@@ -76,8 +105,7 @@ export async function findRidesByLocation({
     .populate("driver", "username")
     .populate({
       path: "vehicleDetails",
-      select: "vehicleDetails -_id",
-      transform: doc => doc?.vehicleDetails,
+      select: "vehicleDetails"
     })
     .lean()
     .sort({ departureTime: 1 })

@@ -18,7 +18,17 @@ const loginAdmin = async (req, res) => {
             return res.status(401).json({ message: "Invalid password entered" });
         }
         const token = jwt.sign({ username: admin.username, id: admin.id }, process.env.JWT_SECRET);
-        res.status(200).json({ token, userId: admin.id, username: admin.username });
+        res.cookie("admin_token", token, {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "strict",
+            path: "/",
+        });
+        res.status(200).json({
+            success: true,
+            id: admin.id,
+            username: admin.username
+        });
     } catch (err) {
         console.error("Error logging admin:", err);
         res.status(500).json({ message: "Server error" });

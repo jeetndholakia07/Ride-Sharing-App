@@ -14,7 +14,7 @@ const ChatContext = createContext<ChatProps | undefined>(undefined);
 export const getChatContext = () => {
     const context = useContext(ChatContext);
     if (!context) {
-        throw new Error("Chat content must be used within a Provider");
+        throw new Error("Chat context must be used within a Provider");
     }
     return context;
 }

@@ -2,7 +2,7 @@ import jwt from "jsonwebtoken";
 import Admin from "../models/Admin.js";
 
 const VerifyAdmin = async (req, res, next) => {
-    const token = req.header("Authorization")?.replace("Bearer ", "");
+    const token = req.cookies?.admin_token;
 
     if (!token) {
         return res.status(403).json({ message: "Access denied. No token provided" });

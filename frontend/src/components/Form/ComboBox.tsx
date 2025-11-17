@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FC, type KeyboardEvent, useCallback } from "react";
-import axiosInstance from "../../hooks/axiosInstance";
+import apiInterceptor from "../../hooks/apiInterceptor";
 import { api } from "../../hooks/api";
 
 type LocationOption = {
@@ -54,7 +54,7 @@ const ComboBox: FC<ComboBoxProps> = ({
             return;
         }
         try {
-            const response = await axiosInstance.get(api.public.autoComplete, {
+            const response = await apiInterceptor.get(api.public.autoComplete, {
                 params: { query },
             });
             if (response?.data && Array.isArray(response.data)) {

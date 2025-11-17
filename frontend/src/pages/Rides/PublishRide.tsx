@@ -21,7 +21,6 @@ import Checkbox from "../../components/Form/Checkbox";
 import Collapsible from "../../components/Form/Collapsible";
 import PageLoader from "../../components/Loading/PageLoader";
 import { fuelType } from "../../i18n/keys/fuelType.json";
-import axiosInstance from "../../hooks/axiosInstance";
 import ComboBox from "../../components/Form/ComboBox";
 import GetPriceBtn from "../../components/Buttons/GetPriceBtn";
 
@@ -146,7 +145,8 @@ const PublishRide = () => {
             departureTime: dateTime,
             isAc: isAc,
             price: parseInt(price.pricePerPerson),
-            durationMin: parseInt(price.durationMin)
+            durationMin: parseInt(price.durationMin),
+            distanceKm: parseInt(price.distanceKm)
         };
         if (isRemember) {
             const { vehicleName, vehicleNumber, vehicleType, fuelType } = values;
@@ -159,7 +159,7 @@ const PublishRide = () => {
     const getRidePrice = async (payload: any) => {
         try {
             setIsPriceLoading(true);
-            const response = await axiosInstance.post(api.public.ridePrice, payload);
+            const response = await apiInterceptor.post(api.public.ridePrice, payload);
             const priceData = response.data;
             setPrice(priceData);
             setPriceMsg(

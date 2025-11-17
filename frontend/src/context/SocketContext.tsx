@@ -1,7 +1,6 @@
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 import { io, type Socket } from "socket.io-client";
-import { findToken } from "../IndexedDB/tokens";
-import useAuth from "../hooks/useAuth";
+import { getUserContext } from "./UserContext";
 
 type SocketContextType = {
     socket: Socket | null;
@@ -21,45 +20,32 @@ type SocketProviderProps = {
 
 export const SocketProvider = ({ children }: SocketProviderProps) => {
     const [socket, setSocket] = useState<Socket | null>(null);
-    const { isAuthenticated, loading } = useAuth();
+    const { user, hasValidatedRef } = getUserContext();
     const socketRef = useRef<Socket | null>(null);
 
     // Initialize socket when authenticated
     useEffect(() => {
-        let isMounted = true;
-
-        const setupSocket = async () => {
-            if (!isAuthenticated || loading) return;
-
-            const token = await findToken();
-            if (!token || !isMounted) return;
-
-            // If socket already exists, reuse it
-            if (socketRef.current) {
-                setSocket(socketRef.current);
-                return;
-            }
-
-            const socketInstance = io(socketURL, { auth: { token } });
+        if (user && hasValidatedRef?.current && !socketRef.current) {
+            const socketInstance = io(socketURL, { withCredentials: true });
             socketRef.current = socketInstance;
             setSocket(socketInstance);
-        };
 
-        setupSocket();
-
-        return () => {
-            isMounted = false;
-        };
-    }, [isAuthenticated]);
+            return () => {
+                socketInstance.disconnect();
+                socketRef.current = null;
+                setSocket(null);
+            };
+        }
+    }, [user]);
 
     // Disconnect socket when logging out
     useEffect(() => {
-        if (!isAuthenticated && socketRef.current) {
+        if (!user && socketRef.current) {
             socketRef.current.disconnect();
             socketRef.current = null;
             setSocket(null);
         }
-    }, [isAuthenticated]);
+    }, [user]);
 
     const disconnect = () => {
         if (socketRef.current) {

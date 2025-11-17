@@ -6,13 +6,13 @@ import { Formik, type FormikHelpers } from "formik";
 import * as Yup from "yup";
 import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router";
-import axiosInstance from "../../hooks/axiosInstance";
 import { api } from "../../hooks/api";
 import LoadingButton from "../../components/Form/LoadingButton";
 import { useToast } from "../../components/Toast/ToastContext";
 import { roleTypes } from "../../i18n/keys/role.json";
 import RadioButtonGroup from "../../components/Form/RadioButton";
 import { passwordRegex, mobileRegex } from "../../utils/regex";
+import apiInterceptor from "../../hooks/apiInterceptor";
 
 type FormValues = {
     username: string;
@@ -76,7 +76,7 @@ const SignupPage = () => {
                 }
             });
             // Make the request with formData
-            await axiosInstance.post(api.auth.signup, formData, {
+            await apiInterceptor.post(api.auth.signup, formData, {
                 headers: {
                     'Content-Type': 'multipart/form-data'
                 }
